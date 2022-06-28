@@ -53,10 +53,14 @@ int main(int argc, char const *argv[])
         
         char buffer[30000] = {0};
         valread = read( new_socket , buffer, 30000);
-        printf("%s\n",buffer );
+        printf("%s\n", buffer );
         write(new_socket , hello , strlen(hello));
         printf("------------------Hello message sent-------------------\n");
+        if(valread == 0)
+        {
+            close(new_socket);
+            break;
+        }
     }
-        close(new_socket);
     return 0;
 }
