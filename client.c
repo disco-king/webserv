@@ -6,20 +6,58 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <signal.h>
 
 #define PORT 8080
 
 #ifndef FOREIGN
 
-#define FOREIGN 1
+#define FOREIGN 0
 
 #endif
 
+int sock; 
+
+void handler(int num)
+{
+	write(1, " sigint received, terminating\n", 30);
+	close(sock);
+	exit(0);
+}
+
 int main(int argc, char const *argv[])
 {
-    int sock = 0; long valread;
+    long valread;
     struct sockaddr_in serv_addr;
     char *hello;
+    int repeats, sleep_time;
+
+    if (argc == 1)
+    {
+        printf("need a connection type (1, 2 or 3) as arg\n");
+        return(1);
+    }
+
+    switch (argv[1][0])
+    {
+    case '1':
+        repeats = 3;
+        sleep_time = 1;
+        break;
+    
+    case '2':
+        repeats = 1;
+        sleep_time = 3;
+        break;
+
+    case '3':
+        repeats = 1;
+        sleep_time = 1000;
+        break;
+
+    default:
+        break;
+    }
 
 	if(FOREIGN)
 		hello = "Hello from foreign client";
@@ -41,7 +79,7 @@ int main(int argc, char const *argv[])
     
     // Convert IPv4 and IPv6 addresses from text to binary form
     if(!FOREIGN && inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0 //local connections
-    || FOREIGN && inet_pton(AF_INET, "192.168.43.197", &serv_addr.sin_addr)<=0)//foreign connections
+    || FOREIGN && inet_pton(AF_INET, "192.168.43.39", &serv_addr.sin_addr)<=0)//foreign connections
     {
         printf("\n Invalid address/ Address not supported \n");
         return -1;
@@ -57,13 +95,16 @@ int main(int argc, char const *argv[])
 	else if(FOREIGN)
         printf("\n Connected \n");
 
-    for (int i = 0; i < 5; i++)
+    signal(SIGINT, handler);
+
+    for (int i = 0; i < repeats; i++)
     {
         send(sock, hello, strlen(hello), 0 );
         printf("Hello message sent\n");
-        valread = read( sock , buffer, 1024);
+        valread = read(sock , buffer, 1024);
         printf("%s\n",buffer );
-        // sleep(1);
+        sleep(sleep_time);
     }
+    close(sock);
 	return 0;
 }
