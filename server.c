@@ -5,11 +5,23 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <signal.h>
 
 #define PORT 8080
+
+int server_fd;
+
+void handler(int num)
+{
+	write(1, "sigterm received, terminating\n", 30);
+	close(server_fd);
+	exit(0);
+}
+
 int main(int argc, char const *argv[])
 {
-    int server_fd, new_socket; long valread;
+    int new_socket;
+    long valread;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
     
@@ -22,13 +34,14 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
     
+    int yes = 1;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons( PORT );
     
     memset(address.sin_zero, '\0', sizeof address.sin_zero);
-    
     
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0)
     {
@@ -40,6 +53,11 @@ int main(int argc, char const *argv[])
         perror("In listen");
         exit(EXIT_FAILURE);
     }
+
+    signal(SIGINT, handler);
+
+    while(1)
+    {
         printf("\n+++++++ Waiting for new connection ++++++++\n\n");
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
                                             (socklen_t*)&addrlen))<0)
@@ -48,18 +66,18 @@ int main(int argc, char const *argv[])
             exit(EXIT_FAILURE);
         }
         printf("\n Connection accepted \n");
-    while(1)
-    {
-        
-        char buffer[30000] = {0};
-        valread = read( new_socket , buffer, 30000);
-        printf("%s\n", buffer );
-        write(new_socket , hello , strlen(hello));
-        printf("------------------Hello message sent-------------------\n");
-        if(valread == 0)
+        while(1)
         {
-            close(new_socket);
-            break;
+            char buffer[30000] = {0};
+            valread = read( new_socket , buffer, 30000);
+            printf("%s\n", buffer );
+            write(new_socket , hello , strlen(hello));
+            printf("------------------Hello message sent-------------------\n");
+            if(valread == 0)
+            {
+                close(new_socket);
+                break;
+            }
         }
     }
     return 0;

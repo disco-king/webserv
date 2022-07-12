@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 
-#define PORT 8080
+#define PORT 8000
 
 #ifndef FOREIGN
 
@@ -59,10 +59,7 @@ int main(int argc, char const *argv[])
         break;
     }
 
-	if(FOREIGN)
-		hello = "Hello from foreign client";
-	else
-		hello = "Hello from client";
+		hello = "GET / HTTP/1.1\r\nHost: www.example.com\r\nConnection: keep-alive\r\n\r\n";
     char buffer[1024] = {0};
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {

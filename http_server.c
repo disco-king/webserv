@@ -39,8 +39,8 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
 
-    int yes = 1;
-    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+    // int yes = 1;
+    // setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
@@ -89,7 +89,7 @@ int main(int argc, char const *argv[])
                     {
                         FD_SET(new_socket, &main);
                         max_fd = new_socket > max_fd ? new_socket : max_fd;
-                        printf("selectserver: new connection from %s on socket %d\n",
+                        printf("select: new connection from %s on socket %d\n",
                                 inet_ntop(address.sin_family, &address.sin_addr,
                                             remoteIP, INET_ADDRSTRLEN),
                                 new_socket);
@@ -109,7 +109,11 @@ int main(int argc, char const *argv[])
                     }
                     else
                     {
-                        printf("%s\n",buffer );
+                        int nl = 0;
+                        while(buffer[nl] != '\n')
+                            write(1, &(buffer[nl++]), 1);
+                        write(1, "\n", 1);
+                        // printf("%s\n", buffer);
                         write(i, hello, strlen(hello));
                     }
                 }
