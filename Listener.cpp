@@ -8,11 +8,6 @@ Listener::Listener()
 	_response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 18\n\nHello from server!";
 }
 
-Listener::Listener()
-{
-	_response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 18\n\nHello from server!";
-}
-
 int Listener::init(short port, unsigned int host, int queue)
 {
 	int res;
@@ -46,13 +41,12 @@ int Listener::accept()
 {
 	int new_socket = ::accept(_listen_fd, (sockaddr*)&_address,
 									(socklen_t*)&_addrlen);
-	if(new_socket < 0){
+	if(new_socket <= 0)
 		std::cerr << "error: accept\n";
-		return -1;
-	}
+	else
+		_sockets[new_socket] = "";
 
-	_sockets[new_socket] = "";
-	return 0;
+	return new_socket;
 }
 
 int Listener::read(int socket)
@@ -63,14 +57,15 @@ int Listener::read(int socket)
 
 	if(ret <= 0){
 		close(socket);
-		if(ret < 0)
+		if(ret < 0){
 			std::cerr << "error: socket\n";
-		else
-			std::cout << "client closed connection\n";
+			return 0;
+		}
+		std::cout << "client closed connection\n";
 		return -1;
 	}
 	_sockets[socket] += buff;
-	return 0;
+	return 1;
 }
 
 int Listener::write(int socket)
