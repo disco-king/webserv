@@ -21,7 +21,7 @@ private:
 
 public:
 	Listener();
-	~Listener();
+	// ~Listener();
 	Listener(Listener const& other);
 
 	int init(short port,

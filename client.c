@@ -27,81 +27,75 @@ void handler(int num)
 
 int main(int argc, char const *argv[])
 {
-    long valread;
-    struct sockaddr_in serv_addr;
-    char *hello;
-    int repeats, sleep_time;
+	long valread;
+	struct sockaddr_in serv_addr;
+	char *hello;
+	int repeats, sleep_time;
 
-    if (argc == 1)
-    {
-        printf("need a connection type (1, 2 or 3) as arg\n");
-        return(1);
-    }
+	if (argc == 1)
+	{
+		printf("need a connection type (1, 2 or 3) as arg\n");
+		return(1);
+	}
 
-    switch (argv[1][0])
-    {
-    case '1':
-        repeats = 3;
-        sleep_time = 1;
-        break;
-    
-    case '2':
-        repeats = 1;
-        sleep_time = 3;
-        break;
+	switch (argv[1][0])
+	{
+	case '1':
+		repeats = 3;
+		sleep_time = 1;
+		break;
 
-    case '3':
-        repeats = 1;
-        sleep_time = 1000;
-        break;
+	case '2':
+		repeats = 1;
+		sleep_time = 3;
+		break;
 
-    default:
-        break;
-    }
+	case '3':
+		repeats = 1;
+		sleep_time = 1000;
+		break;
 
-		hello = "GET / HTTP/1.1\r\nHost: www.example.com\r\nConnection: keep-alive\r\n\r\n";
-    char buffer[1024] = {0};
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-        printf("\n Socket creation error \n");
-        return -1;
-    }
-	else if(FOREIGN)
-        printf("\n Socket created\n");
-    
-    memset(&serv_addr, '0', sizeof(serv_addr));
-    
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
-    
-    // Convert IPv4 and IPv6 addresses from text to binary form
-    if(!FOREIGN && inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0 //local connections
-    || FOREIGN && inet_pton(AF_INET, "192.168.43.39", &serv_addr.sin_addr)<=0)//foreign connections
-    {
-        printf("\n Invalid address/ Address not supported \n");
-        return -1;
-    }
-	else if(FOREIGN)
-        printf("\n Convertion done, connecting\n");
-    
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-    {
-        perror("Connection failed");
-        return -1;
-    }
-	else if(FOREIGN)
-        printf("\n Connected \n");
+	default:
+		break;
+	}
 
-    signal(SIGINT, handler);
+		hello = "GET / HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\n\r\n";
+	char buffer[1024] = {0};
+	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	{
+		printf("\n Socket creation error \n");
+		return -1;
+	}
 
-    for (int i = 0; i < repeats; i++)
-    {
-        send(sock, hello, strlen(hello), 0 );
-        printf("Hello message sent\n");
-        valread = read(sock , buffer, 1024);
-        printf("%s\n",buffer );
-        sleep(sleep_time);
-    }
-    close(sock);
+	memset(&serv_addr, '0', sizeof(serv_addr));
+
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_port = htons(PORT);
+
+	// Convert IPv4 and IPv6 addresses from text to binary form
+	if(!FOREIGN && inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0 //local connections
+	|| FOREIGN && inet_pton(AF_INET, "192.168.43.39", &serv_addr.sin_addr)<=0)//foreign connections
+	{
+		printf("\n Invalid address/ Address not supported \n");
+		return -1;
+	}
+
+	if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+	{
+		perror("Connection failed");
+		return -1;
+	}
+
+	signal(SIGINT, handler);
+
+	for (int i = 0; i < repeats; i++)
+	{
+		send(sock, hello, strlen(hello), 0 );
+		printf("Hello message sent\n");
+		valread = read(sock , buffer, 1024);
+		printf("%s\n",buffer );
+		sleep(sleep_time);
+	}
+	close(sock);
 	return 0;
 }

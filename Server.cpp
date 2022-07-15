@@ -8,16 +8,16 @@ int Server::init(std::vector<short> const &ports)
 
 	std::vector<short>::const_iterator end = ports.end();
 	for (std::vector<short>::const_iterator it = ports.begin(); it != end; ++it){
-		Listener lst;
+		Listener listener;
 
-		res = lst.init(*it);
+		res = listener.init(*it);
 
 		if(res == -1){
 			continue;
 		}
 
-		fd = lst.getFD();
-		_listeners[fd] = lst;
+		fd = listener.getFD();
+		_listeners[fd] = listener;
 		FD_SET(fd, &_fds);
 		_max_fd = std::max(_max_fd, fd);
 	}
@@ -44,37 +44,69 @@ void Server::select()
 		for(std::set<int>::const_iterator it = _to_write.begin(); it != end; ++it)
 			FD_SET(*it, &wrfds);
 
+		std::cout << "\nwaiting for connections\n\n";
 		res = ::select(_max_fd + 1, &rfds, &wrfds, NULL, NULL);
+
+		if(res < 0){
+			std::cerr << "error: select\n";
+			for(std::map<int, Listener*>::iterator it = _connections.begin();
+							it != _connections.end(); ++it)
+				it->second->close(it->first);
+			FD_ZERO(&_fds);
+			FD_ZERO(&rfds);
+			_connections.clear();
+			_to_write.clear();
+			for(std::map<int, Listener>::iterator it = _listeners.begin();
+							it != _listeners.end(); ++it)
+				FD_SET(it->first, &_fds);
+			continue;
+		}
 
 		end = _to_write.end();
 		for(std::set<int>::const_iterator it = _to_write.begin(); it != end; ++it){
 			if(!FD_ISSET(*it, &wrfds))
 				continue;
-			res = _listeners[*it].write(*it); 
+			std::cout << "write: socket " << *it << '\n';
+			res = _connections[*it]->write(*it);
+			if(res == 0){
+				_to_write.erase(*it);
+			}
+			if(res < 0){
+				FD_CLR(*it, &_fds);
+				FD_CLR(*it, &rfds);
+				_connections.erase(*it);
+			}
+			break;
 		}
 
 		std::map<int, Listener*>::iterator conn_end = _connections.end();
 		for(std::map<int, Listener*>::iterator it = _connections.begin(); it != conn_end; ++it){
-			if(!FD_ISSET(it->first, &wrfds))
+			if(!FD_ISSET(it->first, &rfds))
 				continue;
+			std::cout << "read: socket " << it->first << '\n';
 			res = it->second->read(it->first);
-			if(res <= 0){
-				if(res == 0)
-					_to_write.insert(it->first);
+			if(res < 0){
 				FD_CLR(it->first, &_fds);
 				FD_CLR(it->first, &rfds);
 				_connections.erase(it->first);
 			}
+			if(res == 0)
+				_to_write.insert(it->first);
+			break;
 		}
 
 		std::map<int, Listener>::iterator lst_end = _listeners.end();
 		for(std::map<int, Listener>::iterator it = _listeners.begin(); it != lst_end; ++it){
 			if(!FD_ISSET(it->first, &rfds))
 				continue;
+			std::cout << "accept: socket " << it->first << '\n';
 			res = it->second.accept();
-			if(res != -1)
+			if(res != -1){
+				FD_SET(res, &_fds);
+				_max_fd = std::max(_max_fd, res);
 				_connections[res] = &(it->second);
-			res = 0;
+			}
+			break;
 		}
 	}
 }

@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <unistd.h>
+#include <sys/socket.h>
 
 Listener::Listener()
 {
@@ -17,6 +18,9 @@ int Listener::init(short port, unsigned int host, int queue)
 		std::cerr << "error: socket creation\n";
 		return -1;
 	}
+
+	int yes = 1;
+	setsockopt(_listen_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(host);
@@ -43,9 +47,10 @@ int Listener::accept()
 									(socklen_t*)&_addrlen);
 	if(new_socket <= 0)
 		std::cerr << "error: accept\n";
-	else
+	else{
+		std::cout << "new connection on socket " << new_socket << '\n';
 		_sockets[new_socket] = "";
-
+	}
 	return new_socket;
 }
 
@@ -54,18 +59,17 @@ int Listener::read(int socket)
 	char buff[PACK_SIZE] = {0};
 
 	int ret = ::read(socket, buff, PACK_SIZE);
-
 	if(ret <= 0){
 		close(socket);
 		if(ret < 0){
-			std::cerr << "error: socket\n";
-			return 0;
+			std::cerr << "error: socket " << socket << '\n';
 		}
-		std::cout << "client closed connection\n";
+		std::cout << "client on socket " << socket << " closed connection\n";
 		return -1;
 	}
 	_sockets[socket] += buff;
-	return 1;
+	// return 1; //for proper message length handling
+	return 0;
 }
 
 int Listener::write(int socket)
@@ -75,7 +79,7 @@ int Listener::write(int socket)
 
 	std::string to_send = _response.substr(_written[socket],
 											PACK_SIZE);
-	int ret = ::write(socket, to_send.c_str(), PACK_SIZE);
+	int ret = ::write(socket, to_send.c_str(), to_send.length());
 
 	if(ret == -1){
 		std::cerr << "error: write\n";
@@ -83,19 +87,18 @@ int Listener::write(int socket)
 		return -1;
 	}
 
-	_written[socket] += ret;
-
-	if(_written[socket] >= _response.size()){
-		close(socket);
-		_written.erase(socket);
-		return 0;
-	}
-	return 1;
+	// _written[socket] += ret;//we'll need that when responses get big
+	// if(_written[socket] >= _response.size()){
+	// 	// close(socket);			//proper write size handling
+	// 	// _written.erase(socket);	//coming soon
+	// 	return 0;
+	// }
+	// return 1;
+	return 0;
 }
 
 void Listener::close(int socket)
 {
-	std::cout << "closing socket " << socket << '\n';
 	::close(socket);
 	this->_sockets.erase(socket);
 }
