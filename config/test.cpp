@@ -1,13 +1,12 @@
-#include "ReadConfig.hpp"
+#include "Config.hpp"
 
 int main(int argc, char **argv){
-	ReadConfig readconfig;
-	std::vector<std::string> tokens;
+	Config conf = Config();
 	try {
-		tokens = readconfig.filereader(argv[1]);
-		for (int i = 0; i < tokens.size(); i++)
-			std::cout << tokens.at(i) << ' ';
-		std::cout << std::endl;
+		if (argv[1])
+			conf.setPath(argv[1]);
+		conf.setFile();
+		conf.print_file();
 	}
 	catch (std::exception &ex) {
 		std::cerr << ex.what() << std::endl;
