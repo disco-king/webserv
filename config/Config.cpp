@@ -15,7 +15,7 @@ void Config::setFile(){
 }
 
 Config::ConfigException::ConfigException(std::string const &msg){
-	_msg = "Confgig Exception: ";
+	_msg = "Config Exception: ";
 	_msg.append(msg);
 }
 
@@ -63,23 +63,23 @@ std::vector<std::string> Config::filereader(const char *fname){
 	return file;
 }
 
-// void Config::parse(){
-// 	_file = filereader(_path.c_str());
-// 	std::string::size_type fsize = _file.size();
-// 	for (std::string::size_type i = 0; i < fsize; i++){
-// 		if (_file[i] == "server") {
-// 			i++;
-// 			ServerConfig serv;
-// 			if (_file[i++] != "{")
-// 				throw ConfigException("Expected a '{' after 'server'");
-// 			i++;
-// 			// serv.parseServer(i, file);
-// 			_servers.push_back(serv);
-// 		}
-// 		else
-// 			throw ConfigException("Unsupported directive ");
-// 	}
-// }
+void Config::parse(){
+	_file = filereader(_path.c_str());
+	std::string::size_type fsize = _file.size();
+	for (unsigned int i = 0; i < fsize; i++){
+		if (_file[i] == "server") {
+			i++;
+			ServerConfig serv;
+			if (_file[i++] != "{")
+				throw ConfigException("Expected a '{' after 'server'");
+			i++;
+			serv.parse_server(i, _file);
+			_servers.push_back(serv);
+		}
+		else
+			throw ConfigException("Unsupported directive ");
+	}
+}
 
 // for testing purposes
 

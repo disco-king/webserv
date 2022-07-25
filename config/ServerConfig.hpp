@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Config.hpp"
+#include "ConfigHead.hpp"
 #include "ConfigUtils.hpp"
 
 class ServerConfig{
@@ -58,12 +58,18 @@ class ServerConfig{
 		bool								getAliasSet() const;
 		static ServerConfig					&getDefaultConfig();
 
-		void parse_server(std::vector<std::string> &);
+		void		parse_server(unsigned int &, std::vector<std::string> &);
+		void		parse_loc(unsigned int &, std::vector<std::string> &);
+		void		pass_members(ServerConfig &) const;
 
 		class ServerConfigException: public std::exception {
 				std::string _msg;
 			public:
 				ServerConfigException(std::string const &);
-				virtual const char *what() throw();
+				virtual const char *what() const throw();
 		};
 };
+
+// typedef void (ServerConfig::*addfunc)(std::vector<std::string>);
+// typedef std::map<std::string, addfunc> configmap;
+		
