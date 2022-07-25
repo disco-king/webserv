@@ -46,6 +46,7 @@ ServerConfig &ServerConfig::operator=(ServerConfig const &ref){
 		this->_alias = ref._alias;
 		this->_alias_set = ref._alias_set;
 	}
+	return *this;
 }
 
 //ServerConfigException 
