@@ -1,6 +1,13 @@
-#pragma once
+#ifndef CONFIG_HPP
+# define CONFIG_HPP
 
-#include "ServerConfig.hpp"
+# include "ConfigUtils.hpp"
+# include "ServerConfig.hpp"
+
+# define BUFF_SIZE 1024
+# define DEFAULT_CONFIG_PATH "default.conf"
+
+class ServerConfig;
 
 class Config{
 		std::string _path;
@@ -13,7 +20,6 @@ class Config{
 		~Config();
 
 		void setPath(std::string const &);
-		void setFile();
 
 		void parse();
 		std::vector<std::string> filereader(const char *fname);
@@ -27,3 +33,5 @@ class Config{
 				virtual const char *what() const throw();
 		};
 };
+
+#endif

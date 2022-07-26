@@ -10,10 +10,6 @@ void Config::setPath(std::string const &path){
 	_path = path;
 }
 
-void Config::setFile(){
-	_file = filereader(_path.c_str());
-}
-
 Config::ConfigException::ConfigException(std::string const &msg){
 	_msg = "Config Exception: ";
 	_msg.append(msg);
@@ -27,8 +23,8 @@ std::vector<std::string> Config::splitline(std::string line){
 	std::string delim = " \n\t";
 	std::vector<std::string> file;
 
-	line.append(delim);
-	std::string::size_type start = line.find_last_not_of(delim, 0);
+	line += delim[0];
+	std::string::size_type start = line.find_first_not_of(delim, 0);
 	std::string::size_type end = 0;
 	while(1){
 		end = line.find_first_of(delim, start);
@@ -60,17 +56,18 @@ std::vector<std::string> Config::filereader(const char *fname){
 	if (ret == -1)
 		throw ConfigException("Could not parse a file");
 	file = Config::splitline(line);
+	close(fd);
 	return file;
 }
 
 void Config::parse(){
 	_file = filereader(_path.c_str());
-	std::string::size_type fsize = _file.size();
+	unsigned int fsize = _file.size();
 	for (unsigned int i = 0; i < fsize; i++){
 		if (_file[i] == "server") {
 			i++;
 			ServerConfig serv;
-			if (_file[i++] != "{")
+			if (_file[i] != "{")
 				throw ConfigException("Expected a '{' after 'server'");
 			i++;
 			serv.parse_server(i, _file);

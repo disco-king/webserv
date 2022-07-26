@@ -1,2 +1,3 @@
-c++ *.hpp *.cpp
+g++ *.cpp *.hpp
 rm -rf *.gch
+./a.out

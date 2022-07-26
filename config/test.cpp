@@ -5,8 +5,7 @@ int main(int argc, char **argv){
 	try {
 		if (argv[1])
 			conf.setPath(argv[1]);
-		conf.setFile();
-		conf.print_file();
+		conf.parse();
 	}
 	catch (std::exception &ex) {
 		std::cerr << ex.what() << std::endl;

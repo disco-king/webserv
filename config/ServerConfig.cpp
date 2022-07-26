@@ -5,10 +5,7 @@
 //Constructors, destructor, operator overload
 
 ServerConfig::ServerConfig(): _root(""), _client_buff_size(0),
-_autoindex(false), _alias_set(false) {
-	_servermap = initServMap();
-	_locmap = initLocMap();
-}
+_autoindex(false), _alias_set(false) {}
 
 ServerConfig::ServerConfig(ServerConfig const &ref){
 	if (this != &ref){
@@ -49,6 +46,8 @@ ServerConfig &ServerConfig::operator=(ServerConfig const &ref){
 	return *this;
 }
 
+ServerConfig ServerConfig::_default_config = ServerConfig();
+
 //ServerConfigException 
 
 ServerConfig::ServerConfigException::ServerConfigException(std::string const &msg) {
@@ -69,10 +68,10 @@ configmap ServerConfig::initServMap(){
 	servermap["root"] = &ServerConfig::addRoot;
 	servermap["server_name"] = &ServerConfig::addServerName;
 	servermap["error_page"] = &ServerConfig::addErrorPage;
-	servermap["client_buff_size"] = &ServerConfig::addClientBuffSize;
+	servermap["client_body_buff_size"] = &ServerConfig::addClientBuffSize;
 	servermap["cgi_param"] = &ServerConfig::addCgiParam;
 	servermap["cgi_pass"] = &ServerConfig::addCgiPass;
-	servermap["methods"] = &ServerConfig::addMethods;
+	servermap["allow_methods"] = &ServerConfig::addMethods;
 	servermap["index"] = &ServerConfig::addIndex;
 	servermap["autoindex"] = &ServerConfig::addAutoIndex;
 	return servermap;
@@ -83,15 +82,18 @@ configmap ServerConfig::initLocMap(){
 
 	locationmap["root"] = &ServerConfig::addRoot;
 	locationmap["error_page"] = &ServerConfig::addErrorPage;
-	locationmap["client_buff_size"] = &ServerConfig::addClientBuffSize;
+	locationmap["client_body_buff_size"] = &ServerConfig::addClientBuffSize;
 	locationmap["cgi_param"] = &ServerConfig::addCgiParam;
 	locationmap["cgi_pass"] = &ServerConfig::addCgiPass;
-	locationmap["methods"] = &ServerConfig::addMethods;
+	locationmap["allow_methods"] = &ServerConfig::addMethods;
 	locationmap["index"] = &ServerConfig::addIndex;
 	locationmap["autoindex"] = &ServerConfig::addAutoIndex;
 	locationmap["alias"] = &ServerConfig::addAlias;
 	return locationmap;
 }
+
+configmap ServerConfig::_servermap = ServerConfig::initServMap();
+configmap ServerConfig::_locmap = ServerConfig::initLocMap();
 
 // add functions
 
@@ -215,6 +217,22 @@ void ServerConfig::addAlias(std::vector<std::string> tokens){
 	_alias_set = true;
 }
 
+ServerConfig ServerConfig::DefaultServerConfig(std::vector<std::string> &file){
+	ServerConfig serv;
+	unsigned int i = 2;
+	
+	if (file.empty())
+		throw ServerConfigException("Invalid default configuration file");
+	std::vector<std::string> start;
+	start.push_back("server");
+	start.push_back("{");
+	file.insert(file.begin(), start.begin(), start.end());
+	file.insert(file.end(), "}");
+	serv.parse_server(i, file);
+	ServerConfig::_default_config = serv;
+	return serv;
+}
+
 // parse methods
 
 void ServerConfig::pass_members(ServerConfig &serv) const{
@@ -279,7 +297,7 @@ void ServerConfig::parse_loc(unsigned int &i, std::vector<std::string> &file){
 			}
 			else if (cmd == ""){
 				if (file[i] != "}")
-					throw ServerConfigException("Parse Error");
+					throw ServerConfigException("Parse Here Error");
 				return;
 			}
 			else
@@ -317,7 +335,7 @@ void ServerConfig::parse_server(unsigned int &i, std::vector<std::string> &file)
 				}
 				i++;
 				if (file[i] == "{" || file[i] == "}")
-					throw ServerConfigException("Parse Error");
+					throw ServerConfigException("Parse Server Error");
 				name = file[i];
 				i++;
 				loc.parse_loc(i, file);
@@ -327,7 +345,7 @@ void ServerConfig::parse_server(unsigned int &i, std::vector<std::string> &file)
 			}
 			else if (!cmd.compare("")){
 				if (file[i] != "}")
-					throw ServerConfigException("Parse Error");
+					throw ServerConfigException("Parse Server Error");
 				return;
 			}
 			else
@@ -350,5 +368,20 @@ void ServerConfig::parse_server(unsigned int &i, std::vector<std::string> &file)
 			this->pass_members(it->second);
 		return ;
 	}
-	throw ServerConfigException("Parse error");
+	throw ServerConfigException("Parse Server Error");
 }
+
+std::vector<t_listener>				ServerConfig::getListen() const {return _listen;}
+std::string							ServerConfig::getRoot() const {return _root;}
+std::vector<std::string>   			ServerConfig::getServerName() const {return _server_name;}
+std::map<int, std::string>			ServerConfig::getErrorPage() const {return _error_page;}
+int									ServerConfig::getClientBodyBufferSize() const {return _client_buff_size;}
+std::map<std::string, std::string>	ServerConfig::getCgiParam() const {return _cgi_param;}
+std::string							ServerConfig::getCgiPass() const {return _cgi_pass;}
+std::map<std::string, ServerConfig> ServerConfig::getLocation() const {return _location;}
+std::set<std::string>				ServerConfig::getAllowedMethods() const {return _methods;}
+std::vector<std::string>			ServerConfig::getIndex() const{return _index;}
+bool								ServerConfig::getAutoIndex() const {return _autoindex;}
+std::string							ServerConfig::getAlias() const {return _alias;}
+bool								ServerConfig::getAliasSet() const {return _alias_set;}
+ServerConfig						&ServerConfig::getDefaultConfig() {return _default_config;}
