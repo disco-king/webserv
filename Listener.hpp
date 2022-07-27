@@ -19,6 +19,15 @@ private:
 	std::map<int, std::string> _sockets;
 	std::map<int, size_t> _written;
 
+	enum content_type{
+		plain,
+		chunking,
+		length
+	};
+
+	int _process(std::string &request, content_type type);
+	int _decodeChunks(std::string &request);
+
 public:
 	Listener();
 	// ~Listener();

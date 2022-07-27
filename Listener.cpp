@@ -1,4 +1,5 @@
 #include "Listener.hpp"
+#include "Request.hpp"
 #include <cstring>
 #include <cstdlib>
 #include <unistd.h>
@@ -41,6 +42,38 @@ int Listener::init(short port, unsigned int host, int queue)
 	return 0;
 }
 
+
+int Listener::_decodeChunks(std::string &request)
+{
+	size_t pos = request.find("\r\n\r\n");
+	std::string processed = request.substr(0, pos + 4);
+
+	size_t chunk_size = std::strtoll(&(request[pos + 4]), 0, 16);
+	pos = request.find("\r\n", pos + 4);
+	size_t overall_size = request.size() - pos - 7;//max potential sum of chunk bodies size left
+	while(chunk_size)
+	{
+		if(chunk_size > overall_size)
+			break;
+
+		processed += request.substr(pos + 2, chunk_size);
+		pos += chunk_size + 4;
+		chunk_size = std::strtoll(&(request[pos]), 0, 16);
+		pos = request.find("\r\n", pos);
+		overall_size = request.size() - pos - 7;
+	}
+	request = processed + "\r\n\r\n";
+	return chunk_size;
+}
+
+
+int Listener::_process(std::string &request, content_type type)
+{
+	if(type == chunking)
+		_decodeChunks(request);
+	return 0;
+}
+
 int Listener::accept()
 {
 	int new_socket = ::accept(_listen_fd, (sockaddr*)&_address,
@@ -57,18 +90,55 @@ int Listener::accept()
 int Listener::read(int socket)
 {
 	char buff[PACK_SIZE] = {0};
+	content_type type = plain;
 
 	int ret = ::read(socket, buff, PACK_SIZE);
 	if(ret <= 0){
 		close(socket);
-		if(ret < 0){
+		if(ret < 0)
 			std::cerr << "error: socket " << socket << '\n';
-		}
 		std::cout << "client on socket " << socket << " closed connection\n";
 		return -1;
 	}
-	_sockets[socket] += buff;
-	// return 1; //for proper message length handling
+
+	std::string &request = _sockets[socket];
+	request += buff;
+
+	size_t head_end = request.find("\r\n\r\n");
+	if(head_end == std::string::npos)
+		return 1;
+
+	size_t pos = request.find("Content-Length:");
+	if(pos != std::string::npos && pos < head_end){
+		size_t len = std::strtoll(&(request[pos + 15]), 0, 10);
+		if(request.size() < len + head_end + 4)
+			return 1;
+		type = length;
+	}
+	else {
+		pos = request.find("Transfer-Encoding: Chunked");
+		if(pos != std::string::npos && pos < head_end){
+			if(!(ends_with(request, "0\r\n\r\n") && request.size() > head_end + 4))
+				return 1;
+		}
+		type = chunking;
+	}
+
+	_process(request, type);
+
+	Request req(request);
+	req.parseRequest();
+
+	std::map<std::string, std::string> &hdrs = req.getHeaders();
+
+	std::cout << "METHOD: " << req.getMethod() << '\n';
+	std::cout << "PATH: " << req.getPath() << '\n';
+	std::cout << "VERSION: " << req.getVersion() << '\n';
+	std::cout << "HEADERS:\n";
+	for (std::map<std::string, std::string>::iterator i = hdrs.begin(); i != hdrs.end(); ++i)
+		std::cout << '<' << i->first << '>' << ": " << '[' << i->second << ']' << '\n';
+	std::cout << "BODY:\n" << req.getBody() << '\n';
+	std::cout << "CODE: " << req.getCode() << '\n';
 	return 0;
 }
 
@@ -77,8 +147,7 @@ int Listener::write(int socket)
 	if(_written.count(socket) == 0)
 		_written[socket] = 0;
 
-	std::string to_send = _response.substr(_written[socket],
-											PACK_SIZE);
+	std::string to_send = _response.substr(_written[socket],PACK_SIZE);
 	int ret = ::write(socket, to_send.c_str(), to_send.length());
 
 	if(ret == -1){
@@ -87,14 +156,15 @@ int Listener::write(int socket)
 		return -1;
 	}
 
-	// _written[socket] += ret;//we'll need that when responses get big
-	// if(_written[socket] >= _response.size()){
-	// 	// close(socket);			//proper write size handling
-	// 	// _written.erase(socket);	//coming soon
-	// 	return 0;
-	// }
-	// return 1;
-	return 0;
+	size_t &written = _written[socket];
+	written += ret;
+	
+	if(written >= _response.size()){
+		_sockets.erase(socket);
+		written = 0;
+		return 0;
+	}
+	return 1;
 }
 
 void Listener::close(int socket)
