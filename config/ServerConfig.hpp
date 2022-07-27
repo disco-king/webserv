@@ -3,6 +3,8 @@
 
 # include "Config.hpp"
 
+class RequestConfig;
+
 class ServerConfig{
 		std::vector<t_listener> 	_listen;
 		std::string					_root;
@@ -58,6 +60,7 @@ class ServerConfig{
 		std::string							getAlias() const;
 		bool								getAliasSet() const;
 		static ServerConfig					&getDefaultConfig();
+		ServerConfig						getRequestLoc(std::string const &, std::string &);
 
 		void		parse_server(unsigned int &, std::vector<std::string> &);
 		void		parse_loc(unsigned int &, std::vector<std::string> &);
@@ -71,6 +74,8 @@ class ServerConfig{
 				virtual const char *what() const throw();
 		};
 };
+
+std::ostream &operator<<(std::ostream &out, ServerConfig const &server);
 
 // typedef void (ServerConfig::*addfunc)(std::vector<std::string>);
 // typedef std::map<std::string, addfunc> configmap;

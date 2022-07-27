@@ -84,3 +84,9 @@ void Config::print_file() const{
 	for (int i = 0; i < _file.size(); i++)
 		std::cout << _file.at(i) << '\n';
 }
+
+void Config::print_config() const{
+	for (std::vector<ServerConfig>::const_iterator it = _servers.begin();
+		it != _servers.end(); it++)
+		std::cout << *it;
+}	

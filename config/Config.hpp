@@ -25,6 +25,7 @@ class Config{
 		std::vector<std::string> filereader(const char *fname);
 		std::vector<std::string> splitline(std::string);
 		void print_file() const;
+		void print_config() const;
 
 		class ConfigException: public std::exception{
 				std::string	_msg;

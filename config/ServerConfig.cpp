@@ -384,4 +384,87 @@ std::vector<std::string>			ServerConfig::getIndex() const{return _index;}
 bool								ServerConfig::getAutoIndex() const {return _autoindex;}
 std::string							ServerConfig::getAlias() const {return _alias;}
 bool								ServerConfig::getAliasSet() const {return _alias_set;}
-ServerConfig						&ServerConfig::getDefaultConfig() {return _default_config;}
+ServerConfig						&ServerConfig::getDefaultConfig() {return ServerConfig::_default_config;}
+
+ServerConfig ServerConfig::getRequestLoc(std::string const &path, std::string &ret){
+	std::string::size_type len = path.length();
+	std::map<std::string, ServerConfig>::iterator it;
+	std::string loc;
+
+	if (!len)
+		return (*this);
+	if(!this->_location.empty()){
+		do {
+			loc = path.substr(0, len);
+			it = this->_location.find(loc);
+			if (it != this->_location.end() && it->first[0] != '*'){
+				ret = loc;
+				return it->second.getRequestLoc(path, ret);
+			}
+			len--;
+		} while(len);
+		for (std::map<std::string, ServerConfig>::iterator i = this->_location.begin();
+			i != this->_location.end(); i++){
+			if (i->first[0] == '*'){
+				std::string tmp = i->first.substr(1);
+				if (path.length() > tmp.length() && !path.compare(path.length() - tmp.length(),
+					tmp.length(), tmp))
+					return i->second.getRequestLoc(path, ret);
+			}
+		}
+	}
+	return (*this);
+}
+
+std::ostream &operator<<(std::ostream &out, ServerConfig const &serv){
+	std::vector<t_listener> listen = serv.getListen();
+	std::vector<std::string> name = serv.getServerName();
+	std::map<int, std::string> err_page = serv.getErrorPage();
+	std::map<std::string, std::string> cgi_param = serv.getCgiParam();
+	std::set<std::string> methods = serv.getAllowedMethods();
+	std::vector<std::string> index = serv.getIndex();
+	std::map<std::string, ServerConfig> location = serv.getLocation();
+
+	out << "Listen:\n";
+	for (size_t i = 0; i < listen.size(); i++)
+		out << "\thost: " << listen[i].host << "\n\tport: " << listen[i].port << std::endl;
+	out<<std::endl;
+	out << "root: " << serv.getRoot() << std::endl;
+	out<<std::endl;
+	out << "server name:";
+	for (size_t i = 0; i < name.size(); i++)
+		out << " " << name[i];
+	out << std::endl << std::endl;
+	out << "error page:\n";
+	for (std::map<int, std::string>::const_iterator it = err_page.begin();
+		it != err_page.end(); it++)
+		out << "\t" << it->first << " " << it->second << std::endl;
+	out<<std::endl;
+	out << "client body buffer size: " << serv.getClientBodyBufferSize() << std::endl;
+	out<<std::endl;
+	out << "cgi param:\n";
+	for(std::map<std::string, std::string>::const_iterator it = cgi_param.begin();
+		it != cgi_param.end(); it++)
+		out << "\t" << it->first << " = " << it->second << std::endl;
+	out<<std::endl;
+	out << "cgi password: " << serv.getCgiPass() << std::endl;
+	out<<std::endl;
+	out << "allowed methods:";
+	for (std::set<std::string>::iterator it = methods.begin(); it != methods.end(); it++)
+		out << " " << *it << std::endl;
+	out<<std::endl;
+	out << "autoindex: " << (serv.getAutoIndex() ? "on": "off") << std::endl;
+	out<<std::endl;
+	out << "index:\n";
+	for(std::vector<std::string>::const_iterator it = index.begin(); it != index.end(); it++)
+		out << "\t" << *it << std::endl;
+	
+	out << "alias: " << serv.getAlias() << std::endl;
+	out<<std::endl;
+	for (std::map<std::string, ServerConfig>::const_iterator it = location.begin();
+		it != location.end(); it++){
+		out << std::endl << "location " << it->first << std::endl;
+		out << it->second << std::endl;
+	}
+	return out;
+}
