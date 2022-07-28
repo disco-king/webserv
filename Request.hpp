@@ -31,10 +31,10 @@ public:
 
 	void parseRequest();
 
-	std::string &getPath();
-	std::string &getMethod();
-	std::string &getBody();
-	std::string &getVersion();
+	std::string const &getPath() const;
+	std::string const &getMethod() const;
+	std::string const &getBody() const;
+	std::string const &getVersion() const;
 	std::map<std::string, std::string> &getHeaders();
 	int getCode();
 

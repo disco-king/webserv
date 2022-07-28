@@ -24,7 +24,7 @@ int decodeChunks(std::string &request)
 		pos = request.find("\r\n", pos);
 		overall_size = request.size() - pos - 7;
 	}
-	request = processed + "\r\n";
+	request = processed + "\r\n\r\n";
 	return chunk_size;
 }
 

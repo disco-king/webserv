@@ -88,22 +88,22 @@ void Request::setCode(int code)
 	_code = code;
 }
 
-std::string &Request::getPath()
+std::string const &Request::getPath() const
 {
 	return _path;
 }
 
-std::string &Request::getMethod()
+std::string const &Request::getMethod() const
 {
 	return _method;
 }
 
-std::string &Request::getBody()
+std::string const &Request::getBody() const
 {
 	return _body;
 }
 
-std::string &Request::getVersion()
+std::string const &Request::getVersion() const
 {
 	return _version;
 }
