@@ -1,4 +1,5 @@
 #include "string_utils.hpp"
+#include <cctype>
 
 std::vector<std::string> split(std::string const &str, char del)
 {
@@ -35,4 +36,25 @@ bool ends_with(std::string const &str, std::string ending)
 			return false;
 	}
 	return true;
+}
+
+size_t find_string(std::string const& haystack, std::string needle)
+{
+	std::string::iterator ni = needle.begin();
+	std::string::iterator nend = needle.end();
+	for(; ni < nend; ++ni)
+		*ni = std::tolower(*ni);
+
+	std::string::const_iterator hi = haystack.begin();
+	std::string::const_iterator hend = haystack.end();
+	std::string::const_iterator tmp;
+	for(; hi < hend; ++hi){
+		tmp = hi;
+		for(ni = needle.begin(); ni < nend; ++ni, ++tmp)
+			if(std::tolower(*tmp) != *ni)
+				break;
+		if (ni == nend)
+			return hi - haystack.begin();
+	}
+	return std::string::npos;
 }
