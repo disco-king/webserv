@@ -36,12 +36,12 @@ public:
 	std::map<std::string, std::string> const &getCGIParams() const;
 	std::string const &getCGIPass() const;
 	std::set<std::string>	const &getAllowedMethods() const;
-	listen_socket const &getAddrData() const;// your t_listener; we might need to choose one
+	t_listener const &getAddrData() const;// t_listener here, you can change it later
 	bool getAutoIndex() const;
 
 	void setPath(int code);
 	void setContentLocation(std::string const &path);
-	void setAddrData(listen_socket const &data);
+	void setAddrData(t_listener const &data); // here too
 	std::string addIndex(Request const &request);
 
 };
