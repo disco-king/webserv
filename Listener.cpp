@@ -1,5 +1,6 @@
 #include "Listener.hpp"
 #include "Request.hpp"
+#include "./config/RequestConfig.hpp"
 #include <cstring>
 #include <cstdlib>
 #include <unistd.h>
@@ -71,6 +72,9 @@ int Listener::_process(std::string &request, content_type type)
 {
 	if(type == chunking)
 		_decodeChunks(request);
+
+	Request req(request);
+	// RequestConfig conf = //gotta find where to get Config object from
 	return 0;
 }
 
@@ -126,19 +130,21 @@ int Listener::read(int socket)
 
 	_process(request, type);
 
-	Request req(request);
-	req.parseRequest();
+	//request return test
 
-	std::map<std::string, std::string> &hdrs = req.getHeaders();
+	// Request req(request);
+	// req.parseRequest();
 
-	std::cout << "METHOD: " << req.getMethod() << '\n';
-	std::cout << "PATH: " << req.getPath() << '\n';
-	std::cout << "VERSION: " << req.getVersion() << '\n';
-	std::cout << "HEADERS:\n";
-	for (std::map<std::string, std::string>::iterator i = hdrs.begin(); i != hdrs.end(); ++i)
-		std::cout << '<' << i->first << '>' << ": " << '[' << i->second << ']' << '\n';
-	std::cout << "BODY:\n" << req.getBody() << '\n';
-	std::cout << "CODE: " << req.getCode() << '\n';
+	// std::map<std::string, std::string> &hdrs = req.getHeaders();
+
+	// std::cout << "METHOD: " << req.getMethod() << '\n';
+	// std::cout << "PATH: " << req.getPath() << '\n';
+	// std::cout << "VERSION: " << req.getVersion() << '\n';
+	// std::cout << "HEADERS:\n";
+	// for (std::map<std::string, std::string>::iterator i = hdrs.begin(); i != hdrs.end(); ++i)
+	// 	std::cout << '<' << i->first << '>' << ": " << '[' << i->second << ']' << '\n';
+	// std::cout << "BODY:\n" << req.getBody() << '\n';
+	// std::cout << "CODE: " << req.getCode() << '\n';
 	return 0;
 }
 
