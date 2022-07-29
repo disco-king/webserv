@@ -23,6 +23,8 @@ int Server::init()
 		}
 
 		fd = listener.getFD();
+		std::cout << "on port " << it->port
+		<< " got fd " << fd << '\n';
 		_listeners.insert(std::make_pair(fd, listener));
 		FD_SET(fd, &_fds);
 		_max_fd = std::max(_max_fd, fd);

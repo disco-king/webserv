@@ -142,6 +142,12 @@ std::vector<t_listen> Config::getListeners() const {
 					listeners.push_back(*i);
 		}
 	}
+	// code below probably does the same thing
+	// for (std::vector<ServerConfig>::const_iterator it = _servers.begin();
+	// 		it != _servers.end(); ++it){
+	// 	std::vector<t_listen> vec = it->getListen();
+	// 	listeners.insert(listeners.end(), vec.begin(), vec.end());
+	// }
 	return listeners;
 }
 
