@@ -4,7 +4,7 @@
 # include "ConfigUtils.hpp"
 # include "ServerConfig.hpp"
 # include "../Request.hpp"
-# include "../Server.hpp"
+# include "../utils.hpp"
 
 # define BUFF_SIZE 1024
 # define DEFAULT_CONFIG_PATH "default.conf"
@@ -26,9 +26,9 @@ class Config{
 
 		void parse();
 	
-		std::vector<t_listener> getListeners() const;
-		RequestConfig			getConfigForRequest(t_listener const &, Request &) const;
-		void					getServerForRequest(ServerConfig &, t_listener const,
+		std::vector<t_listen> getListeners() const;
+		RequestConfig			getConfigForRequest(t_listen const &, Request &) const;
+		void					getServerForRequest(ServerConfig &, t_listen const,
 									std::string const) const;
 	
 		std::vector<std::string> filereader(const char *fname);

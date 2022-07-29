@@ -20,7 +20,7 @@ private:
 	std::map<std::string, std::string> _CGIParams;
 	std::string _CGIPass;
 	std::set<std::string> _allowedMethods;
-	listen_socket _addrData;
+	t_listen _addrData;
 	std::vector<std::string> _index;
 	bool _autoIndex;
 
@@ -37,11 +37,11 @@ public:
 	std::map<std::string, std::string> const &getCGIParams() const;
 	std::string const &getCGIPass() const;
 	std::set<std::string>	const &getAllowedMethods() const;
-	listen_socket const &getAddrData() const;// t_listener here, you can change it later
+	t_listen const &getAddrData() const;
 	bool getAutoIndex() const;
 
 	// void setPath(int code);
 	// void setContentLocation(std::string const &path);
-	void setAddrData(t_listener const &data); // here too
+	void setAddrData(t_listen const &data);
 
 };

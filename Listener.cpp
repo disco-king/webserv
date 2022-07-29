@@ -6,9 +6,20 @@
 #include <unistd.h>
 #include <sys/socket.h>
 
-Listener::Listener()
+Listener::Listener(Config& config) : _config(config)
 {
 	_response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 18\n\nHello from server!";
+}
+
+Listener::Listener(Listener const &other) : _config(other._config)
+{
+	_listen_fd = other._listen_fd;
+	_addrlen = other._addrlen;
+	_listen = other._listen;
+	_address = other._address;
+	_response = other._response;
+	_sockets = other._sockets;
+	_written = other._written;
 }
 
 int Listener::init(short port, unsigned int host, int queue)
@@ -74,7 +85,18 @@ int Listener::_process(std::string &request, content_type type)
 		_decodeChunks(request);
 
 	Request req(request);
-	// RequestConfig conf = //gotta find where to get Config object from
+	RequestConfig conf = _config.getConfigForRequest(_listen, req);
+	
+	std::set<std::string> methods = conf.getAllowedMethods();
+
+	std::cout << "contentLoc: " << conf.getContentLocation() << '\n';
+	std::cout << "path: " << conf.getPath() << '\n';
+	std::cout << "buffSize: " << conf.getClientBodyBufferSize() << '\n';
+	std::cout << "methods: " << '\n';
+	for(std::set<std::string>::const_iterator it = methods.begin();
+		it != methods.end(); ++it)
+		std::cout << '\t' << *it << '\n';
+
 	return 0;
 }
 

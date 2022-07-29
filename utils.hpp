@@ -3,7 +3,7 @@
 #include "string_utils.hpp"
 #include "file_utils.hpp"
 
-struct listen_socket
+struct t_listen
 {
 	unsigned int host;
 	short port;

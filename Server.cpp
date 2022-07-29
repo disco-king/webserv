@@ -1,23 +1,29 @@
 #include "Server.hpp"
 #include <cstring>
 
-int Server::init(std::vector<short> const &ports)
+Server::Server(Config &config) : _config(config)
+{
+	init();
+}
+
+
+int Server::init()
 {
 	int fd, res;
 	_max_fd = 0;
 
-	std::vector<short>::const_iterator end = ports.end();
-	for (std::vector<short>::const_iterator it = ports.begin(); it != end; ++it){
-		Listener listener;
+	std::vector<t_listen>::const_iterator end = _config.getListeners().end();
+	for (std::vector<t_listen>::const_iterator it = _config.getListeners().begin(); it != end; ++it){
+		Listener listener(_config);
 
-		res = listener.init(*it);
+		res = listener.init(it->port);
 
 		if(res == -1){
 			continue;
 		}
 
 		fd = listener.getFD();
-		_listeners[fd] = listener;
+		_listeners.insert(std::make_pair(fd, listener));
 		FD_SET(fd, &_fds);
 		_max_fd = std::max(_max_fd, fd);
 	}

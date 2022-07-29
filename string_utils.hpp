@@ -12,4 +12,4 @@ bool ends_with(std::string const &str, std::string ending);
 
 size_t find_string(std::string const& haystack, std::string needle);
 
-std::string	removeSlashes(const std::string &str);
+void removeSlashes(std::string &str, size_t index = 0, size_t shift = 0);

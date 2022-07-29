@@ -2,11 +2,12 @@
 # define SERVER_CONFIG_HPP
 
 # include "Config.hpp"
+# include "../utils.hpp"
 
 class RequestConfig;
 
 class ServerConfig{
-		std::vector<t_listener> 	_listen;
+		std::vector<t_listen> 	_listen;
 		std::string					_root;
 		std::vector<std::string> 	_server_name;
 		std::map<int, std::string>	_error_page;
@@ -46,7 +47,7 @@ class ServerConfig{
 		ServerConfig &operator=(ServerConfig const &);
 		virtual ~ServerConfig();
 
-		std::vector<t_listener>				getListen() const;
+		std::vector<t_listen>				getListen() const;
 		std::string							getRoot() const;
 		std::vector<std::string>   			getServerName() const;
 		std::map<int, std::string>			getErrorPage() const;

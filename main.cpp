@@ -1,12 +1,24 @@
 #include "Server.hpp"
 
-int main()
+
+int main(int argc, char**argv)
 {
-	std::vector<short> port;
-	Server server;
+	Config conf;
 
-	port.push_back(8000);
+	Server server(conf);
 
-	server.init(port);
 	server.select();
 }
+
+
+
+// int main()
+// {
+// 	std::vector<short> port;
+// 	Server server;
+
+// 	port.push_back(8000);
+
+// 	server.init(port);
+// 	server.select();
+// }

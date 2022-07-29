@@ -4,6 +4,7 @@
 #include <map>
 #include <iostream>
 #include "utils.hpp"
+#include "./config/Config.hpp"
 
 #define PACK_SIZE 65536
 
@@ -13,11 +14,12 @@ class Listener
 private:
 	int _listen_fd;
 	int _addrlen;
-	listen_socket _listen;
+	t_listen _listen;
 	sockaddr_in _address;
 	std::string _response;
 	std::map<int, std::string> _sockets;
 	std::map<int, size_t> _written;
+	Config & _config;
 
 	enum content_type{
 		plain,
@@ -29,7 +31,7 @@ private:
 	int _decodeChunks(std::string &request);
 
 public:
-	Listener();
+	Listener(Config& config);
 	// ~Listener();
 	Listener(Listener const& other);
 

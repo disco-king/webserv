@@ -21,27 +21,19 @@ std::string	removeAdjacentSlashes(const std::string &str) {
 
 void removeSlashes(std::string &str, size_t index = 0, size_t shift = 0)
 {
-	bool slashes = false;
 	int count = -1;
 	for(; index < str.size(); ++index){
-		if(str[index] == '/'){
-			slashes = true;
+		if(str[index] == '/')
 			++count;
-		}
-		else if(slashes)
+		else if(count >= 0)
 			break;
 	}
 	shift += count;
-	--index;
-	slashes = false;
-	while(index < str.size()){
-		if(str[index] == '/'){
-			if(slashes)
-				return(removeSlashes(str, index, shift));
-			slashes = true;
-		}
+	count = --index;
+	for(; index < str.size(); ++index){
+		if(str[index] == '/' && index != count)
+			return(removeSlashes(str, index, shift));
 		str[index - shift] = str[index];
-		index++;
 	}
 	str.resize(str.size() - shift);
 }
@@ -49,8 +41,8 @@ void removeSlashes(std::string &str, size_t index = 0, size_t shift = 0)
 int main()
 {
 	// std::string str = "/////some / slashes / here ////// // //";
-	std::string str = "some / slashes / here ";
-	// std::string str = "// // //";
+	// std::string str = "some // slashes // here ";
+	std::string str = "// // //";
 
 	// str = removeAdjacentSlashes(str);
 	removeSlashes(str);

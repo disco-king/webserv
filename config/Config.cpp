@@ -80,7 +80,7 @@ void Config::parse(){
 	}
 }
 
-RequestConfig Config::getConfigForRequest(t_listener const &listen, Request &req) const{
+RequestConfig Config::getConfigForRequest(t_listen const &listen, Request &req) const{
 	ServerConfig serv;
 	std::string uri = req.getPath();
 	std::string host = req.getHeaders().at("Host");
@@ -97,15 +97,15 @@ RequestConfig Config::getConfigForRequest(t_listener const &listen, Request &req
 	return reqConf;
 }
 
-void Config::getServerForRequest(ServerConfig &serv, t_listener const listen,
+void Config::getServerForRequest(ServerConfig &serv, t_listen const listen,
 	std::string const host) const{
 
 	std::vector<ServerConfig> servers;
 
 	for (std::vector<ServerConfig>::const_iterator it = _servers.begin();
 		it != servers.end(); it++){
-		std::vector<t_listener> listeners = it->getListen();
-		for (std::vector<t_listener>::iterator i = listeners.begin();
+		std::vector<t_listen> listeners = it->getListen();
+		for (std::vector<t_listen>::iterator i = listeners.begin();
 			i != listeners.end(); i++)
 			if (listen.host == (*i).host && listen.port == (*i).port)
 				servers.push_back((*it));
@@ -126,15 +126,15 @@ void Config::getServerForRequest(ServerConfig &serv, t_listener const listen,
 	serv = servers[0];
 }
 
-std::vector<t_listener> Config::getListeners() const {
-	std::vector<t_listener> listeners;
+std::vector<t_listen> Config::getListeners() const {
+	std::vector<t_listen> listeners;
 
 	for (std::vector<ServerConfig>::const_iterator it = _servers.begin();
 		it != _servers.end(); it++){
-		std::vector<t_listener> tmp = it->getListen();
-		for (std::vector<t_listener>::iterator i = tmp.begin();
+		std::vector<t_listen> tmp = it->getListen();
+		for (std::vector<t_listen>::iterator i = tmp.begin();
 			i != tmp.end(); i++){
-			std::vector<t_listener>::iterator j = listeners.begin();
+			std::vector<t_listen>::iterator j = listeners.begin();
 			for (; j != listeners.end(); j++)
 				if (i->host == j->host && i->port == j->port)
 					break;

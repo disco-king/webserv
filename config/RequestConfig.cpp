@@ -13,18 +13,22 @@ _index(config.getIndex().begin(), config.getIndex().end())
 	std::string alias = config.getAlias();
 
 	if(config.getAliasSet() && location[0] != '*'){
-		_contentLocation = removeSlashes(alias + request.getPath().substr(location.size()));
-		_path = removeSlashes(root + _contentLocation);
+		_contentLocation = alias + request.getPath().substr(location.size());
+		_path = root + _contentLocation;
 	}
 	else{
-		_contentLocation = removeSlashes(request.getPath());
-		_path = removeSlashes(root + _contentLocation);
+		_contentLocation = request.getPath();
+		_path = root + _contentLocation;
 	}
+	removeSlashes(_path);
 
 	if(!is_filename(_path) && request.getMethod() == "GET"){
-		_path = removeSlashes(_path + "/index.html");
+		_path += "/index.html";
 		config = config.getRequestLoc(_path, location);
 	}
+
+	removeSlashes(_contentLocation);
+	removeSlashes(_path);
 }
 
 std::string const &RequestConfig::getContentLocation() const
@@ -62,7 +66,7 @@ std::set<std::string>	const &RequestConfig::getAllowedMethods() const
 	return _allowedMethods;
 }
 
-listen_socket const &RequestConfig::getAddrData() const
+t_listen const &RequestConfig::getAddrData() const
 {
 	return _addrData;
 }
@@ -72,7 +76,7 @@ bool RequestConfig::getAutoIndex() const
 	return _autoIndex;
 }
 
-void RequestConfig::setAddrData(t_listener const &data)
+void RequestConfig::setAddrData(t_listen const &data)
 {
 	_addrData.host = data.host;
 	_addrData.port = data.port;

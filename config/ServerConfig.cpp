@@ -98,7 +98,7 @@ configmap ServerConfig::_locmap = ServerConfig::initLocMap();
 // add functions
 
 void ServerConfig::addListen(std::vector<std::string> tokens){
-	t_listener	listener;
+	t_listen	listener;
 	std::string	port;
 	size_t		sep;
 
@@ -108,7 +108,7 @@ void ServerConfig::addListen(std::vector<std::string> tokens){
 		if (onlyDigits(tokens[0])){
 			listener.host = 0;
 			listener.port = atoi(tokens[0].c_str());
-			for (std::vector<t_listener>::const_iterator it = _listen.begin();
+			for (std::vector<t_listen>::const_iterator it = _listen.begin();
 				it != _listen.end(); it++) {
 					if (it->port == listener.port)	
 						throw ServerConfigException("Invalid listen ip");
@@ -371,7 +371,7 @@ void ServerConfig::parse_server(unsigned int &i, std::vector<std::string> &file)
 	throw ServerConfigException("Parse Server Error");
 }
 
-std::vector<t_listener>				ServerConfig::getListen() const {return _listen;}
+std::vector<t_listen>				ServerConfig::getListen() const {return _listen;}
 std::string							ServerConfig::getRoot() const {return _root;}
 std::vector<std::string>   			ServerConfig::getServerName() const {return _server_name;}
 std::map<int, std::string>			ServerConfig::getErrorPage() const {return _error_page;}
@@ -417,7 +417,7 @@ ServerConfig ServerConfig::getRequestLoc(std::string const &path, std::string &r
 }
 
 std::ostream &operator<<(std::ostream &out, ServerConfig const &serv){
-	std::vector<t_listener> listen = serv.getListen();
+	std::vector<t_listen> listen = serv.getListen();
 	std::vector<std::string> name = serv.getServerName();
 	std::map<int, std::string> err_page = serv.getErrorPage();
 	std::map<std::string, std::string> cgi_param = serv.getCgiParam();
