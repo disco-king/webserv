@@ -1,4 +1,6 @@
 #include "Config.hpp"
+#include "RequestConfig.hpp"
+
 
 Config::Config(): _path(DEFAULT_CONFIG_PATH){}
 

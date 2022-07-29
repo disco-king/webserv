@@ -5,12 +5,12 @@
 # include "ServerConfig.hpp"
 # include "../Request.hpp"
 # include "../Server.hpp"
-# include "RequestConfig.hpp"
 
 # define BUFF_SIZE 1024
 # define DEFAULT_CONFIG_PATH "default.conf"
 
 class ServerConfig;
+class RequestConfig;
 
 class Config{
 		std::string _path;

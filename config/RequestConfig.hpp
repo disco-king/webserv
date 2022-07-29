@@ -1,7 +1,5 @@
 #pragma once
 
-class RequestConfig;
-
 #include <string>
 #include <vector>
 #include <map>
@@ -29,9 +27,7 @@ private:
 	// std::string addIndex(Request const &request);
 
 public:
-	RequestConfig(ServerConfig &config,
-					Request const &request,
-					std::string &location);
+	RequestConfig(ServerConfig &config, Request const &request, std::string &location);
 	RequestConfig(RequestConfig const &src);
 
 	std::string const &getContentLocation() const;
