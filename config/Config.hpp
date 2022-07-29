@@ -27,9 +27,10 @@ class Config{
 		void parse();
 	
 		std::vector<t_listen> getListeners() const;
-		RequestConfig			getConfigForRequest(t_listen const &, Request &) const;
+		RequestConfig			getConfigForRequest(t_listen const, Request &) const;
 		void					getServerForRequest(ServerConfig &, t_listen const,
 									std::string const) const;
+		std::vector<ServerConfig> getServers();
 	
 		std::vector<std::string> filereader(const char *fname);
 		std::vector<std::string> splitline(std::string);

@@ -3,8 +3,8 @@
 
 
 Config::Config(): _path(DEFAULT_CONFIG_PATH){
-	_file = filereader(_path.c_str());
-	ServerConfig::DefaultServerConfig(_file);
+	std::vector<std::string> tmp_file = filereader(_path.c_str());
+	ServerConfig::DefaultServerConfig(tmp_file);
 }
 
 Config::Config(std::string const &path): _path(path) {}
@@ -13,6 +13,10 @@ Config::~Config(){}
 
 void Config::setPath(std::string const &path){
 	_path = path;
+}
+
+std::vector<ServerConfig> Config::getServers(){
+	return _servers;
 }
 
 Config::ConfigException::ConfigException(std::string const &msg){
@@ -83,7 +87,7 @@ void Config::parse(){
 	}
 }
 
-RequestConfig Config::getConfigForRequest(t_listen const &listen, Request &req) const{
+RequestConfig Config::getConfigForRequest(t_listen const listen, Request &req) const{
 	ServerConfig serv;
 	std::string uri = req.getPath();
 	std::string host = req.getHeaders().at("Host");
@@ -100,57 +104,55 @@ RequestConfig Config::getConfigForRequest(t_listen const &listen, Request &req) 
 	return reqConf;
 }
 
-void Config::getServerForRequest(ServerConfig &serv, t_listen const listen,
-	std::string const host) const{
+void Config::getServerForRequest(ServerConfig &ret, t_listen const address,
+	std::string const hostName) const{
+	
+	std::vector<ServerConfig>	possibleServers;
 
-	std::vector<ServerConfig> servers;
-
-	for (std::vector<ServerConfig>::const_iterator it = _servers.begin();
-		it != servers.end(); it++){
-		std::vector<t_listen> listeners = it->getListen();
-		for (std::vector<t_listen>::iterator i = listeners.begin();
-			i != listeners.end(); i++)
-			if (listen.host == (*i).host && listen.port == (*i).port)
-				servers.push_back((*it));
+	for (std::vector<ServerConfig>::const_iterator serversIter = this->_servers.begin() ; serversIter != this->_servers.end(); serversIter++) {
+		std::vector<t_listen>	listens = serversIter->getListen();
+		for (std::vector<t_listen>::iterator listenIter = listens.begin(); listenIter != listens.end(); listenIter++) {
+			if (address.host == (*listenIter).host && address.port == (*listenIter).port) {
+				possibleServers.push_back((*serversIter));
+			}
+		}
 	}
-	if (servers.empty())
-		return;
-	for (std::vector<ServerConfig>::iterator it = servers.begin();
-		it != servers.end() ; it++){
-		std::vector<std::string> names = it->getServerName();
-		for (std::vector<std::string>::iterator i = names.begin();
-			i != names.end(); i++){
-			if (*i == host){
-				serv = *it;
+	if (possibleServers.empty())
+		return ;
+	for (std::vector<ServerConfig>::iterator serversIter = possibleServers.begin() ; serversIter != possibleServers.end(); serversIter++) {
+		std::vector<std::string>	serverNames = serversIter->getServerName();
+		for (std::vector<std::string>::iterator servNameIter = serverNames.begin() ; servNameIter != serverNames.end(); servNameIter++) {
+			if (*servNameIter == hostName) {
+				ret = *serversIter;
 				return;
 			}
 		}
 	}
-	serv = servers[0];
+	ret = possibleServers[0];
 }
 
 std::vector<t_listen> Config::getListeners() const {
 	std::vector<t_listen> listeners;
 
-	for (std::vector<ServerConfig>::const_iterator it = _servers.begin();
-		it != _servers.end(); it++){
-		std::vector<t_listen> tmp = it->getListen();
-		for (std::vector<t_listen>::iterator i = tmp.begin();
-			i != tmp.end(); i++){
-			std::vector<t_listen>::iterator j = listeners.begin();
-			for (; j != listeners.end(); j++)
-				if (i->host == j->host && i->port == j->port)
-					break;
-				if (j == listeners.end())
-					listeners.push_back(*i);
-		}
-	}
-	// code below probably does the same thing
 	// for (std::vector<ServerConfig>::const_iterator it = _servers.begin();
-	// 		it != _servers.end(); ++it){
-	// 	std::vector<t_listen> vec = it->getListen();
-	// 	listeners.insert(listeners.end(), vec.begin(), vec.end());
+	// 	it != _servers.end(); it++){
+	// 	std::vector<t_listen> tmp = it->getListen();
+	// 	for (std::vector<t_listen>::iterator i = tmp.begin();
+	// 		i != tmp.end(); i++){
+	// 		std::vector<t_listen>::iterator j = listeners.begin();
+	// 		for (; j != listeners.end(); j++)
+	// 			if (i->host == j->host && i->port == j->port)
+	// 				break;
+	// 			if (j == listeners.end())
+	// 				listeners.push_back(*i);
+	// 	}
 	// }
+	// code below probably does the same thing
+	for (std::vector<ServerConfig>::const_iterator it = _servers.begin();
+			it != _servers.end(); ++it){
+		std::vector<t_listen> vec = it->getListen();
+		listeners.insert(listeners.end(), vec.begin(), vec.end());
+	}
 	return listeners;
 }
 

@@ -290,7 +290,7 @@ void ServerConfig::parse_loc(unsigned int &i, std::vector<std::string> &file){
 			}
 			else if (cmd == ""){
 				if (file[i] != "}")
-					throw ServerConfigException("Parse Here Error");
+					throw ServerConfigException("Parse Error");
 				return;
 			}
 			else

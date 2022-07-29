@@ -9,12 +9,12 @@ int main(int argc, char**argv)
 	conf.parse();
 	conf.print_config();
 
+	std::cout << "Config output:\n";
 	std::vector<t_listen>::const_iterator end = conf.getListeners().end();
 	for (std::vector<t_listen>::const_iterator it = conf.getListeners().begin(); it != end; ++it){
 		std::cout << "host " << it->host << " port " << it->port << '\n';
 	}
-
-	exit(1);
+	std::cout << "Server output:\n";
 
 	Server server(conf);
 
