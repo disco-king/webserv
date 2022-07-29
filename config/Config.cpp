@@ -22,7 +22,7 @@ const char *Config::ConfigException::what() const throw(){
 }
 
 std::vector<std::string> Config::splitline(std::string line){
-	std::string delim = " \n\t";
+	std::string delim = " \r\n\t";
 	std::vector<std::string> file;
 
 	line += delim[0];
