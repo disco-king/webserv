@@ -7,7 +7,7 @@
 # include "../utils.hpp"
 
 # define BUFF_SIZE 1024
-# define DEFAULT_CONFIG_PATH "default.conf"
+# define DEFAULT_CONFIG_PATH "config/default.conf"
 
 class ServerConfig;
 class RequestConfig;

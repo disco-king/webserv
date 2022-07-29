@@ -220,14 +220,7 @@ void ServerConfig::addAlias(std::vector<std::string> tokens){
 ServerConfig ServerConfig::DefaultServerConfig(std::vector<std::string> &file){
 	ServerConfig serv;
 	unsigned int i = 2;
-	
-	if (file.empty())
-		throw ServerConfigException("Invalid default configuration file");
-	std::vector<std::string> start;
-	start.push_back("server");
-	start.push_back("{");
-	file.insert(file.begin(), start.begin(), start.end());
-	file.insert(file.end(), "}");
+
 	serv.parse_server(i, file);
 	ServerConfig::_default_config = serv;
 	return serv;

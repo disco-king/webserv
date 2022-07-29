@@ -2,7 +2,10 @@
 #include "RequestConfig.hpp"
 
 
-Config::Config(): _path(DEFAULT_CONFIG_PATH){}
+Config::Config(): _path(DEFAULT_CONFIG_PATH){
+	_file = filereader(_path.c_str());
+	ServerConfig::DefaultServerConfig(_file);
+}
 
 Config::Config(std::string const &path): _path(path) {}
 
