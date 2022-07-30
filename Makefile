@@ -19,8 +19,12 @@ RM = rm -rf
 
 all: $(NAME)
 
-$(NAME): $(OBJS) 
+$(NAME): $(ODIR) $(OBJS)
 	g++ $(OBJS) -o serv
+
+$(ODIR):
+	mkdir objs
+	mkdir objs/config
 
 $(ODIR)/%.o: %.cpp $(HEADERS)
 	g++ -c -o $@ $<
