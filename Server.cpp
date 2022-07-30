@@ -12,8 +12,9 @@ int Server::init()
 	int fd, res;
 	_max_fd = 0;
 
-	std::vector<t_listen>::const_iterator end = _config.getListeners().end();
-	for (std::vector<t_listen>::const_iterator it = _config.getListeners().begin(); it != end; ++it){
+	std::vector<t_listen> listeners = _config.getListeners();
+	std::vector<t_listen>::const_iterator end = listeners.end();
+	for (std::vector<t_listen>::const_iterator it = listeners.begin(); it != end; ++it){
 		Listener listener(_config);
 
 		res = listener.init(it->port);
