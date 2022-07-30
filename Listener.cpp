@@ -85,8 +85,9 @@ int Listener::_process(std::string &request, content_type type)
 		_decodeChunks(request);
 
 	Request req(request);
+	req.parseRequest();
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
-	
+
 	std::set<std::string> methods = conf.getAllowedMethods();
 
 	std::cout << "contentLoc: " << conf.getContentLocation() << '\n';
@@ -118,6 +119,7 @@ int Listener::read(int socket)
 	char buff[PACK_SIZE] = {0};
 	content_type type = plain;
 
+
 	int ret = ::read(socket, buff, PACK_SIZE);
 	if(ret <= 0){
 		close(socket);
@@ -126,6 +128,7 @@ int Listener::read(int socket)
 		std::cout << "client on socket " << socket << " closed connection\n";
 		return -1;
 	}
+
 
 	std::string &request = _sockets[socket];
 	request += buff;
