@@ -7,6 +7,8 @@ int main(int argc, char**argv)
 	if (argv[1])
 		conf.setPath(argv[1]);
 	conf.parse();
+	conf.print_config();
+
 
 	Server server(conf);
 

@@ -22,9 +22,9 @@ Listener::Listener(Listener const &other) : _config(other._config)
 	_written = other._written;
 }
 
-int Listener::init(short port, unsigned int host, int queue)
+int Listener::init(t_listen listen_data, int queue)
 {
-	int res;
+	_listen = listen_data;
 
 	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(_listen_fd == 0){
@@ -36,8 +36,8 @@ int Listener::init(short port, unsigned int host, int queue)
 	setsockopt(_listen_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 
 	_address.sin_family = AF_INET;
-	_address.sin_addr.s_addr = htonl(host);
-	_address.sin_port = htons(port);
+	_address.sin_addr.s_addr = htonl(listen_data.host);
+	_address.sin_port = htons(listen_data.port);
 
 	memset(_address.sin_zero, '\0', sizeof(_address.sin_zero));
 

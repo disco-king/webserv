@@ -35,9 +35,7 @@ public:
 	// ~Listener();
 	Listener(Listener const& other);
 
-	int init(short port,
-			unsigned int host = INADDR_ANY, 
-			int queue = 10);
+	int init(t_listen listen, int queue = 10);
 	int read(int socket);
 	int write(int socket);
 	void close(int socket);

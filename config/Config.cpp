@@ -109,7 +109,8 @@ void Config::getServerForRequest(ServerConfig &ret, t_listen const address,
 	
 	std::vector<ServerConfig>	possibleServers;
 
-	for (std::vector<ServerConfig>::const_iterator serversIter = this->_servers.begin() ; serversIter != this->_servers.end(); serversIter++) {
+
+	for (std::vector<ServerConfig>::const_iterator serversIter = _servers.begin() ; serversIter != _servers.end(); serversIter++) {
 		std::vector<t_listen>	listens = serversIter->getListen();
 		for (std::vector<t_listen>::iterator listenIter = listens.begin(); listenIter != listens.end(); listenIter++) {
 			if (address.host == (*listenIter).host && address.port == (*listenIter).port) {
@@ -134,20 +135,6 @@ void Config::getServerForRequest(ServerConfig &ret, t_listen const address,
 std::vector<t_listen> Config::getListeners() const {
 	std::vector<t_listen> listeners;
 
-	// for (std::vector<ServerConfig>::const_iterator it = _servers.begin();
-	// 	it != _servers.end(); it++){
-	// 	std::vector<t_listen> tmp = it->getListen();
-	// 	for (std::vector<t_listen>::iterator i = tmp.begin();
-	// 		i != tmp.end(); i++){
-	// 		std::vector<t_listen>::iterator j = listeners.begin();
-	// 		for (; j != listeners.end(); j++)
-	// 			if (i->host == j->host && i->port == j->port)
-	// 				break;
-	// 			if (j == listeners.end())
-	// 				listeners.push_back(*i);
-	// 	}
-	// }
-	// code below probably does the same thing
 	for (std::vector<ServerConfig>::const_iterator it = _servers.begin();
 			it != _servers.end(); ++it){
 		std::vector<t_listen> vec = it->getListen();

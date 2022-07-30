@@ -17,7 +17,7 @@ int Server::init()
 	for (std::vector<t_listen>::const_iterator it = listeners.begin(); it != end; ++it){
 		Listener listener(_config);
 
-		res = listener.init(it->port);
+		res = listener.init(*it);
 
 		if(res == -1){
 			continue;
