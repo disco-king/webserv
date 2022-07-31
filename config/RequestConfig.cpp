@@ -1,4 +1,5 @@
 #include "RequestConfig.hpp"
+#include "unistd.h"
 
 RequestConfig::RequestConfig(ServerConfig &config, Request const &request, std::string &location) :
 _errorPages(config.getErrorPage()),
@@ -21,14 +22,29 @@ _index(config.getIndex())
 		_path = root + _contentLocation;
 	}
 	removeSlashes(_path);
+	removeSlashes(_contentLocation);
 
 	if(!is_filename(_path) && request.getMethod() == "GET"){
-		_path += "/index.html";
+		_addIndex();
 		config = config.getRequestLoc(_path, location);
 	}
 
-	removeSlashes(_contentLocation);
-	removeSlashes(_path);
+}
+
+void RequestConfig::_addIndex()
+{
+	std::vector<std::string>::const_iterator it = _index.begin();
+	std::vector<std::string>::const_iterator end = _index.end();
+	std::string path = _path + (_path[_path.size() - 1] == '/' ? "" : "/");
+	for (; it < end; ++it){
+		if(!is_filename(path + *it))
+			continue;
+		_path += *it;
+		_contentLocation += "/" + *it;
+		removeSlashes(_path);
+		removeSlashes(_contentLocation);
+		return;
+	}
 }
 
 std::string const &RequestConfig::getContentLocation() const
