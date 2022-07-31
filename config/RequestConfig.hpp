@@ -24,7 +24,7 @@ private:
 	std::vector<std::string> _index;
 	bool _autoIndex;
 
-	// std::string addIndex(Request const &request);
+	void _addIndex();
 
 public:
 	RequestConfig(ServerConfig &config, Request const &request, std::string &location);

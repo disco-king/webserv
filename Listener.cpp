@@ -156,7 +156,6 @@ int Listener::read(int socket)
 
 	_process(request, type);
 
-	std::cout << "PROCESSED\n";
 	//request return test
 
 	// Request req(request);
