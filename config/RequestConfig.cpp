@@ -7,7 +7,7 @@ _CGIParams(config.getCgiParam()),
 _CGIPass(config.getCgiPass()),
 _allowedMethods(config.getAllowedMethods()),
 _autoIndex(config.getAutoIndex()),
-_index(config.getIndex().begin(), config.getIndex().end())
+_index(config.getIndex())
 {
 	std::string root = config.getRoot();
 	std::string alias = config.getAlias();

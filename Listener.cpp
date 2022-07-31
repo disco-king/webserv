@@ -153,8 +153,10 @@ int Listener::read(int socket)
 		type = chunking;
 	}
 
+
 	_process(request, type);
 
+	std::cout << "PROCESSED\n";
 	//request return test
 
 	// Request req(request);
