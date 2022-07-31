@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <sys/socket.h>
+#include "header.hpp"
 
 Listener::Listener(Config& config) : _config(config)
 {
@@ -97,7 +98,17 @@ int Listener::_process(std::string &request, content_type type)
 	for(std::set<std::string>::const_iterator it = methods.begin();
 		it != methods.end(); ++it)
 		std::cout << '\t' << *it << '\n';
+	
+	//start resp
+	Response ServResponse("text/html", 0, "");
+	ServResponse.SetResponseCode(req.getCode());
+	ServResponse.SetBody(req.getBody());
+	ServResponse.CheckMethod(req.getMethod());
+	ServResponse.MakeHTTPResponse(ServResponse.GetResponseCode());
+	_response.clear();
+	_response.append(ServResponse.GetResponse());
 
+	//end
 	return 0;
 }
 
@@ -177,10 +188,13 @@ int Listener::read(int socket)
 
 int Listener::write(int socket)
 {
+	std::cout << "writing\n";
 	if(_written.count(socket) == 0)
 		_written[socket] = 0;
 
 	std::string to_send = _response.substr(_written[socket],PACK_SIZE);
+
+	std::cout << "what is sending\n" << to_send << std::endl;
 	int ret = ::write(socket, to_send.c_str(), to_send.length());
 
 	if(ret == -1){

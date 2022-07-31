@@ -4,7 +4,8 @@ CONF_SRCS = ./config/Config.cpp ./config/ConfigUtils.cpp \
 			./config/RequestConfig.cpp ./config/ServerConfig.cpp
 
 SRCS = Server.cpp Request.cpp Listener.cpp \
-		file_utils.cpp string_utils.cpp main.cpp
+		file_utils.cpp string_utils.cpp main.cpp \
+		Response.cpp
 
 ODIR = objs
 _OBJS = $(SRCS:.cpp=.o) $(CONF_SRCS:.cpp=.o)
