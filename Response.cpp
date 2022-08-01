@@ -108,7 +108,6 @@ void Response::MakeHTTPResponse(int code)
 	_response.append("HTTP/1.1 " + CodeToString(_response_code) + " " + _codes[_response_code] + "\n");
 	_response.append("Server: server\n");
 	_response.append("Date: " + GetDateAndTime());
-	_response.append("Content-Type: " + GetContentType() + "\n");
 	if (_response_code >= 400 && _response_code <= 500 )
 	{
 		_body.clear();
@@ -119,8 +118,10 @@ void Response::MakeHTTPResponse(int code)
 		_body.append("<b>");
 		_body.append("</p>");
 		_body.append("\n");
-		this->_content_length = _body.size();
+		_content_length = _body.size() + 1;
+		SetContentType("text/html");
 	}
+	_response.append("Content-Type: " + GetContentType() + "\n");
 	SetContentLength(_body.size() + 1);
 	_response.append("Content-Length: " + GetContentLength() + "\n");
 	_response.append("Connection: keep-alive\n");
@@ -184,7 +185,6 @@ void Response::SetMethods()
 {
 	_allowed_methods.push_back("GET");
 	_allowed_methods.push_back("POST");
-	_allowed_methods.push_back("PUT");
 	_allowed_methods.push_back("DELETE");
 }
 
@@ -261,9 +261,7 @@ bool Response::IsFile(const std::string &file_name)
 	struct stat file_stats;
 	if (!stat(file_name.c_str(), &file_stats))
 	{
-		if (file_stats.st_mode && S_IFDIR)
-			return false;
-		else if (file_stats.st_mode && S_IFREG)
+		if (file_stats.st_mode && S_IFREG)
 			return true;
 	}
 	return false;
@@ -282,20 +280,20 @@ void Response::POSTMethod(Request &Req, RequestConfig &ReqConf)
 	{
 		body_to_save = Req.getBody();
 		_body.clear();
-		SaveFile(body_to_save, Req);
+		SaveFile(body_to_save, ReqConf);
 	}
 
 
 }
 
-void Response::SaveFile(const std::string &body, Request &Req)
+void Response::SaveFile(const std::string &body, RequestConfig &ReqConf)
 {
 	std::ofstream file;
-	std::string path = Req.getPath();
+	std::string path = ReqConf.getPath();
 
 	if (!body.size())
 		_response_code = 204;
-	else if (IsFile(path))
+	else
 	{
 		file.open(path.c_str(), std::ofstream::out | std::ofstream::trunc);
 		if (!file.is_open())
@@ -307,8 +305,6 @@ void Response::SaveFile(const std::string &body, Request &Req)
 			file.close();
 		}
 	}
-	else
-		_response_code = 403;
 }
 
 
@@ -325,4 +321,14 @@ void Response::DELETEMethod(Request &Req)
 	}
 	else
 		_response_code = 404;
+}
+
+
+void Response::StartThings(RequestConfig &conf, Request &req)
+{
+	SetResponseCode(req.getCode());
+	SetBody("shit");
+	CheckMethod(req.getMethod());
+	//ServResponse.GETMethod(req, conf);
+	MakeHTTPResponse(GetResponseCode());
 }

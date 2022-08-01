@@ -48,7 +48,9 @@ class Response
 		bool IsFile(const std::string &file_name);
 
 		void POSTMethod(Request &Req, RequestConfig &ReqConf);
-		void SaveFile(const std::string &body, Request &Req);
+		void SaveFile(const std::string &body, RequestConfig &ReqConfig);
 
 		void DELETEMethod(Request &Req);
+
+		void StartThings(RequestConfig &conf, Request &req);
 };

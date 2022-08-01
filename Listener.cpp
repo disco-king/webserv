@@ -100,10 +100,11 @@ int Listener::_process(std::string &request, content_type type)
 		std::cout << '\t' << *it << '\n';
 	
 	//start resp
-	Response ServResponse("text/html", 0, "");
+	Response ServResponse("application/octet-stream", 0, "");
 	ServResponse.SetResponseCode(req.getCode());
-	ServResponse.SetBody(req.getBody());
+	ServResponse.SetBody("shit");
 	ServResponse.CheckMethod(req.getMethod());
+	//ServResponse.GETMethod(req, conf);
 	ServResponse.MakeHTTPResponse(ServResponse.GetResponseCode());
 	_response.clear();
 	_response.append(ServResponse.GetResponse());
