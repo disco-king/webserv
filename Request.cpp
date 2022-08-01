@@ -24,7 +24,7 @@ int Request::verifyMethod()
 void Request::startLine(std::string const &line)
 {
 	_code = 400;
-
+	std::cout << "START LINE: " << line << '\n';
 	std::vector<std::string> tokens = split(line);
 
 	if(tokens.size() != 3)

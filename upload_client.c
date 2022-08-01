@@ -7,6 +7,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #define PORT 8000
 
@@ -60,15 +61,37 @@ int main(int argc, char const *argv[])
 	}
 
 	// hello = "POST /test.txt HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\nTransfer-Encoding: Chunked\r\n\r\n9\r\nChunk one\r\n9\r\nChunk two\r\nB\r\nChunk three\r\n0\r\n\r\n";
-	hello = "GET / HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\n\r\n";
+	// hello = "GET / HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\n\r\n";
 	// hello = "GET /test.txt HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\n\r\n";
 	// hello = "DELETE /test.txt HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\n\r\n";
-	char buffer[1024] = {0};
+	hello = "POST /terry_davis.jpg HTTP/1.1\r\nHost: localhost:8000\r\nContent-Length: 144113\r\n\r\n";
+	char buffer[150000] = {0};
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	{
 		printf("\n Socket creation error \n");
 		return -1;
 	}
+
+	int fd = open("./terry_davis.jpg", O_RDONLY);
+	if(fd < 2){
+		perror("read");
+		exit(1);
+	}
+	
+	int res = 1;
+	size_t pos = 0;
+	while(res > 0)
+	{
+		res = read(fd, buffer + pos, 1000);
+		if(res < 0);
+			break;
+		pos += res;
+	}
+	if(pos < 0){
+		perror("read");
+		exit(1);
+	}
+	printf("read %zu bytes\n", pos);
 
 	memset(&serv_addr, '0', sizeof(serv_addr));
 
@@ -93,11 +116,25 @@ int main(int argc, char const *argv[])
 
 	for (int i = 0; i < repeats; i++)
 	{
-		send(sock, hello, strlen(hello), 0 );
+		res = write(sock, hello, 80);
+		if(res < 0){
+			perror("send");
+			exit(1);
+		}
+		else{
+			printf("written %d bytes\n", res);
+		}
+		res = write(sock, buffer, pos);
+		if(res < 0){
+			perror("send");
+			exit(1);
+		}
+		else{
+			printf("written %d bytes\n", res);
+		}
 		printf("Hello message sent\n");
-		valread = read(sock , buffer, 1024);
-		printf("%s\n",buffer );
-		sleep(sleep_time);
+		// read(sock, buffer, sizeof(buffer));
+		// printf("Got response:\n%s\n", buffer);
 	}
 	close(sock);
 	return 0;

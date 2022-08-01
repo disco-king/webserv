@@ -43,14 +43,14 @@ class Response
 		void ClearContents();
 
 		/*Methods*/
-		void GETMethod(Request &Req, RequestConfig &ReqConf);
+		void GETMethod(RequestConfig &ReqConf);
 		void GetFileFromServer(const std::string &file_name);
 		bool IsFile(const std::string &file_name);
 
-		void POSTMethod(Request &Req, RequestConfig &ReqConf);
+		void POSTMethod(RequestConfig &ReqConf);
 		void SaveFile(const std::string &body, RequestConfig &ReqConfig);
 
-		void DELETEMethod(Request &Req);
+		void DELETEMethod(RequestConfig &ReqConf);
 
 		void StartThings(RequestConfig &conf);
 };

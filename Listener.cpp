@@ -82,6 +82,7 @@ int Listener::_decodeChunks(std::string &request)
 
 int Listener::_process(std::string &request, content_type type)
 {
+	std::cout << "PROCESSING REQUEST, SIZE " << request.size() << '\n';
 	if(type == chunking)
 		_decodeChunks(request);
 
@@ -103,10 +104,9 @@ int Listener::_process(std::string &request, content_type type)
 	std::cout << "reqBody: " << conf.getBody() << '\n';
 	
 	//start resp
-	Response ServResponse("application/octet-stream", 0, "");
+	Response ServResponse("text/html", 0, "");
 	ServResponse.StartThings(conf);
-	_response.clear();
-	_response.append(ServResponse.GetResponse());
+	request = ServResponse.GetResponse();
 
 	//end
 	return 0;
@@ -145,14 +145,21 @@ int Listener::read(int socket)
 	request += buff;
 
 	size_t head_end = request.find("\r\n\r\n");
-	if(head_end == std::string::npos)
+	if(head_end == std::string::npos){
+		std::cout << "SIZE " << request.size() << " LINEBREAK NOT FOUND\n";
+		std::cout << "[" << request << "]" << '\n'; 
 		return 1;
+	}
 
 	size_t pos = request.find("Content-Length:");
 	if(pos != std::string::npos && pos < head_end){
 		size_t len = std::strtoll(&(request[pos + 15]), 0, 10);
-		if(request.size() < len + head_end + 4)
+		if(request.size() < len + head_end + 4){
+			std::cout << "GOT CONTENT " << request.size() << '\n'
+			<< " EXPECTED SIZE " << len + head_end + 4;
+			std::cout << "[" << request << "]\n";
 			return 1;
+		}
 		type = length;
 	}
 	else {
@@ -191,7 +198,7 @@ int Listener::write(int socket)
 	if(_written.count(socket) == 0)
 		_written[socket] = 0;
 
-	std::string to_send = _response.substr(_written[socket],PACK_SIZE);
+	std::string to_send = _sockets[socket].substr(_written[socket],PACK_SIZE);
 
 	std::cout << "what is sending\n" << to_send << std::endl;
 	int ret = ::write(socket, to_send.c_str(), to_send.length());

@@ -219,7 +219,7 @@ int Response::GetResponseCode()
 	return _response_code;
 }
 
-void Response::GETMethod(Request &Req, RequestConfig &ReqConf)
+void Response::GETMethod(RequestConfig &ReqConf)
 {
 	if (ReqConf.getCGIPass().size() > 0)
 	{
@@ -268,7 +268,7 @@ bool Response::IsFile(const std::string &file_name)
 }
 
 
-void Response::POSTMethod(Request &Req, RequestConfig &ReqConf)
+void Response::POSTMethod(RequestConfig &ReqConf)
 {
 	std::string body_to_save;
 
@@ -278,7 +278,7 @@ void Response::POSTMethod(Request &Req, RequestConfig &ReqConf)
 	}
 	else
 	{
-		body_to_save = Req.getBody();
+		body_to_save = ReqConf.getBody();
 		_body.clear();
 		SaveFile(body_to_save, ReqConf);
 	}
@@ -308,9 +308,9 @@ void Response::SaveFile(const std::string &body, RequestConfig &ReqConf)
 }
 
 
-void Response::DELETEMethod(Request &Req)
+void Response::DELETEMethod(RequestConfig &ReqConf)
 {
-	std::string path = Req.getPath();
+	std::string path = ReqConf.getPath();
 
 	if (IsFile(path))
 	{
@@ -332,6 +332,8 @@ void Response::StartThings(RequestConfig &conf)
 		SetBody(conf.getBody());
 		CheckMethod(conf.getMethod());
 	}
-	//ServResponse.GETMethod(req, conf);
+	POSTMethod(conf);
+	// GETMethod(conf);
+	// DELETEMethod(conf);
 	MakeHTTPResponse(GetResponseCode());
 }
