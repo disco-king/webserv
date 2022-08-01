@@ -13,6 +13,8 @@ class RequestConfig
 {
 
 private:
+	std::string const &_body;
+	std::string _method;
 	std::string _contentLocation;
 	std::string _path;
 	unsigned long _clientBodyBufferSize;
@@ -22,6 +24,7 @@ private:
 	std::set<std::string> _allowedMethods;
 	t_listen _addrData;
 	std::vector<std::string> _index;
+	int _code;
 	bool _autoIndex;
 
 	void _addIndex();
@@ -30,6 +33,9 @@ public:
 	RequestConfig(ServerConfig &config, Request const &request, std::string &location);
 	RequestConfig(RequestConfig const &src);
 
+	int getCode() const;
+	std::string const &getBody() const;
+	std::string getMethod() const;
 	std::string const &getContentLocation() const;
 	std::string const &getPath() const;
 	std::map<int, std::string> const &getErrorPages() const;

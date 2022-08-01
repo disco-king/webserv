@@ -114,7 +114,7 @@ std::map<std::string, std::string> &Request::getHeaders()
 }
 
 
-int Request::getCode()
+int Request::getCode() const
 {
 	return _code;
 }

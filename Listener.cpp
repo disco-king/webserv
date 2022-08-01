@@ -91,6 +91,8 @@ int Listener::_process(std::string &request, content_type type)
 
 	std::set<std::string> methods = conf.getAllowedMethods();
 
+	std::cout << "reqMethod: " << conf.getMethod() << '\n';
+	std::cout << "respCode: " << conf.getCode() << '\n';
 	std::cout << "contentLoc: " << conf.getContentLocation() << '\n';
 	std::cout << "path: " << conf.getPath() << '\n';
 	std::cout << "buffSize: " << conf.getClientBodyBufferSize() << '\n';
@@ -98,6 +100,7 @@ int Listener::_process(std::string &request, content_type type)
 	for(std::set<std::string>::const_iterator it = methods.begin();
 		it != methods.end(); ++it)
 		std::cout << '\t' << *it << '\n';
+	std::cout << "reqBody: " << conf.getBody() << '\n';
 	
 	//start resp
 	Response ServResponse("application/octet-stream", 0, "");
