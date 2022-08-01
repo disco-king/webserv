@@ -36,7 +36,7 @@ public:
 	std::string const &getBody() const;
 	std::string const &getVersion() const;
 	std::map<std::string, std::string> &getHeaders();
-	int getCode();
+	int getCode() const;
 
 	void setBody(std::string const &body);
 	void setCode(int code);
