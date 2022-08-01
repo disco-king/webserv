@@ -104,11 +104,7 @@ int Listener::_process(std::string &request, content_type type)
 	
 	//start resp
 	Response ServResponse("application/octet-stream", 0, "");
-	ServResponse.SetResponseCode(req.getCode());
-	ServResponse.SetBody("shit");
-	ServResponse.CheckMethod(req.getMethod());
-	//ServResponse.GETMethod(req, conf);
-	ServResponse.MakeHTTPResponse(ServResponse.GetResponseCode());
+	ServResponse.StartThings(conf);
 	_response.clear();
 	_response.append(ServResponse.GetResponse());
 

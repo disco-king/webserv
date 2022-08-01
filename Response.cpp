@@ -324,11 +324,14 @@ void Response::DELETEMethod(Request &Req)
 }
 
 
-void Response::StartThings(RequestConfig &conf, Request &req)
+void Response::StartThings(RequestConfig &conf)
 {
-	SetResponseCode(req.getCode());
-	SetBody("shit");
-	CheckMethod(req.getMethod());
+	SetResponseCode(conf.getCode());
+	if (_response_code < 400 && _response_code > 0)
+	{
+		SetBody(conf.getBody());
+		CheckMethod(conf.getMethod());
+	}
 	//ServResponse.GETMethod(req, conf);
 	MakeHTTPResponse(GetResponseCode());
 }

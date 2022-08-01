@@ -52,5 +52,5 @@ class Response
 
 		void DELETEMethod(Request &Req);
 
-		void StartThings(RequestConfig &conf, Request &req);
+		void StartThings(RequestConfig &conf);
 };
