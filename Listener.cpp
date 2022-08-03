@@ -85,21 +85,26 @@ int Listener::_decodeChunks(std::string &request)
 
 int Listener::_process(std::string &request, content_type type)
 {
+	Response ServResponse("text/html", 0, "");
+
 	int decode_res = 0;
 	if(type == chunking)
 		decode_res = _decodeChunks(request);
 
 	if(decode_res){//if decoding failed, put default error in response and return
-		std::cerr << "bad chunks\n";
+		//std::cerr << "bad chunks\n";
 		//you can throw all of this out
-		request = "DECODING FAIL\r\nContent-Encoding: Chunked";
+		"DECODING FAIL\r\nContent-Encoding: Chunked";
+		ServResponse.MakeHTTPResponse(422);
+		request = ServResponse.GetResponse();
 		return 0;
 	}
 	Request req(request);
 	req.parseRequest();
 	if(req.getCode() >= 400){//here body isn't parsed as well, need a default error return
-		std::cerr << "BAD REQUEST\n";
-		request = "REQUEST PARSING FAIL\r\n\r\n";
+		//std::cerr << "BAD REQUEST\n";
+		ServResponse.MakeHTTPResponse(400);
+		request = ServResponse.GetResponse();
 		// exit(0);
 		return 0;
 	}
@@ -123,7 +128,6 @@ int Listener::_process(std::string &request, content_type type)
 
 
 	//start resp
-	Response ServResponse("text/html", 0, "");
 	ServResponse.StartThings(conf);
 	request = ServResponse.GetResponse();
 
@@ -184,7 +188,6 @@ int Listener::read(int socket)
 			type = chunking;
 		}
 	}
-
 	_process(request, type);
 	return 0;
 }

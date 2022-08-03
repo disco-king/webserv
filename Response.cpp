@@ -196,17 +196,22 @@ void Response::SetContentLength(int length)
 
 void Response::CheckMethod(RequestConfig &conf)
 {
-	HTTPMethods Method[3] = {&Response::GETMethod, &Response::POSTMethod, &Response::DELETEMethod};
-	for (size_t i = 0; i < _allowed_methods.size(); i++)
-	{
-		if (!conf.getMethod().compare(_allowed_methods[i]))
-		{
-			//std::cout << "nethod is" << conf.getMethod() << std::endl;
-			(this->*Method[i])(conf);
-			return ;
-		}
-	}
-	_response_code = 405;
+	std::map<std::string, HTTPMethods> MethodMap;
+	MethodMap.insert(std::make_pair("GET", &Response::GETMethod));
+	MethodMap.insert(std::make_pair("POST", &Response::POSTMethod));
+	MethodMap.insert(std::make_pair("DELETE", &Response::DELETEMethod));
+	(this->*MethodMap[conf.getMethod()])(conf);
+	//HTTPMethods Method[3] = {&Response::GETMethod, &Response::POSTMethod, &Response::DELETEMethod};
+	// for (size_t i = 0; i < _allowed_methods.size(); i++)
+	// {
+	// 	if (!conf.getMethod().compare(_allowed_methods[i]))
+	// 	{
+	// 		//std::cout << "nethod is" << conf.getMethod() << std::endl;
+	// 		(this->*Method[i])(conf);
+	// 		return ;
+	// 	}
+	// }
+	// _response_code = 405;
 }
 
 void Response::SetResponseCode(int code)
@@ -232,7 +237,6 @@ void Response::GETMethod(RequestConfig &ReqConf)
 	}
 	else
 	{
-		std::cout << "i'm get\n";
 		GetFileFromServer(ReqConf.getPath());
 	}
 }
@@ -262,12 +266,24 @@ void Response::GetFileFromServer(const std::string &file_name)
 	}
 }
 
+bool Response::IsDir(const std::string &dir)
+{
+	struct stat stats;
+	if (!stat(dir.c_str(), &stats))
+	{
+		if (stats.st_mode & S_IFDIR)
+			return true;
+	}
+	return false;
+}
+
+
 bool Response::IsFile(const std::string &file_name)
 {
 	struct stat file_stats;
 	if (!stat(file_name.c_str(), &file_stats))
 	{
-		if (file_stats.st_mode && S_IFREG)
+		if (file_stats.st_mode & S_IFREG)
 			return true;
 	}
 	return false;
@@ -284,7 +300,6 @@ void Response::POSTMethod(RequestConfig &ReqConf)
 	}
 	else
 	{
-		std::cout << "i'm post\n";
 		body_to_save = ReqConf.getBody();
 		_body.clear();
 		SaveFile(body_to_save, ReqConf);
@@ -340,17 +355,18 @@ void Response::StartThings(RequestConfig &conf)
 	if (_response_code < 400 && _response_code > 0)
 	{
 		SetBody(conf.getBody());
-		//CheckMethod(conf);
+		CheckMethod(conf);
 	}
+	std::cout << conf.getPath() << std::endl;
 	//POSTMethod(conf);
 	// GETMethod(conf);
 	// POSTMethod(conf);
 	//GETMethod(conf);
 	// DELETEMethod(conf);
-	//MakeHTTPResponse(GetResponseCode());
-	GetDirectoryListing(conf);
-	ShowDirectoryListing();
-	std::cout << "Response transfer ended\n"; 
+	MakeHTTPResponse(GetResponseCode());
+	//GetDirectoryListing(conf);
+	//ShowDirectoryListing();
+	//std::cout << "Response transfer ended\n"; 
 }
 
 void Response::GetDirectoryListing(RequestConfig &conf)
@@ -358,13 +374,15 @@ void Response::GetDirectoryListing(RequestConfig &conf)
 	struct stat file_stats;
 	DIR *dir;
 	struct dirent *ent;
-	std::cout << "getdirtectory\n";
 	dir = opendir("./tests");
 	if (dir)
 	{
 		while ((ent = readdir(dir)))
 		{
-			_files.push_back(ent->d_name);
+			if (IsDir(ent->d_name))
+				_dirs.push_back(ent->d_name);
+			else
+				_files.push_back(ent->d_name);
 		}
 		closedir(dir);
 		_response_code = 200;
@@ -378,6 +396,8 @@ void Response::GetDirectoryListing(RequestConfig &conf)
 
 void Response::ShowDirectoryListing()
 {
+	std::sort(_dirs.begin(), _dirs.end());
+	std::sort(_files.begin(),_files.end());
 	_response.clear();
 	_response.append("HTTP/1.1 " + CodeToString(_response_code) + " " + _codes[_response_code] + "\n");
 	_response.append("Server: server\n");
@@ -386,16 +406,21 @@ void Response::ShowDirectoryListing()
 	_response.append("Content-Type: " + GetContentType() + "\n");
 	_body.append("<p style=\"text-align:left;\">");
 	_body.append("<b>");
-	_body.append("..\n");
+	_body.append("<h1>Index of files</h1><hr></hr>");
+	for (int i = 0; i < _dirs.size(); i++)
+	{
+		_body.append(_dirs[i]);
+		_body.append("<br>");
+	}
 	for (int i = 0; i < _files.size(); i++)
 	{
 		_body.append(_files[i]);
-		_body.append("\r\n");
+		_body.append("<br>");
 	}
 	_body.append("<b>");
 	_body.append("</p>");
 	_body.append("\n");
-	_content_length = _body.size() + 1;
+	_content_length = _body.size();
 	_response.append("Content-Length: " + GetContentLength() + "\n");
 	_response.append("Connection: keep-alive\n");
 	_response.append("Accept-Ranges: bytes\n");

@@ -13,6 +13,7 @@ class Response
 		std::string _body;
 		std::vector<std::string> _allowed_methods;
 		std::vector<std::string> _files;
+		std::vector<std::string> _dirs;
 		int _content_length;
 		int _response_code;
 	public:
@@ -57,6 +58,7 @@ class Response
 
 		void GetDirectoryListing(RequestConfig &conf);
 		void ShowDirectoryListing();
+		bool IsDir(const std::string &dir);
 };
 
 typedef void (Response::*HTTPMethods)(RequestConfig &conf);
