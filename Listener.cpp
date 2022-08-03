@@ -95,7 +95,6 @@ int Listener::_process(std::string &request, content_type type)
 		request = "DECODING FAIL\r\nContent-Encoding: Chunked";
 		return 0;
 	}
-
 	Request req(request);
 	req.parseRequest();
 	if(req.getCode() >= 400){//here body isn't parsed as well, need a default error return
@@ -128,6 +127,7 @@ int Listener::_process(std::string &request, content_type type)
 	ServResponse.StartThings(conf);
 	request = ServResponse.GetResponse();
 
+	std::cout << ServResponse.GetResponse();
 	//end
 	return 0;
 }

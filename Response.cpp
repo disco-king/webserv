@@ -358,7 +358,7 @@ void Response::GetDirectoryListing(RequestConfig &conf)
 	struct stat file_stats;
 	DIR *dir;
 	struct dirent *ent;
-
+	std::cout << "getdirtectory\n";
 	dir = opendir("./tests");
 	if (dir)
 	{
