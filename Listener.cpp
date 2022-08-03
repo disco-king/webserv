@@ -147,7 +147,8 @@ int Listener::read(int socket)
 	size_t head_end = request.find("\r\n\r\n");
 	if(head_end == std::string::npos){
 		std::cout << "SIZE " << request.size() << " LINEBREAK NOT FOUND\n";
-		std::cout << "[" << request << "]" << '\n'; 
+		if(request.size() < 200)
+			std::cout << "[" << request << "]" << '\n'; 
 		return 1;
 	}
 
@@ -155,9 +156,10 @@ int Listener::read(int socket)
 	if(pos != std::string::npos && pos < head_end){
 		size_t len = std::strtoll(&(request[pos + 15]), 0, 10);
 		if(request.size() < len + head_end + 4){
-			std::cout << "GOT CONTENT " << request.size() << '\n'
-			<< " EXPECTED SIZE " << len + head_end + 4;
-			std::cout << "[" << request << "]\n";
+			std::cout << "GOT CONTENT OF SIZE " << request.size() << '\n'
+			<< " EXPECTED SIZE " << len + head_end + 4 << '\n';
+			if(request.size() < 200)
+				std::cout << "[" << request << "]\n";
 			return 1;
 		}
 		type = length;

@@ -42,7 +42,8 @@ int main()
 {
 	// std::string str = "/////some / slashes / here ////// // //";
 	// std::string str = "some // slashes // here ";
-	std::string str = "// // //";
+	//std::string str = "// // //";
+	std::string str = "some / slashes / here ";
 
 	// str = removeAdjacentSlashes(str);
 	removeSlashes(str);

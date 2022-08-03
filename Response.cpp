@@ -126,7 +126,7 @@ void Response::MakeHTTPResponse(int code)
 	_response.append("Content-Length: " + GetContentLength() + "\n");
 	_response.append("Connection: keep-alive\n");
 	_response.append("Accept-Ranges: bytes\n");
-	_response.append("\n\n");
+	_response.append("\r\n");
 	_response.append(_body);
 	_response.append("\r\n");
 }
