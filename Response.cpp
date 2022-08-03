@@ -340,15 +340,17 @@ void Response::StartThings(RequestConfig &conf)
 	if (_response_code < 400 && _response_code > 0)
 	{
 		SetBody(conf.getBody());
-		CheckMethod(conf);
+		//CheckMethod(conf);
 	}
 	//POSTMethod(conf);
 	// GETMethod(conf);
+	// POSTMethod(conf);
+	//GETMethod(conf);
 	// DELETEMethod(conf);
 	//MakeHTTPResponse(GetResponseCode());
 	GetDirectoryListing(conf);
 	ShowDirectoryListing();
-		std::cout << "Response transfer ended\n"; 
+	std::cout << "Response transfer ended\n"; 
 }
 
 void Response::GetDirectoryListing(RequestConfig &conf)
@@ -357,7 +359,7 @@ void Response::GetDirectoryListing(RequestConfig &conf)
 	DIR *dir;
 	struct dirent *ent;
 
-	dir = opendir("./tests/transfer");
+	dir = opendir("./tests");
 	if (dir)
 	{
 		while ((ent = readdir(dir)))
@@ -388,7 +390,7 @@ void Response::ShowDirectoryListing()
 	for (int i = 0; i < _files.size(); i++)
 	{
 		_body.append(_files[i]);
-		_body.append("\n");
+		_body.append("\r\n");
 	}
 	_body.append("<b>");
 	_body.append("</p>");

@@ -115,3 +115,8 @@ std::string RequestConfig::getMethod() const
 {
 	return _method;
 }
+
+void RequestConfig::setCode(int code)
+{
+	_code = code;
+}

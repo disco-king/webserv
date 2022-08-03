@@ -6,6 +6,19 @@ Request::Request(std::string const &request) :
 _request(request)
 {}
 
+int Request::verifyHeader(std::string header)
+{
+	std::string lower = to_lower(header);
+	if(lower == "host")
+		return 0;
+	if(lower == "content-length")
+		return 0;
+	if(lower == "transfer-encoding")
+		return 0;
+	if(lower == "cgi-test-header")
+		return 0;
+	return 1;
+}
 
 int Request::verifyMethod()
 {
@@ -24,12 +37,13 @@ int Request::verifyMethod()
 void Request::startLine(std::string const &line)
 {
 	_code = 400;
-	std::cout << "START LINE: " << line << '\n';
 	std::vector<std::string> tokens = split(line);
 
-	if(tokens.size() != 3)
+	if(tokens.size() != 3){
 		std::cerr << "error: invalid start-line\n";
-	
+		return;
+	}
+
 	_method = strip(tokens[0]);
 	_path = strip(tokens[1]);
 	_version = strip(tokens[2]);
@@ -42,19 +56,21 @@ void Request::startLine(std::string const &line)
 		_code = 200;
 }
 
-void Request::parseHeader(std::string const &line)
+int Request::parseHeader(std::string const &line)
 {
+	_code = 400;
 	size_t delim = line.find(':');
 	if(delim == std::string::npos)
-		return;
+		return 1;
 	std::string key = line.substr(0, delim);
 	std::string value = line.substr(delim + 1);
-	// Will add header verification here.
-	// For now we'll just assume all headers are correct.
-	_headers[strip(key)] = strip(value);
+	if(strip(value).size() == 0 || strip(key).size() == 0)
+		return 1;
+	if(!verifyHeader(key))
+		_headers[key] = value;
+	_code = 200;
+	return 0;
 }
-
-
 
 void Request::parseRequest()
 {
@@ -68,14 +84,14 @@ void Request::parseRequest()
 	end = _request.find('\n', begin);
 
 	while(_request[begin] != '\r' || begin + 1 != end){
-		parseHeader(_request.substr(begin, end - begin));
+		if(parseHeader(_request.substr(begin, end - begin)))
+			break;
 		begin = end + 1;
 		end = _request.find('\n', begin);
 	}
-	// We'll also (potentially) set language
-	// and query text here. I suppose we don't
-	// need that stuff right now.
-	_body = _request.substr(end + 1);
+
+	if(_code == 200)
+		_body = _request.substr(end + 1);
 }
 
 void Request::setBody(std::string const &body)

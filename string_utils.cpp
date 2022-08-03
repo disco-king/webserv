@@ -26,6 +26,14 @@ std::string &strip(std::string &str)
 	return str;
 }
 
+std::string &to_lower(std::string &str)
+{
+	std::string::iterator end = str.end();
+	for (std::string::iterator it = str.begin(); it != end; ++it)
+		*it = std::tolower(*it);
+	return str;
+}
+
 bool ends_with(std::string const &str, std::string ending)
 {
 	std::string::const_reverse_iterator main_it = str.rbegin();
@@ -40,10 +48,8 @@ bool ends_with(std::string const &str, std::string ending)
 
 size_t find_string(std::string const& haystack, std::string needle)
 {
-	std::string::iterator ni = needle.begin();
-	std::string::iterator nend = needle.end();
-	for(; ni < nend; ++ni)
-		*ni = std::tolower(*ni);
+	std::string::iterator ni, nend = needle.end();
+	to_lower(needle);
 
 	std::string::const_iterator hi = haystack.begin();
 	std::string::const_iterator hend = haystack.end();
