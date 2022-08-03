@@ -68,28 +68,45 @@ int Listener::_decodeChunks(std::string &request)
 	{
 		if(chunk_size > overall_size)
 			break;
-
 		processed += request.substr(pos + 2, chunk_size);
 		pos += chunk_size + 4;
 		chunk_size = std::strtoll(&(request[pos]), 0, 16);
+		if(chunk_size == 0 && request[pos] != '0')
+			return 1;
 		pos = request.find("\r\n", pos);
 		overall_size = request.size() - pos - 7;
 	}
+	if(processed.size() == processed.find("\r\n\r\n") + 4)
+		return 1;
 	request = processed + "\r\n\r\n";
-	return chunk_size;
+	return 0;
 }
 
 
 int Listener::_process(std::string &request, content_type type)
 {
-	std::cout << "PROCESSING REQUEST, SIZE " << request.size() << '\n';
+	int decode_res = 0;
 	if(type == chunking)
-		_decodeChunks(request);
+		decode_res = _decodeChunks(request);
+
+	if(decode_res){//if decoding failed, put default error in response and return
+		std::cerr << "bad chunks\n";
+		//you can throw all of this out
+		request = "DECODING FAIL\r\nContent-Encoding: Chunked";
+		return 0;
+	}
 
 	Request req(request);
 	req.parseRequest();
+	if(req.getCode() >= 400){//here body isn't parsed as well, need a default error return
+		std::cerr << "BAD REQUEST\n";
+		request = "REQUEST PARSING FAIL\r\n\r\n";
+		// exit(0);
+		return 0;
+	}
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
-
+	if(!conf.getAllowedMethods().count(conf.getMethod()))
+		conf.setCode(405);
 	std::set<std::string> methods = conf.getAllowedMethods();
 
 	std::cout << "reqMethod: " << conf.getMethod() << '\n';
@@ -101,8 +118,11 @@ int Listener::_process(std::string &request, content_type type)
 	for(std::set<std::string>::const_iterator it = methods.begin();
 		it != methods.end(); ++it)
 		std::cout << '\t' << *it << '\n';
-	// std::cout << "reqBody: " << conf.getBody() << '\n';
-	
+	std::string body = conf.getBody();
+	if(body.size() < 300)
+		std::cout << "reqBody: " << body << '\n';
+
+
 	//start resp
 	Response ServResponse("text/html", 0, "");
 	ServResponse.StartThings(conf);
@@ -149,7 +169,7 @@ int Listener::read(int socket)
 	if(head_end == std::string::npos)
 		return 1;
 
-	size_t pos = request.find("Content-Length:");
+	size_t pos = find_string(request, "Content-Length:");
 	if(pos != std::string::npos && pos < head_end){
 		size_t len = std::strtoll(&(request[pos + 15]), 0, 10);
 		if(request.size() < len + head_end + 4)
@@ -157,32 +177,15 @@ int Listener::read(int socket)
 		type = length;
 	}
 	else {
-		pos = request.find("Transfer-Encoding: Chunked");
+		pos = find_string(request, "Transfer-Encoding: Chunked");
 		if(pos != std::string::npos && pos < head_end){
 			if(!(ends_with(request, "0\r\n\r\n") && request.size() > head_end + 4))
 				return 1;
+			type = chunking;
 		}
-		type = chunking;
 	}
 
-
 	_process(request, type);
-
-	//request return test
-
-	// Request req(request);
-	// req.parseRequest();
-
-	// std::map<std::string, std::string> &hdrs = req.getHeaders();
-
-	// std::cout << "METHOD: " << req.getMethod() << '\n';
-	// std::cout << "PATH: " << req.getPath() << '\n';
-	// std::cout << "VERSION: " << req.getVersion() << '\n';
-	// std::cout << "HEADERS:\n";
-	// for (std::map<std::string, std::string>::iterator i = hdrs.begin(); i != hdrs.end(); ++i)
-	// 	std::cout << '<' << i->first << '>' << ": " << '[' << i->second << ']' << '\n';
-	// std::cout << "BODY:\n" << req.getBody() << '\n';
-	// std::cout << "CODE: " << req.getCode() << '\n';
 	return 0;
 }
 
@@ -194,7 +197,7 @@ int Listener::write(int socket)
 
 	std::string to_send = _sockets[socket].substr(_written[socket],PACK_SIZE);
 
-	std::cout << "what is sending\n" << to_send << std::endl;
+	// std::cout << "what is sending\n" << to_send << std::endl;
 	int ret = ::write(socket, to_send.c_str(), to_send.length());
 
 	if(ret == -1){
@@ -206,7 +209,7 @@ int Listener::write(int socket)
 	size_t &written = _written[socket];
 	written += ret;
 	
-	if(written >= _response.size()){
+	if(written >= _sockets[socket].size()){
 		_sockets.erase(socket);
 		written = 0;
 		return 0;

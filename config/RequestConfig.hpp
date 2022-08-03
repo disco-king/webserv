@@ -49,5 +49,5 @@ public:
 	// void setPath(int code);
 	// void setContentLocation(std::string const &path);
 	void setAddrData(t_listen const &data);
-
+	void setCode(int code);
 };

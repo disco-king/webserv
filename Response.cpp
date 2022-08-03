@@ -332,8 +332,8 @@ void Response::StartThings(RequestConfig &conf)
 		SetBody(conf.getBody());
 		CheckMethod(conf.getMethod());
 	}
-	POSTMethod(conf);
-	// GETMethod(conf);
+	// POSTMethod(conf);
+	GETMethod(conf);
 	// DELETEMethod(conf);
 	MakeHTTPResponse(GetResponseCode());
 }
