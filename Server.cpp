@@ -43,7 +43,6 @@ void Server::select()
 	int res;
 	fd_set rfds;
 	fd_set wrfds;
-	size_t num_of_reads = 0;
 
 	while(1){
 		FD_ZERO(&rfds);
@@ -100,7 +99,6 @@ void Server::select()
 				FD_CLR(it->first, &rfds);
 				_connections.erase(it->first);
 			}
-			std::cout << "read " << ++num_of_reads << " times\n";
 			if(res == 0)
 				_to_write.insert(it->first);
 			break;

@@ -101,7 +101,7 @@ int Listener::_process(std::string &request, content_type type)
 	for(std::set<std::string>::const_iterator it = methods.begin();
 		it != methods.end(); ++it)
 		std::cout << '\t' << *it << '\n';
-	std::cout << "reqBody: " << conf.getBody() << '\n';
+	// std::cout << "reqBody: " << conf.getBody() << '\n';
 	
 	//start resp
 	Response ServResponse("text/html", 0, "");
@@ -142,26 +142,18 @@ int Listener::read(int socket)
 
 
 	std::string &request = _sockets[socket];
-	request += buff;
+	for(int i = 0; i < ret; ++i)
+		request.push_back(buff[i]);
 
 	size_t head_end = request.find("\r\n\r\n");
-	if(head_end == std::string::npos){
-		std::cout << "SIZE " << request.size() << " LINEBREAK NOT FOUND\n";
-		if(request.size() < 200)
-			std::cout << "[" << request << "]" << '\n'; 
+	if(head_end == std::string::npos)
 		return 1;
-	}
 
 	size_t pos = request.find("Content-Length:");
 	if(pos != std::string::npos && pos < head_end){
 		size_t len = std::strtoll(&(request[pos + 15]), 0, 10);
-		if(request.size() < len + head_end + 4){
-			std::cout << "GOT CONTENT OF SIZE " << request.size() << '\n'
-			<< " EXPECTED SIZE " << len + head_end + 4 << '\n';
-			if(request.size() < 200)
-				std::cout << "[" << request << "]\n";
+		if(request.size() < len + head_end + 4)
 			return 1;
-		}
 		type = length;
 	}
 	else {

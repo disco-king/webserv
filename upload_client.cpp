@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 	size_t sent = 0;
 	size_t runs = 0;
 
-	std::string head = "POST /test.txt HTTP/1.1\r\nHost: localhost:8000\r\nContent-Length: ";
+	std::string head = "POST /test.png HTTP/1.1\r\nHost: localhost:8000\r\nContent-Length: ";
 	head += std::to_string(fsize) + "\r\n\r\n";
 	res = write(fd, head.c_str(), head.size());
 	if(res < 0){
