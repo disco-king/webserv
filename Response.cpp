@@ -194,12 +194,17 @@ void Response::SetContentLength(int length)
 }
 
 
-void Response::CheckMethod(const std::string &method)
+void Response::CheckMethod(RequestConfig &conf)
 {
+	HTTPMethods Method[3] = {&Response::GETMethod, &Response::POSTMethod, &Response::DELETEMethod};
 	for (size_t i = 0; i < _allowed_methods.size(); i++)
 	{
-		if (!method.compare(_allowed_methods[i]))
+		if (!conf.getMethod().compare(_allowed_methods[i]))
+		{
+			//std::cout << "nethod is" << conf.getMethod() << std::endl;
+			(this->*Method[i])(conf);
 			return ;
+		}
 	}
 	_response_code = 405;
 }
@@ -227,6 +232,7 @@ void Response::GETMethod(RequestConfig &ReqConf)
 	}
 	else
 	{
+		std::cout << "i'm get\n";
 		GetFileFromServer(ReqConf.getPath());
 	}
 }
@@ -278,6 +284,7 @@ void Response::POSTMethod(RequestConfig &ReqConf)
 	}
 	else
 	{
+		std::cout << "i'm post\n";
 		body_to_save = ReqConf.getBody();
 		_body.clear();
 		SaveFile(body_to_save, ReqConf);
@@ -297,7 +304,10 @@ void Response::SaveFile(const std::string &body, RequestConfig &ReqConf)
 	{
 		file.open(path.c_str(), std::ofstream::out | std::ofstream::trunc);
 		if (!file.is_open())
+		{
+			std::cout << path << std::endl;
 			_response_code = 403;
+		}
 		else
 		{
 			file << body;
@@ -330,10 +340,63 @@ void Response::StartThings(RequestConfig &conf)
 	if (_response_code < 400 && _response_code > 0)
 	{
 		SetBody(conf.getBody());
-		CheckMethod(conf.getMethod());
+		CheckMethod(conf);
 	}
-	POSTMethod(conf);
+	//POSTMethod(conf);
 	// GETMethod(conf);
 	// DELETEMethod(conf);
-	MakeHTTPResponse(GetResponseCode());
+	//MakeHTTPResponse(GetResponseCode());
+	GetDirectoryListing(conf);
+	ShowDirectoryListing();
+		std::cout << "Response transfer ended\n"; 
+}
+
+void Response::GetDirectoryListing(RequestConfig &conf)
+{
+	struct stat file_stats;
+	DIR *dir;
+	struct dirent *ent;
+
+	dir = opendir("./tests/transfer");
+	if (dir)
+	{
+		while ((ent = readdir(dir)))
+		{
+			_files.push_back(ent->d_name);
+		}
+		closedir(dir);
+		_response_code = 200;
+	}
+	else
+	{
+		_response_code = 403;
+		MakeHTTPResponse(_response_code);
+	}
+}
+
+void Response::ShowDirectoryListing()
+{
+	_response.clear();
+	_response.append("HTTP/1.1 " + CodeToString(_response_code) + " " + _codes[_response_code] + "\n");
+	_response.append("Server: server\n");
+	_response.append("Date: " + GetDateAndTime());
+	SetContentType("text/html");
+	_response.append("Content-Type: " + GetContentType() + "\n");
+	_body.append("<p style=\"text-align:left;\">");
+	_body.append("<b>");
+	_body.append("..\n");
+	for (int i = 0; i < _files.size(); i++)
+	{
+		_body.append(_files[i]);
+		_body.append("\n");
+	}
+	_body.append("<b>");
+	_body.append("</p>");
+	_body.append("\n");
+	_content_length = _body.size() + 1;
+	_response.append("Content-Length: " + GetContentLength() + "\n");
+	_response.append("Connection: keep-alive\n");
+	_response.append("Accept-Ranges: bytes\n");
+	_response.append("\r\n");
+	_response.append(_body);
 }

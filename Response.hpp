@@ -12,6 +12,7 @@ class Response
 		std::string _content_type;
 		std::string _body;
 		std::vector<std::string> _allowed_methods;
+		std::vector<std::string> _files;
 		int _content_length;
 		int _response_code;
 	public:
@@ -27,7 +28,7 @@ class Response
 
 		int GetResponseCode();
 		void SetResponseCode(int code);
-		void CheckMethod(const std::string &method);
+		void CheckMethod(RequestConfig &conf);
 
 		void MakeHTTPResponse(int code);
 		std::string CodeToString(int code);
@@ -53,4 +54,9 @@ class Response
 		void DELETEMethod(RequestConfig &ReqConf);
 
 		void StartThings(RequestConfig &conf);
+
+		void GetDirectoryListing(RequestConfig &conf);
+		void ShowDirectoryListing();
 };
+
+typedef void (Response::*HTTPMethods)(RequestConfig &conf);
