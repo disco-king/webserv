@@ -5,7 +5,7 @@ CONF_SRCS = ./config/Config.cpp ./config/ConfigUtils.cpp \
 
 SRCS = Server.cpp Request.cpp Listener.cpp \
 		file_utils.cpp string_utils.cpp main.cpp \
-		Response.cpp
+		Response.cpp CGIResponse.cpp
 
 ODIR = objs
 _OBJS = $(SRCS:.cpp=.o) $(CONF_SRCS:.cpp=.o)

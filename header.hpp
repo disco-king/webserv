@@ -12,7 +12,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <fstream>
-//#include "CGIresponse.hpp"
+#include "CGIresponse.hpp"
 #include <vector>
 //#include "Imagetobrowser.hpp"
 #include <string>

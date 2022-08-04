@@ -86,11 +86,9 @@ int Listener::_decodeChunks(std::string &request)
 int Listener::_process(std::string &request, content_type type)
 {
 	Response ServResponse("text/html", 0, "");
-
 	int decode_res = 0;
 	if(type == chunking)
 		decode_res = _decodeChunks(request);
-
 	if(decode_res){//if decoding failed, put default error in response and return
 		//std::cerr << "bad chunks\n";
 		//you can throw all of this out
@@ -125,13 +123,20 @@ int Listener::_process(std::string &request, content_type type)
 	std::string body = conf.getBody();
 	if(body.size() < 300)
 		std::cout << "reqBody: " << body << '\n';
-
-
 	//start resp
-	ServResponse.StartThings(conf);
-	request = ServResponse.GetResponse();
-
-	std::cout << ServResponse.GetResponse();
+	if (!conf.getPath().compare("/home/bulat/Vscodeprojects/OurWebServ/webpages/starting_page/cgi"))
+	{
+		CGIResponse CGI("./cgi-bin/cgi");
+		CGI.ExecuteCGIAndRedirect();
+		CGI.MakeResponse();
+		request = CGI.GetCGIResponse();
+		std::cout << request << std::endl;
+	}
+	else
+	{
+		ServResponse.StartThings(conf);
+		request = ServResponse.GetResponse();
+	}
 	//end
 	return 0;
 }
