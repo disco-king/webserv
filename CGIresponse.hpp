@@ -1,5 +1,6 @@
 #pragma once
 #include "header.hpp"
+#include "./config/RequestConfig.hpp"
 
 class CGIResponse
 {
@@ -21,7 +22,7 @@ public:
 	bool GetIsCGI();
 
 	void SetEnvp(RequestConfig &conf);
-	char **EnvpToChar();
+	void EnvpToChar();
 
 	void MakeResponse();
 	std::string GetCGIResponse();

@@ -12,11 +12,11 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <fstream>
+#include <map>
 #include "CGIresponse.hpp"
 #include <vector>
 //#include "Imagetobrowser.hpp"
 #include <string>
-#include <map>
 #include <ctime>
 #include "Response.hpp"
 #include <dirent.h>

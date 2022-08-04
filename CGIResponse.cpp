@@ -49,7 +49,8 @@ void CGIResponse::ExecuteCGIAndRedirect()
 		std::cout << "\r\n";
 		char **argv = NULL;
 
-		if (execve(_name.c_str(), argv, environ) < 0)
+		EnvpToChar();
+		if (execve(_name.c_str(), argv, _envp) < 0)
 		{
 			std::cerr << "execve failed\n";
 		}
@@ -97,4 +98,33 @@ void CGIResponse::SetEnvp(RequestConfig &conf)
 	_envp_map["SERVER_NAME"] = "Server";
 	_envp_map["GATEWAY_INTERFACE"] = "CGI/1.1";
 	_envp_map["SERVER_PROTOCOL"] = "HTTP/1.1";
+}
+
+void CGIResponse::EnvpToChar()
+{
+	int i = 0;
+	try
+	{
+		_envp = new char*[_envp_map.size() + 1];
+	}
+	catch (std::bad_alloc)
+	{
+		return ;
+	}
+	std::map<std::string, std::string>::iterator it = _envp_map.begin();
+	while (it != _envp_map.end())
+	{
+		std::string variable = it->first + "=" + it->second;
+		try
+		{
+			_envp[i] = new char[variable.size() + 1];
+		}
+		catch(std::bad_alloc)
+		{
+			return ;
+		}
+		strcpy(_envp[i], variable.c_str());
+		i++;
+		it++;
+	}
 }
