@@ -87,11 +87,10 @@ int Listener::_process(std::string &request, content_type type)
 {
 	// Response ServResponse("image/png", 0, "");
 	Response ServResponse("text/html", 0, "");
-
 	int decode_res = 0;
 	if(type == chunking)
 		decode_res = _decodeChunks(request);
-
+	
 	if(decode_res){
 		"DECODING FAIL\r\nContent-Encoding: Chunked";
 		ServResponse.MakeHTTPResponse(422);
@@ -116,25 +115,48 @@ int Listener::_process(std::string &request, content_type type)
 		conf.setCode(405);
 	std::set<std::string> methods = conf.getAllowedMethods();
 
-	// std::cout << "reqMethod: " << conf.getMethod() << '\n';
-	// std::cout << "respCode: " << conf.getCode() << '\n';
-	// std::cout << "contentLoc: " << conf.getContentLocation() << '\n';
-	// std::cout << "path: " << conf.getPath() << '\n';
-	// std::cout << "buffSize: " << conf.getClientBodyBufferSize() << '\n';
-	// std::cout << "methods: " << '\n';
-	// for(std::set<std::string>::const_iterator it = methods.begin();
-	// 	it != methods.end(); ++it)
-	// 	std::cout << '\t' << *it << '\n';
-	// std::string body = conf.getBody();
-	// if(body.size() < 300)
-	// 	std::cout << "reqBody: " << body << '\n';
-
-
+	std::cout << "reqMethod: " << conf.getMethod() << '\n';
+	std::cout << "respCode: " << conf.getCode() << '\n';
+	std::cout << "contentLoc: " << conf.getContentLocation() << '\n';
+	std::cout << "path: " << conf.getPath() << '\n';
+	std::cout << "buffSize: " << conf.getClientBodyBufferSize() << '\n';
+	std::cout << "methods: " << '\n';
+	for(std::set<std::string>::const_iterator it = methods.begin();
+		it != methods.end(); ++it)
+		std::cout << '\t' << *it << '\n';
+	std::string body = conf.getBody();
+	if(body.size() < 300)
+		std::cout << "reqBody: " << body << '\n';
 	//start resp
-	ServResponse.StartThings(conf);
-	request = ServResponse.GetResponse();
-
-	// std::cout << ServResponse.GetResponse();
+	if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/starting_page/cgi"))
+	{
+		CGIResponse CGI("./cgi-bin/cgi");
+		CGI.SetEnvp(conf);
+		CGI.ExecuteCGIAndRedirect();
+		CGI.MakeResponse();
+		request = CGI.GetCGIResponse();
+		//CGI.Clear();
+		//std::cout << request << std::endl;
+	}
+	else if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/starting_page/calendar"))
+	{
+		CGIResponse CGI("/usr/local/bin/python3");
+		CGI.SetEnvp(conf);
+		CGI.ExecuteCGIAndRedirect();
+		CGI.MakeResponse();
+		request = CGI.GetCGIResponse();
+	}
+	else if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/starting_page/list"))
+	{
+		ServResponse.GetDirectoryListing(conf);
+		ServResponse.ShowDirectoryListing();
+		request = ServResponse.GetResponse();
+	}
+	else
+	{
+		ServResponse.StartThings(conf);
+		request = ServResponse.GetResponse();
+	}
 	//end
 	return 0;
 }

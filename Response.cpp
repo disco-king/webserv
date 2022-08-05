@@ -363,15 +363,8 @@ void Response::StartThings(RequestConfig &conf)
 		CheckMethod(conf);
 	}
 	std::cout << conf.getPath() << std::endl;
-	//POSTMethod(conf);
-	// GETMethod(conf);
-	// POSTMethod(conf);
-	//GETMethod(conf);
-	// DELETEMethod(conf);
 	MakeHTTPResponse(GetResponseCode());
 	//GetDirectoryListing(conf);
-	//ShowDirectoryListing();
-	//std::cout << "Response transfer ended\n"; 
 }
 
 void Response::GetDirectoryListing(RequestConfig &conf)
@@ -379,7 +372,11 @@ void Response::GetDirectoryListing(RequestConfig &conf)
 	struct stat file_stats;
 	DIR *dir;
 	struct dirent *ent;
-	dir = opendir("./tests");
+	std::string path = "./webpages";
+	dir = opendir(path.c_str());
+	_path_to_files = conf.getPath();
+	std::cout << "path inside is " << _path_to_files << std::endl;
+	conf.setPath(_path_to_files);
 	if (dir)
 	{
 		while ((ent = readdir(dir)))
@@ -409,22 +406,30 @@ void Response::ShowDirectoryListing()
 	_response.append("Date: " + GetDateAndTime());
 	SetContentType("text/html");
 	_response.append("Content-Type: " + GetContentType() + "\n");
-	_body.append("<p style=\"text-align:left;\">");
+
+	_body.append("<style type=\"text/css\">\n");
+	_body.append(".button{\nborder: none;\nbackground-color: inherit;\npadding: 0px;\nfont-size: 16px;\ncursor: pointer;\ndisplay: inline-block;\n}\n</style>");
+
 	_body.append("<b>");
 	_body.append("<h1>Index of files</h1><hr></hr>");
 	for (int i = 0; i < _dirs.size(); i++)
 	{
+		_body.append("<button class=\"button\"<br>");
 		_body.append(_dirs[i]);
+		_body.append("</button>");
 		_body.append("<br>");
 	}
 	for (int i = 0; i < _files.size(); i++)
 	{
+		_body.append("<button class=\"button\"<br>");
 		_body.append(_files[i]);
+		_body.append("</button>");
 		_body.append("<br>");
 	}
 	_body.append("<b>");
 	_body.append("</p>");
 	_body.append("\n");
+	std::cout << _body;
 	_content_length = _body.size();
 	_response.append("Content-Length: " + GetContentLength() + "\n");
 	_response.append("Connection: keep-alive\n");
