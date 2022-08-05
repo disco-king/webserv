@@ -22,8 +22,10 @@ public:
 	bool GetIsCGI();
 
 	void SetEnvp(RequestConfig &conf);
-	void EnvpToChar();
+	char **EnvpToChar();
 
 	void MakeResponse();
 	std::string GetCGIResponse();
+
+	void Clear();
 };

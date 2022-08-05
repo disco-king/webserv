@@ -44,16 +44,12 @@ void CGIResponse::ExecuteCGIAndRedirect()
 	{
 		if (dup2(fdOut, STDOUT_FILENO) < 0)
 			std::cerr << "can't dup\n";
-		std::cout << _firstHeader;
-		std::cout << "Content-Length: 13\n";
-		std::cout << "\r\n";
 		char **argv = NULL;
-
-		EnvpToChar();
-		if (execve(_name.c_str(), argv, _envp) < 0)
+		if (execve(_name.c_str(), argv, EnvpToChar()) < 0)
 		{
 			std::cerr << "execve failed\n";
 		}
+		exit(0);
 	}
 	else
 	{
@@ -76,10 +72,24 @@ void CGIResponse::MakeResponse()
 {
 	std::ifstream cgi_file;
 	std::stringstream buffer;
+	std::string buffer2;
+	int size = 0;
 
 	cgi_file.open("temp_fileOut");
 	buffer << cgi_file.rdbuf();
-	_cgiresponse = buffer.str();
+
+	size = buffer.str().size();
+
+	buffer2.append(_firstHeader);
+	buffer2.append("Content-type:text/html\r\n");
+	buffer2.append("Content-length: ");
+	std::stringstream ss;
+	ss << size;
+	buffer2.append(ss.str());
+	buffer2.append("\r\n\r\n");
+	buffer2.append(buffer.str());
+	_cgiresponse.append(buffer2);
+	std::cout << _cgiresponse;
 }
 
 std::string CGIResponse::GetCGIResponse()
@@ -100,7 +110,7 @@ void CGIResponse::SetEnvp(RequestConfig &conf)
 	_envp_map["SERVER_PROTOCOL"] = "HTTP/1.1";
 }
 
-void CGIResponse::EnvpToChar()
+char **CGIResponse::EnvpToChar()
 {
 	int i = 0;
 	try
@@ -109,7 +119,7 @@ void CGIResponse::EnvpToChar()
 	}
 	catch (std::bad_alloc)
 	{
-		return ;
+		return NULL;
 	}
 	std::map<std::string, std::string>::iterator it = _envp_map.begin();
 	while (it != _envp_map.end())
@@ -121,10 +131,22 @@ void CGIResponse::EnvpToChar()
 		}
 		catch(std::bad_alloc)
 		{
-			return ;
+			return NULL;
 		}
 		strcpy(_envp[i], variable.c_str());
 		i++;
+		_envp[i] = NULL;
 		it++;
 	}
+	return _envp;
+}
+
+void CGIResponse::Clear()
+{
+	for (int i = 0; _envp[i]; i++)
+	{
+		std::cout << "here\n";
+		delete[] _envp[i];
+	}
+	delete[] _envp;
 }

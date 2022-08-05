@@ -1,4 +1,7 @@
-HTTP/1.1 200 OK
-Content-Length: 13
-
-Hello, World
+<html>
+<head>
+<title>CGI Envrionment Variables</title>
+</head>
+<body>
+GATEWAY_INTERFACE=CGI/1.1<br/>PATH_INFO=/Users/wabathur/webserv/webpages/starting_page/cgi<br/>REQUEST_METHOD=GET<br/>SCRIPT_FILENAME=./cgi-bin/cgi<br/>SCRIPT_NAME=./cgi-bin/cgi<br/>SCRIPT_URI=/Users/wabathur/webserv/webpages/starting_page/cgi<br/>SERVER_NAME=Server<br/>SERVER_PROTOCOL=HTTP/1.1<br/></body>
+</html>

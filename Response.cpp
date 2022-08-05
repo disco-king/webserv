@@ -358,15 +358,8 @@ void Response::StartThings(RequestConfig &conf)
 		CheckMethod(conf);
 	}
 	std::cout << conf.getPath() << std::endl;
-	//POSTMethod(conf);
-	// GETMethod(conf);
-	// POSTMethod(conf);
-	//GETMethod(conf);
-	// DELETEMethod(conf);
 	MakeHTTPResponse(GetResponseCode());
 	//GetDirectoryListing(conf);
-	//ShowDirectoryListing();
-	//std::cout << "Response transfer ended\n"; 
 }
 
 void Response::GetDirectoryListing(RequestConfig &conf)
