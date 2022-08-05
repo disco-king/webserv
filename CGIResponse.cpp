@@ -44,11 +44,19 @@ void CGIResponse::ExecuteCGIAndRedirect()
 	{
 		if (dup2(fdOut, STDOUT_FILENO) < 0)
 			std::cerr << "can't dup\n";
-		char **argv = NULL;
+		char **argv = new char*[3];
+		argv[0] = new char[_name.size()];
+		argv[1] = new char[strlen("./cgi-bin/mycalendar.py") + 1];
+		argv[3] = NULL;
+		strcpy(argv[0], _name.c_str());
+		strcpy(argv[1], "./cgi-bin/mycalendar.py");
 		if (execve(_name.c_str(), argv, EnvpToChar()) < 0)
 		{
 			std::cerr << "execve failed\n";
 		}
+		delete[] argv[1];
+		delete[] argv[0];
+		delete[] argv;
 		exit(0);
 	}
 	else

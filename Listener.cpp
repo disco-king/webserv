@@ -134,6 +134,14 @@ int Listener::_process(std::string &request, content_type type)
 		//CGI.Clear();
 		//std::cout << request << std::endl;
 	}
+	else if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/starting_page/calendar"))
+	{
+		CGIResponse CGI("/usr/local/bin/python3");
+		CGI.SetEnvp(conf);
+		CGI.ExecuteCGIAndRedirect();
+		CGI.MakeResponse();
+		request = CGI.GetCGIResponse();
+	}
 	else if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/starting_page/list"))
 	{
 		ServResponse.GetDirectoryListing(conf);
