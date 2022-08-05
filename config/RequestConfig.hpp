@@ -50,4 +50,5 @@ public:
 	// void setContentLocation(std::string const &path);
 	void setAddrData(t_listen const &data);
 	void setCode(int code);
+	void setPath(const std::string &path);
 };

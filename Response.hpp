@@ -7,6 +7,7 @@ class Response
 {
 	private:
 		std::string _response;
+		std::string _path_to_files;
 		//bool _is_error;
 		std::map<int, std::string> _codes;
 		std::string _content_type;

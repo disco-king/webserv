@@ -120,3 +120,8 @@ void RequestConfig::setCode(int code)
 {
 	_code = code;
 }
+
+void RequestConfig::setPath(const std::string &path)
+{
+	_path = path;
+}

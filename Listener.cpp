@@ -111,12 +111,12 @@ int Listener::_process(std::string &request, content_type type)
 		conf.setCode(405);
 	std::set<std::string> methods = conf.getAllowedMethods();
 
-	// std::cout << "reqMethod: " << conf.getMethod() << '\n';
-	// std::cout << "respCode: " << conf.getCode() << '\n';
-	// std::cout << "contentLoc: " << conf.getContentLocation() << '\n';
-	// std::cout << "path: " << conf.getPath() << '\n';
-	// std::cout << "buffSize: " << conf.getClientBodyBufferSize() << '\n';
-	// std::cout << "methods: " << '\n';
+	std::cout << "reqMethod: " << conf.getMethod() << '\n';
+	std::cout << "respCode: " << conf.getCode() << '\n';
+	std::cout << "contentLoc: " << conf.getContentLocation() << '\n';
+	std::cout << "path: " << conf.getPath() << '\n';
+	std::cout << "buffSize: " << conf.getClientBodyBufferSize() << '\n';
+	std::cout << "methods: " << '\n';
 	for(std::set<std::string>::const_iterator it = methods.begin();
 		it != methods.end(); ++it)
 		std::cout << '\t' << *it << '\n';
