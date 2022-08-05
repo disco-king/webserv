@@ -85,15 +85,14 @@ int Listener::_decodeChunks(std::string &request)
 
 int Listener::_process(std::string &request, content_type type)
 {
+	// Response ServResponse("image/png", 0, "");
 	Response ServResponse("text/html", 0, "");
 
 	int decode_res = 0;
 	if(type == chunking)
 		decode_res = _decodeChunks(request);
 
-	if(decode_res){//if decoding failed, put default error in response and return
-		//std::cerr << "bad chunks\n";
-		//you can throw all of this out
+	if(decode_res){
 		"DECODING FAIL\r\nContent-Encoding: Chunked";
 		ServResponse.MakeHTTPResponse(422);
 		request = ServResponse.GetResponse();
@@ -101,37 +100,41 @@ int Listener::_process(std::string &request, content_type type)
 	}
 	Request req(request);
 	req.parseRequest();
-	if(req.getCode() >= 400){//here body isn't parsed as well, need a default error return
-		//std::cerr << "BAD REQUEST\n";
+	if(req.getCode() >= 400){
+		std::cerr << "BAD REQUEST\n"
+			<< "CODE " << req.getCode() << '\n';
 		ServResponse.MakeHTTPResponse(400);
 		request = ServResponse.GetResponse();
-		// exit(0);
 		return 0;
+	}
+	else{
+		std::cerr << "GOOD REQUEST\n"
+			<< "CODE " << req.getCode() << '\n';
 	}
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
 	if(!conf.getAllowedMethods().count(conf.getMethod()))
 		conf.setCode(405);
 	std::set<std::string> methods = conf.getAllowedMethods();
 
-	std::cout << "reqMethod: " << conf.getMethod() << '\n';
-	std::cout << "respCode: " << conf.getCode() << '\n';
-	std::cout << "contentLoc: " << conf.getContentLocation() << '\n';
-	std::cout << "path: " << conf.getPath() << '\n';
-	std::cout << "buffSize: " << conf.getClientBodyBufferSize() << '\n';
-	std::cout << "methods: " << '\n';
-	for(std::set<std::string>::const_iterator it = methods.begin();
-		it != methods.end(); ++it)
-		std::cout << '\t' << *it << '\n';
-	std::string body = conf.getBody();
-	if(body.size() < 300)
-		std::cout << "reqBody: " << body << '\n';
+	// std::cout << "reqMethod: " << conf.getMethod() << '\n';
+	// std::cout << "respCode: " << conf.getCode() << '\n';
+	// std::cout << "contentLoc: " << conf.getContentLocation() << '\n';
+	// std::cout << "path: " << conf.getPath() << '\n';
+	// std::cout << "buffSize: " << conf.getClientBodyBufferSize() << '\n';
+	// std::cout << "methods: " << '\n';
+	// for(std::set<std::string>::const_iterator it = methods.begin();
+	// 	it != methods.end(); ++it)
+	// 	std::cout << '\t' << *it << '\n';
+	// std::string body = conf.getBody();
+	// if(body.size() < 300)
+	// 	std::cout << "reqBody: " << body << '\n';
 
 
 	//start resp
 	ServResponse.StartThings(conf);
 	request = ServResponse.GetResponse();
 
-	std::cout << ServResponse.GetResponse();
+	// std::cout << ServResponse.GetResponse();
 	//end
 	return 0;
 }
