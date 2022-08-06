@@ -82,10 +82,15 @@ int Listener::_decodeChunks(std::string &request)
 	return 0;
 }
 
+// int Listener::_checkOversize(std::string &request, size_t size_limit)
+// {
+// 	size_t head_end = request.find("\r\n\r\n");
+// 	return (head_end + 4 + size_limit < request.size());
+// }
+
 
 int Listener::_process(std::string &request, content_type type)
 {
-	// Response ServResponse("image/png", 0, "");
 	Response ServResponse("text/html", 0, "");
 	int decode_res = 0;
 	if(type == chunking)
@@ -109,6 +114,8 @@ int Listener::_process(std::string &request, content_type type)
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
 	if(!conf.getAllowedMethods().count(conf.getMethod()))
 		conf.setCode(405);
+	if(conf.getBody().size() > conf.getClientBodyBufferSize())
+		conf.setCode(413);
 	std::set<std::string> methods = conf.getAllowedMethods();
 
 	std::cout << "reqMethod: " << conf.getMethod() << '\n';
