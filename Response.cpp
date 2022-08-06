@@ -4,7 +4,8 @@ Response::Response()
 {
 }
 
-Response::Response(std::string content_type, int content_length, std::string body)
+Response::Response(std::string content_type, int content_length, std::string body) :
+_response_code(0)
 {
 	_content_type = content_type;
 	_content_length = content_length;
@@ -159,6 +160,10 @@ void Response::MakeHTTPResponse(int code)
 	_response.append("Connection: keep-alive\n");
 	_response.append("Accept-Ranges: bytes\n");
 	_response.append("\r\n");
+
+	std::cout << "GOT RESPONSE HEAD\n\n"
+	<< _response << "\n\n";
+
 	_response.append(_body);
 	_response.append("\r\n");
 }

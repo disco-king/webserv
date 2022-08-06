@@ -3,7 +3,7 @@
 
 
 Request::Request(std::string const &request) : 
-_request(request)
+_request(request), _code(400)
 {}
 
 int Request::verifyHeader(std::string header)
@@ -36,7 +36,6 @@ int Request::verifyMethod()
 
 void Request::startLine(std::string const &line)
 {
-	_code = 400;
 	std::vector<std::string> tokens = split(line);
 
 	if(tokens.size() != 3){
@@ -58,7 +57,6 @@ void Request::startLine(std::string const &line)
 
 int Request::parseHeader(std::string const &line)
 {
-	_code = 400;
 	size_t delim = line.find(':');
 	if(delim == std::string::npos)
 		return 1;
@@ -77,8 +75,12 @@ void Request::parseRequest()
 	size_t begin, end = _request.find('\n');
 
 	startLine(_request.substr(0, end));
-	if(_code == 400)
+	if(_code == 400){
+		std::cout << "got code 400 in req parse\n";
 		return ;
+	}
+
+	std::cout << "NOPE, IT'S AIGHT. CODE " << _code << '\n';
 
 	begin = end + 1;
 	end = _request.find('\n', begin);

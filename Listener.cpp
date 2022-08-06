@@ -85,13 +85,13 @@ int Listener::_decodeChunks(std::string &request)
 
 int Listener::_process(std::string &request, content_type type)
 {
+	// Response ServResponse("image/png", 0, "");
 	Response ServResponse("text/html", 0, "");
 	int decode_res = 0;
 	if(type == chunking)
 		decode_res = _decodeChunks(request);
-	if(decode_res){//if decoding failed, put default error in response and return
-		//std::cerr << "bad chunks\n";
-		//you can throw all of this out
+	
+	if(decode_res){
 		"DECODING FAIL\r\nContent-Encoding: Chunked";
 		ServResponse.MakeHTTPResponse(422);
 		request = ServResponse.GetResponse();
@@ -99,11 +99,11 @@ int Listener::_process(std::string &request, content_type type)
 	}
 	Request req(request);
 	req.parseRequest();
-	if(req.getCode() >= 400){//here body isn't parsed as well, need a default error return
-		//std::cerr << "BAD REQUEST\n";
+	if(req.getCode() >= 400){
+		std::cerr << "BAD REQUEST\n"
+			<< "CODE " << req.getCode() << '\n';
 		ServResponse.MakeHTTPResponse(400);
 		request = ServResponse.GetResponse();
-		// exit(0);
 		return 0;
 	}
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
