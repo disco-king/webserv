@@ -6,16 +6,16 @@ Request::Request(std::string const &request) :
 _request(request), _code(400)
 {}
 
-int Request::verifyHeader(std::string header)
+int Request::verifyHeader(std::string &header)
 {
-	std::string lower = to_lower(header);
-	if(lower == "host")
+	to_lower(header);
+	if(header == "host")
 		return 0;
-	if(lower == "content-length")
+	if(header == "content-length")
 		return 0;
-	if(lower == "transfer-encoding")
+	if(header == "transfer-encoding")
 		return 0;
-	if(lower == "cgi-test-header")
+	if(header == "cgi-test-header")
 		return 0;
 	return 1;
 }
@@ -92,8 +92,16 @@ void Request::parseRequest()
 		end = _request.find('\n', begin);
 	}
 
+	checkRequiredHeaders();
+
 	if(_code == 200)
 		_body = _request.substr(end + 1);
+}
+
+void Request::checkRequiredHeaders()
+{
+	if(!_headers.count("host"))
+		_code = 400;
 }
 
 void Request::setBody(std::string const &body)

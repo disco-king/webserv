@@ -90,7 +90,7 @@ void Config::parse(){
 RequestConfig Config::getConfigForRequest(t_listen const listen, Request &req) const{
 	ServerConfig serv;
 	std::string uri = req.getPath();
-	std::string host = req.getHeaders().at("Host");
+	std::string host = req.getHeaders().at("host");
 	std::string method = req.getMethod();
 	std::string locpath;
 

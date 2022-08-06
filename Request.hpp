@@ -20,8 +20,9 @@ private:
 	void initHeaders();
 	void startLine(std::string const &line);
 	int verifyMethod();
-	int verifyHeader(std::string header);
+	int verifyHeader(std::string &header);
 	int parseHeader(std::string const &line);
+	void checkRequiredHeaders();
 
 	Request();
 	Request(Request const&);
