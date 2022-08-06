@@ -47,16 +47,18 @@ void CGIResponse::ExecuteCGIAndRedirect()
 		char **argv = new char*[3];
 		argv[0] = new char[_name.size()];
 		argv[1] = new char[strlen("./cgi-bin/mycalendar.py") + 1];
-		argv[3] = NULL;
+		argv[2] = NULL;
 		strcpy(argv[0], _name.c_str());
 		strcpy(argv[1], "./cgi-bin/mycalendar.py");
-		if (execve(_name.c_str(), argv, EnvpToChar()) < 0)
+		_envp = EnvpToChar();
+		if (execve(_name.c_str(), argv, _envp) < 0)
 		{
 			std::cerr << "execve failed\n";
 		}
 		delete[] argv[1];
 		delete[] argv[0];
 		delete[] argv;
+		Clear();
 		exit(0);
 	}
 	else
@@ -125,7 +127,7 @@ char **CGIResponse::EnvpToChar()
 	{
 		_envp = new char*[_envp_map.size() + 1];
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc &e)
 	{
 		return NULL;
 	}
@@ -137,11 +139,11 @@ char **CGIResponse::EnvpToChar()
 		{
 			_envp[i] = new char[variable.size() + 1];
 		}
-		catch(std::bad_alloc)
+		catch(std::bad_alloc &e)
 		{
 			return NULL;
 		}
-		strcpy(_envp[i], variable.c_str());
+		_envp[i] = strcpy(_envp[i], variable.c_str());
 		i++;
 		_envp[i] = NULL;
 		it++;
@@ -153,7 +155,10 @@ void CGIResponse::Clear()
 {
 	for (int i = 0; _envp[i]; i++)
 	{
-		std::cout << "here\n";
+		std::cout << _envp[i] << std::endl;
+	}
+	for (int i = 0; _envp[i] != NULL; i++)
+	{
 		delete[] _envp[i];
 	}
 	delete[] _envp;
