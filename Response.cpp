@@ -128,7 +128,6 @@ void Response::MakeHTTPResponse(int code)
 {
 	if (!_response_code)
 		_response_code = code;
-	// _response_code = 403;
 	_response.append("HTTP/1.1 " + CodeToString(_response_code) + " " + _codes[_response_code] + "\n");
 	_response.append("Server: server\n");
 	_response.append("Date: " + GetDateAndTime());
