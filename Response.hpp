@@ -8,7 +8,7 @@ class Response
 	private:
 		std::string _response;
 		std::string _path_to_files;
-		//bool _is_error;
+		bool _is_cgi;
 		std::map<int, std::string> _codes;
 		std::string _content_type;
 		std::string _body;
@@ -60,6 +60,11 @@ class Response
 		void GetDirectoryListing(RequestConfig &conf);
 		void ShowDirectoryListing();
 		bool IsDir(const std::string &dir);
+
+		bool GetIsCGI();
+		void SetIsCGI(bool value);
+
+		void CreateAndSetErrorBody();
 };
 
 typedef void (Response::*HTTPMethods)(RequestConfig &conf);

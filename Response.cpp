@@ -10,6 +10,7 @@ _response_code(0)
 	_content_type = content_type;
 	_content_length = content_length;
 	_body = body;
+	_is_cgi = false;
 	SetMethods();
 	FillCodes();
 }
@@ -24,6 +25,16 @@ Response & Response::operator=( Response const &other )
 {
 	this->_codes = other._codes;
 	return(*this);
+}
+
+bool Response::GetIsCGI()
+{
+	return _is_cgi;
+}
+
+void Response::SetIsCGI(bool value)
+{
+	_is_cgi = value;
 }
 
 void Response::FillCodes()
@@ -102,23 +113,44 @@ void Response::FillCodes()
 	_codes.insert(std::make_pair(511, "Network Authentication Required"));
 }
 
+void Response::CreateAndSetErrorBody()
+{
+	_body.append("<p style=\"text-align:center;\">");
+	_body.append("<b>");
+	_body.append("Sorry! Can't load page. Please, contact administrator. Error: ");
+	_body.append(_codes[_response_code]);
+	_body.append("<b>");
+	_body.append("</p>");
+	_body.append("\n");
+}
+
 void Response::MakeHTTPResponse(int code)
 {
 	if (!_response_code)
 		_response_code = code;
+	_response_code = 403;
 	_response.append("HTTP/1.1 " + CodeToString(_response_code) + " " + _codes[_response_code] + "\n");
 	_response.append("Server: server\n");
 	_response.append("Date: " + GetDateAndTime());
 	if (_response_code >= 400 && _response_code <= 500 )
 	{
 		_body.clear();
-		_body.append("<p style=\"text-align:center;\">");
-		_body.append("<b>");
-		_body.append("Sorry! Can't load page. Please, contact administrator. Error: ");
-		_body.append(_codes[_response_code]);
-		_body.append("<b>");
-		_body.append("</p>");
-		_body.append("\n");
+		std::string path_to_default;
+		path_to_default = "./webpages/default_error_pages/" + CodeToString(_response_code) + ".html";
+			std::ifstream file;
+			std::stringstream buffer;
+
+			file.open(path_to_default.c_str(), std::ifstream::in);
+			if (!file.is_open())
+			{
+				CreateAndSetErrorBody();
+			}
+			else
+			{
+				buffer << file.rdbuf();
+				_body = buffer.str();
+				file.close();
+			}
 		_content_length = _body.size() + 1;
 		SetContentType("text/html");
 	}

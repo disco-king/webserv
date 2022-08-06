@@ -106,7 +106,6 @@ int Listener::_process(std::string &request, content_type type)
 		request = ServResponse.GetResponse();
 		return 0;
 	}
-	std::cout << "is root " << req.getPath() << std::endl;
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
 	if(!conf.getAllowedMethods().count(conf.getMethod()))
 		conf.setCode(405);
@@ -127,33 +126,36 @@ int Listener::_process(std::string &request, content_type type)
 	//start resp
 	if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/cgi"))
 	{
+		ServResponse.SetIsCGI(true);
 		CGIResponse CGI("./cgi-bin/cgi");
 		CGI.SetEnvp(conf);
 		CGI.ExecuteCGIAndRedirect();
 		CGI.MakeResponse();
 		request = CGI.GetCGIResponse();
-		std::cout << "death is here\n";
 		//std::cout << request << std::endl;
 	}
 	else if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/calendar"))
 	{
+		ServResponse.SetIsCGI(true);
 		CGIResponse CGI("/usr/local/bin/python3");
 		CGI.SetEnvp(conf);
 		CGI.ExecuteCGIAndRedirect();
 		CGI.MakeResponse();
 		request = CGI.GetCGIResponse();
 	}
-	else if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/list") && conf.getAutoIndex())
+	if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/list") && conf.getAutoIndex())
 	{
-		ServResponse.GetDirectoryListing(conf);
-		ServResponse.ShowDirectoryListing();
-		request = ServResponse.GetResponse();
+			ServResponse.GetDirectoryListing(conf);
+			ServResponse.ShowDirectoryListing();
+			request = ServResponse.GetResponse();
+			std::cout << "I am here\n";
 	}
-	else
+	else if (!ServResponse.GetIsCGI())
 	{
 		ServResponse.StartThings(conf);
 		request = ServResponse.GetResponse();
 	}
+	std::cout << request << std::endl;
 	//end
 	return 0;
 }
