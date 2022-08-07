@@ -41,12 +41,9 @@ void RequestConfig::_addIndex()
 	if(_path[_path.size() - 1] != '/')
 		_path.push_back('/');
 	std::string path = _path;
-	std::cout << "searching index for path " << path << '\n';
 	for (; it < end; ++it){
-		std::cout << "trying filename " << *it << '\n';
 		if(!is_filename(path + *it))
 			continue;
-		// _path += "/" + *it;
 		_path += *it;
 		_contentLocation += "/" + *it;
 		removeExtraSlashes(_path);
