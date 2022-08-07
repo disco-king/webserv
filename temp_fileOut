@@ -1,8 +1,7 @@
-GATEWAY_INTERFACE=CGI/1.1
-PATH_INFO=/home/bulat/Vscodeprojects/OurWebServ/cgi-bin/cgi
-REQUEST_METHOD=GET
-SCRIPT_FILENAME=/home/bulat/Vscodeprojects/OurWebServ/cgi-bin/cgi
-SCRIPT_NAME=/home/bulat/Vscodeprojects/OurWebServ/cgi-bin/cgi
-SCRIPT_URI=/home/bulat/Vscodeprojects/OurWebServ/cgi-bin/cgi
-SERVER_NAME=Server
-SERVER_PROTOCOL=HTTP/1.1
+<html>
+<head>
+<title>CGI Envrionment Variables</title>
+</head>
+<body>
+GATEWAY_INTERFACE=CGI/1.1<br/>PATH_INFO=/Users/wabathur/webserv/cgi-bin/cgi<br/>REQUEST_METHOD=GET<br/>SCRIPT_FILENAME=/Users/wabathur/webserv/cgi-bin/cgi<br/>SCRIPT_NAME=/Users/wabathur/webserv/cgi-bin/cgi<br/>SCRIPT_URI=/Users/wabathur/webserv/cgi-bin/cgi<br/>SERVER_NAME=Server<br/>SERVER_PROTOCOL=HTTP/1.1<br/></body>
+</html>

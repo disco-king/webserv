@@ -349,22 +349,18 @@ void Response::SaveFile(const std::string &body, RequestConfig &ReqConf)
 	std::ofstream file;
 	std::string path = ReqConf.getPath();
 
-	if (!body.size())
-		_response_code = 204;
+	
+	file.open(path.c_str(), std::ofstream::out | std::ofstream::trunc);
+	if (!file.is_open())
+	{
+		std::cout << path << std::endl;
+		_response_code = 403;
+	}
 	else
 	{
-		file.open(path.c_str(), std::ofstream::out | std::ofstream::trunc);
-		if (!file.is_open())
-		{
-			std::cout << path << std::endl;
-			_response_code = 403;
-		}
-		else
-		{
-			file << body;
-			_response_code = 201;
-			file.close();
-		}
+		file << body;
+		_response_code = 201;
+		file.close();
 	}
 }
 
@@ -393,7 +389,7 @@ void Response::StartThings(RequestConfig &conf)
 		SetBody(conf.getBody());
 		CheckMethod(conf);
 	}
-	std::cout << conf.getPath() << std::endl;
+	std::cout << conf.getPath() << "error code" << _response_code << std::endl;
 	MakeHTTPResponse(GetResponseCode());
 	//GetDirectoryListing(conf);
 }
@@ -403,11 +399,9 @@ void Response::GetDirectoryListing(RequestConfig &conf)
 	struct stat file_stats;
 	DIR *dir;
 	struct dirent *ent;
-	std::string path = "./webpages";
-	dir = opendir(path.c_str());
+
 	_path_to_files = conf.getPath();
-	std::cout << "path inside is " << _path_to_files << std::endl;
-	conf.setPath(_path_to_files);
+	dir = opendir(_path_to_files.c_str());
 	if (dir)
 	{
 		while ((ent = readdir(dir)))
