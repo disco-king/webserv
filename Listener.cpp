@@ -131,39 +131,62 @@ int Listener::_process(std::string &request, content_type type)
 	if(body.size() < 300)
 		std::cout << "reqBody: " << body << '\n';
 	//start resp
-	if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/cgi"))
+	// if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/cgi"))
+	// {
+	// 	ServResponse.SetIsCGI(true);
+	// 	CGIResponse CGI("./cgi-bin/cgi");
+	// 	CGI.SetEnvp(conf);
+	// 	CGI.ExecuteCGIAndRedirect();
+	// 	CGI.MakeResponse();
+	// 	request = CGI.GetCGIResponse();
+	// 	//std::cout << request << std::endl;
+	// }
+	// else if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/calendar"))
+	// {
+	// 	ServResponse.SetIsCGI(true);
+	// 	CGIResponse CGI("/usr/local/bin/python3");
+	// 	CGI.SetEnvp(conf);
+	// 	CGI.ExecuteCGIAndRedirect();
+	// 	CGI.MakeResponse();
+	// 	request = CGI.GetCGIResponse();
+	// }
+	// if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/list") && conf.getAutoIndex())
+	// {
+	// 		ServResponse.GetDirectoryListing(conf);
+	// 		ServResponse.ShowDirectoryListing();
+	// 		request = ServResponse.GetResponse();
+	// 		std::cout << "I am here\n";
+	// }
+	// else if (!ServResponse.GetIsCGI())
+	// {
+	// 	ServResponse.StartThings(conf);
+	// 	request = ServResponse.GetResponse();
+	// }
+	// std::cout << request << std::endl;
+	//end
+	CGIResponse CGI(conf);
+	CGI.SetEnvp(conf);
+	if (CGI.HasSuchScript(conf.getPath()))
 	{
-		ServResponse.SetIsCGI(true);
-		CGIResponse CGI("./cgi-bin/cgi");
-		CGI.SetEnvp(conf);
 		CGI.ExecuteCGIAndRedirect();
 		CGI.MakeResponse();
 		request = CGI.GetCGIResponse();
-		//std::cout << request << std::endl;
-	}
-	else if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/calendar"))
-	{
 		ServResponse.SetIsCGI(true);
-		CGIResponse CGI("/usr/local/bin/python3");
-		CGI.SetEnvp(conf);
-		CGI.ExecuteCGIAndRedirect();
-		CGI.MakeResponse();
-		request = CGI.GetCGIResponse();
 	}
 	if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/list") && conf.getAutoIndex())
 	{
-			ServResponse.GetDirectoryListing(conf);
-			ServResponse.ShowDirectoryListing();
-			request = ServResponse.GetResponse();
-			std::cout << "I am here\n";
+		ServResponse.GetDirectoryListing(conf);
+		ServResponse.ShowDirectoryListing();
+		request = ServResponse.GetResponse();
 	}
 	else if (!ServResponse.GetIsCGI())
 	{
 		ServResponse.StartThings(conf);
 		request = ServResponse.GetResponse();
 	}
-	std::cout << request << std::endl;
-	//end
+
+	// ServResponse.StartThings(conf);
+	// request = ServResponse.GetResponse();
 	return 0;
 }
 

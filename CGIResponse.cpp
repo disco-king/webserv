@@ -1,8 +1,16 @@
 #include "CGIresponse.hpp"
 
+CGIResponse::CGIResponse(const RequestConfig &conf)
+{
+	ScanForScripts();
+	_name = conf.getPath();
+	_is_python = false;
+}
+
 CGIResponse::CGIResponse(std::string name) :
 	_name(name), _is_CGI(true)
 {
+	ScanForScripts();
 }
 
 CGIResponse::~CGIResponse()
@@ -26,6 +34,14 @@ void CGIResponse::ExecuteCGIAndRedirect()
 	int fdOut;
 	int OldFds[2];
 
+	std::map<std::string, std::string>::iterator it = _scripts.begin();
+	std::map<std::string, std::string>::iterator ite = _scripts.end();
+
+	while (it != ite)
+	{
+		std::cout << "in execute " << it->first << " " << it->second << std::endl;
+		it++;
+	}
 	OldFds[0] = dup(STDIN_FILENO);
 	OldFds[1] = dup(STDOUT_FILENO);
 
@@ -45,13 +61,26 @@ void CGIResponse::ExecuteCGIAndRedirect()
 		if (dup2(fdOut, STDOUT_FILENO) < 0)
 			std::cerr << "can't dup\n";
 		char **argv = new char*[3];
-		argv[0] = new char[_name.size()];
-		argv[1] = new char[strlen("./cgi-bin/mycalendar.py") + 1];
+
+		std::cerr << "scripts name" << _scripts[_name] << std::endl;
+		if (_is_python)
+		{
+			std::cerr << "name " << _name << std::endl;
+			argv[0] = new char[strlen(_scripts[_name].c_str()) + 1];
+			argv[1] = new char[_name.size() + 1];
+			strcpy(argv[0], _scripts[_name].c_str());
+			strcpy(argv[1], _name.c_str());
+		}
+		else
+		{
+			argv[0] = new char[strlen(_name.c_str()) + 1];
+			strcpy(argv[0], _name.c_str());
+			argv[1] = NULL;
+		}
 		argv[2] = NULL;
-		strcpy(argv[0], _name.c_str());
-		strcpy(argv[1], "./cgi-bin/mycalendar.py");
+		std::cerr << "argv " << "0 "  <<argv[0] << " 1 " << argv[1] << std::endl;
 		_envp = EnvpToChar();
-		if (execve(_name.c_str(), argv, _envp) < 0)
+		if (execve(argv[0], argv, _envp) < 0)
 		{
 			std::cerr << "execve failed\n";
 		}
@@ -149,6 +178,68 @@ char **CGIResponse::EnvpToChar()
 		it++;
 	}
 	return _envp;
+}
+
+void CGIResponse::ScanForScripts()
+{
+	struct stat file_stats;
+	DIR *dir;
+	struct dirent *ent;
+	char *buff = new char[1000];
+	std::string path;
+	getcwd(buff, 1000);
+
+	path.append(buff);
+	path.append("/cgi-bin");
+	dir = opendir(path.c_str());
+	if (dir)
+	{
+		while ((ent = readdir(dir)))
+		{
+			if (ent->d_type == DT_REG && IsPythonScript(ent->d_name))
+			{
+				_scripts[path + "/" + ent->d_name] = "/usr/bin/python3";
+				std::cout << "before path " <<path + "/" + ent->d_name << " and script "  << _scripts[path + "/" + ent->d_name] << std::endl;
+			}
+			else if (ent->d_type == DT_REG || ent->d_type == DT_UNKNOWN)
+			{
+				_scripts[path + "/" + ent->d_name] = "";
+			}
+		}
+	}
+	delete[] buff;
+}
+
+bool CGIResponse::IsPythonScript(const std::string &file_name)
+{
+	if (file_name.substr(file_name.find_last_of(".") + 1) == "py")
+		return true;
+	return false;
+}
+
+bool CGIResponse::HasSuchScript(const std::string &script_name)
+{
+	std::map<std::string, std::string>::iterator it = _scripts.begin();
+
+	while (it != _scripts.end())
+	{
+		if (it->first == script_name)
+		{
+			if (_scripts[script_name].size() > 0)
+			{
+				std::cerr << "is python\n";
+				//_name = it->second;
+				_is_python = true;
+			}
+			else
+				_name = script_name;
+
+			return true;		
+		}
+
+		it++;
+	}
+	return false;
 }
 
 void CGIResponse::Clear()

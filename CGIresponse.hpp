@@ -6,13 +6,18 @@ class CGIResponse
 {
 private:
 	std::map<std::string, std::string> _envp_map;
+	std::map<std::string, std::string> _scripts;
 	std::string _name;
 	std::string _firstHeader;
 	std::string _cgiresponse;
 	char **_envp;
 	char **_argv;
 	bool _is_CGI;
+	bool _is_python;
+
+	CGIResponse();
 public:
+	CGIResponse(const RequestConfig &conf);
 	CGIResponse(std::string name);
 	~CGIResponse();
 	void ExecuteCGIAndRedirect();
@@ -26,6 +31,10 @@ public:
 
 	void MakeResponse();
 	std::string GetCGIResponse();
+
+	void ScanForScripts();
+	bool IsPythonScript(const std::string &file_name);
+	bool HasSuchScript(const std::string &script_name);
 
 	void Clear();
 };

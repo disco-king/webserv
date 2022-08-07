@@ -412,7 +412,7 @@ void Response::GetDirectoryListing(RequestConfig &conf)
 	{
 		while ((ent = readdir(dir)))
 		{
-			if (IsDir(ent->d_name))
+			if (ent->d_type == DT_DIR)
 				_dirs.push_back(ent->d_name);
 			else
 				_files.push_back(ent->d_name);
