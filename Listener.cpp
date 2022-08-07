@@ -63,7 +63,7 @@ int Listener::_decodeChunks(std::string &request)
 
 	size_t chunk_size = std::strtoll(&(request[pos + 4]), 0, 16);
 	pos = request.find("\r\n", pos + 4);
-	size_t overall_size = request.size() - pos - 7;//max potential sum of chunk bodies size left
+	size_t overall_size = request.size() - pos - 7;
 	while(chunk_size)
 	{
 		if(chunk_size > overall_size)
@@ -108,12 +108,8 @@ int Listener::_process(std::string &request, content_type type)
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
 	if(!conf.getAllowedMethods().count(conf.getMethod()))
 		conf.setCode(405);
-	if(conf.getBody().size() > conf.getClientBodyBufferSize()){
-		std::cout << "expected body of size " << conf.getClientBodyBufferSize()
-			<< "\ngot size " << conf.getBody().size() << ":\n["
-			<< conf.getBody() << "]\n";
+	if(conf.getBody().size() > conf.getClientBodyBufferSize())
 		conf.setCode(413);
-	}
 	std::set<std::string> methods = conf.getAllowedMethods();
 
 	std::cout << "reqMethod: " << conf.getMethod() << '\n';
@@ -128,40 +124,7 @@ int Listener::_process(std::string &request, content_type type)
 	std::string body = conf.getBody();
 	if(body.size() < 300)
 		std::cout << "reqBody: " << body << '\n';
-	//start resp
-	// if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/cgi"))
-	// {
-	// 	ServResponse.SetIsCGI(true);
-	// 	CGIResponse CGI("./cgi-bin/cgi");
-	// 	CGI.SetEnvp(conf);
-	// 	CGI.ExecuteCGIAndRedirect();
-	// 	CGI.MakeResponse();
-	// 	request = CGI.GetCGIResponse();
-	// 	//std::cout << request << std::endl;
-	// }
-	// else if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/calendar"))
-	// {
-	// 	ServResponse.SetIsCGI(true);
-	// 	CGIResponse CGI("/usr/local/bin/python3");
-	// 	CGI.SetEnvp(conf);
-	// 	CGI.ExecuteCGIAndRedirect();
-	// 	CGI.MakeResponse();
-	// 	request = CGI.GetCGIResponse();
-	// }
-	// if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/list") && conf.getAutoIndex())
-	// {
-	// 		ServResponse.GetDirectoryListing(conf);
-	// 		ServResponse.ShowDirectoryListing();
-	// 		request = ServResponse.GetResponse();
-	// 		std::cout << "I am here\n";
-	// }
-	// else if (!ServResponse.GetIsCGI())
-	// {
-	// 	ServResponse.StartThings(conf);
-	// 	request = ServResponse.GetResponse();
-	// }
-	// std::cout << request << std::endl;
-	//end
+
 	CGIResponse CGI(conf);
 	CGI.SetEnvp(conf);
 	if (CGI.HasSuchScript(conf.getPath()))
