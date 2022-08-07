@@ -403,11 +403,9 @@ void Response::GetDirectoryListing(RequestConfig &conf)
 	struct stat file_stats;
 	DIR *dir;
 	struct dirent *ent;
-	std::string path = "./webpages";
-	dir = opendir(path.c_str());
+
 	_path_to_files = conf.getPath();
-	std::cout << "path inside is " << _path_to_files << std::endl;
-	conf.setPath(_path_to_files);
+	dir = opendir(_path_to_files.c_str());
 	if (dir)
 	{
 		while ((ent = readdir(dir)))

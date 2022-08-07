@@ -173,7 +173,7 @@ int Listener::_process(std::string &request, content_type type)
 		request = CGI.GetCGIResponse();
 		ServResponse.SetIsCGI(true);
 	}
-	if (!conf.getPath().compare("/Users/wabathur/webserv/webpages/list") && conf.getAutoIndex())
+	if (ServResponse.IsDir(conf.getPath()) && conf.getAutoIndex()) //change this?
 	{
 		ServResponse.GetDirectoryListing(conf);
 		ServResponse.ShowDirectoryListing();

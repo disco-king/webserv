@@ -198,8 +198,8 @@ void CGIResponse::ScanForScripts()
 		{
 			if (ent->d_type == DT_REG && IsPythonScript(ent->d_name))
 			{
-				_scripts[path + "/" + ent->d_name] = "/usr/bin/python3";
-				std::cout << "before path " <<path + "/" + ent->d_name << " and script "  << _scripts[path + "/" + ent->d_name] << std::endl;
+				_scripts[path + "/" + ent->d_name] = "/usr/local/bin/python3";
+				//std::cout << "before path " <<path + "/" + ent->d_name << " and script "  << _scripts[path + "/" + ent->d_name] << std::endl;
 			}
 			else if (ent->d_type == DT_REG || ent->d_type == DT_UNKNOWN)
 			{
