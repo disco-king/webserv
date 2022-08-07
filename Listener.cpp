@@ -184,7 +184,7 @@ int Listener::_process(std::string &request, content_type type)
 		ServResponse.StartThings(conf);
 		request = ServResponse.GetResponse();
 	}
-
+	std::cout << request << std::endl;
 	// ServResponse.StartThings(conf);
 	// request = ServResponse.GetResponse();
 	return 0;
