@@ -24,8 +24,8 @@ _code(request.getCode())
 		_contentLocation = request.getPath();
 		_path = root + _contentLocation;
 	}
-	removeSlashes(_path);
-	removeSlashes(_contentLocation);
+	removeExtraSlashes(_path);
+	removeExtraSlashes(_contentLocation);
 
 	if(!is_filename(_path) && request.getMethod() == "GET"){
 		_addIndex();
@@ -38,14 +38,19 @@ void RequestConfig::_addIndex()
 {
 	std::vector<std::string>::const_iterator it = _index.begin();
 	std::vector<std::string>::const_iterator end = _index.end();
-	std::string path = _path + (_path[_path.size() - 1] == '/' ? "" : "/");
+	if(_path[_path.size() - 1] != '/')
+		_path.push_back('/');
+	std::string path = _path;
+	std::cout << "searching index for path " << path << '\n';
 	for (; it < end; ++it){
+		std::cout << "trying filename " << *it << '\n';
 		if(!is_filename(path + *it))
 			continue;
+		// _path += "/" + *it;
 		_path += *it;
 		_contentLocation += "/" + *it;
-		removeSlashes(_path);
-		removeSlashes(_contentLocation);
+		removeExtraSlashes(_path);
+		removeExtraSlashes(_contentLocation);
 		return;
 	}
 }

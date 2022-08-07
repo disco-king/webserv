@@ -4,7 +4,7 @@
 
 //Constructors, destructor, operator overload
 
-ServerConfig::ServerConfig(): _root(""), _client_buff_size(0),
+ServerConfig::ServerConfig(): _root(""), _client_buff_size(1000),
 _autoindex(false), _alias_set(false) {}
 
 ServerConfig::ServerConfig(ServerConfig const &ref){

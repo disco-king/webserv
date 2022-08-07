@@ -78,15 +78,9 @@ int Listener::_decodeChunks(std::string &request)
 	}
 	if(processed.size() == processed.find("\r\n\r\n") + 4)
 		return 1;
-	request = processed + "\r\n\r\n";
+	request = processed;
 	return 0;
 }
-
-// int Listener::_checkOversize(std::string &request, size_t size_limit)
-// {
-// 	size_t head_end = request.find("\r\n\r\n");
-// 	return (head_end + 4 + size_limit < request.size());
-// }
 
 
 int Listener::_process(std::string &request, content_type type)
@@ -114,8 +108,12 @@ int Listener::_process(std::string &request, content_type type)
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
 	if(!conf.getAllowedMethods().count(conf.getMethod()))
 		conf.setCode(405);
-	if(conf.getBody().size() > conf.getClientBodyBufferSize())
+	if(conf.getBody().size() > conf.getClientBodyBufferSize()){
+		std::cout << "expected body of size " << conf.getClientBodyBufferSize()
+			<< "\ngot size " << conf.getBody().size() << ":\n["
+			<< conf.getBody() << "]\n";
 		conf.setCode(413);
+	}
 	std::set<std::string> methods = conf.getAllowedMethods();
 
 	std::cout << "reqMethod: " << conf.getMethod() << '\n';

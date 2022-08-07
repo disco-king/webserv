@@ -29,7 +29,6 @@ private:
 
 	int _process(std::string &request, content_type type);
 	int _decodeChunks(std::string &request);
-	int _checkOversize(std::string &request, size_t size_limit);
 
 public:
 	Listener(Config& config);

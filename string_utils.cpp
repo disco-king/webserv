@@ -65,7 +65,7 @@ size_t find_string(std::string const& haystack, std::string needle)
 	return std::string::npos;
 }
 
-void removeSlashes(std::string &str, size_t index, size_t shift)
+void removeExtraSlashes(std::string &str, size_t index, size_t shift)
 {
 	int count = -1;
 	for(; index < str.size(); ++index){
@@ -78,7 +78,7 @@ void removeSlashes(std::string &str, size_t index, size_t shift)
 	count = --index;
 	for(; index < str.size(); ++index){
 		if(str[index] == '/' && index != count)
-			return(removeSlashes(str, index, shift));
+			return(removeExtraSlashes(str, index, shift));
 		str[index - shift] = str[index];
 	}
 	str.resize(str.size() - shift);
