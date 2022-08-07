@@ -173,11 +173,21 @@ int Listener::_process(std::string &request, content_type type)
 		request = CGI.GetCGIResponse();
 		ServResponse.SetIsCGI(true);
 	}
-	if (ServResponse.IsDir(conf.getPath()) && conf.getAutoIndex()) //change this?
+	if (ServResponse.IsDir(conf.getPath())) //change this?
 	{
-		ServResponse.GetDirectoryListing(conf);
-		ServResponse.ShowDirectoryListing();
-		request = ServResponse.GetResponse();
+		if (conf.getAutoIndex())
+		{
+			ServResponse.GetDirectoryListing(conf);
+			ServResponse.ShowDirectoryListing();
+			request = ServResponse.GetResponse();
+		}
+		else
+		{
+			conf.setCode(403);
+			ServResponse.StartThings(conf);
+			request = ServResponse.GetResponse();
+		}
+
 	}
 	else if (!ServResponse.GetIsCGI())
 	{
