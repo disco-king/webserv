@@ -171,6 +171,7 @@ int Listener::_process(std::string &request, content_type type)
 		request = CGI.GetCGIResponse();
 		ServResponse.SetIsCGI(true);
 	}
+	std::cout << "error code " << conf.getCode() << std::endl;
 	if (ServResponse.IsDir(conf.getPath())) //change this?
 	{
 		if (conf.getAutoIndex())
