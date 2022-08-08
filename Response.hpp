@@ -15,6 +15,7 @@ class Response
 		std::vector<std::string> _allowed_methods;
 		std::vector<std::string> _files;
 		std::vector<std::string> _dirs;
+		std::map<int, std::string> _error_pages;
 		int _content_length;
 		int _response_code;
 	public:
@@ -65,6 +66,9 @@ class Response
 		void SetIsCGI(bool value);
 
 		void CreateAndSetErrorBody();
+
+		void SetDefaultErrorPages(const std::map<int, std::string> &pages);
+		std::map<int, std::string> GetDefaultErrorPages();
 };
 
 typedef void (Response::*HTTPMethods)(RequestConfig &conf);

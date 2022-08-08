@@ -3,8 +3,8 @@
 
 
 Config::Config(): _path(DEFAULT_CONFIG_PATH){
-	// std::vector<std::string> tmp_file = filereader(_path.c_str());
-	// ServerConfig::DefaultServerConfig(tmp_file);
+	std::vector<std::string> tmp_file = filereader(_path.c_str());
+	ServerConfig::DefaultServerConfig(tmp_file);
 }
 
 Config::Config(std::string const &path): _path(path) {}

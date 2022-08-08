@@ -150,6 +150,9 @@ void ServerConfig::addErrorPage(std::vector<std::string> tokens){
 	size_t		len = tokens.size();
 
 	for (size_t i = 0; i < len; i++){
+		std::cout << tokens[i] << std::endl;
+	}
+	for (size_t i = 0; i < len; i++){
 		if (onlyDigits(tokens[i]))
 			status_codes.push_back(atoi(tokens[i].c_str()));
 		else if (status_codes.empty())
@@ -224,6 +227,15 @@ ServerConfig ServerConfig::DefaultServerConfig(std::vector<std::string> &file){
 	serv.parse_server(i, file);
 	ServerConfig::_default_config = serv;
 	return serv;
+
+	// std::vector<std::string> begin;
+	// begin.push_back("server");
+	// begin.push_back("{");
+	// file.insert(file.begin(), begin.begin(), begin.end());
+	// file.insert(file.end(), "}");
+	// serv.parse_server(i, file);
+	// ServerConfig::_default_config = serv;
+	// return serv;
 }
 
 // parse methods
@@ -367,7 +379,7 @@ void ServerConfig::parse_server(unsigned int &i, std::vector<std::string> &file)
 std::vector<t_listen>				ServerConfig::getListen() const {return _listen;}
 std::string							ServerConfig::getRoot() const {return _root;}
 std::vector<std::string>   			ServerConfig::getServerName() const {return _server_name;}
-std::map<int, std::string>			ServerConfig::getErrorPage() const {return _error_page;}
+std::map<int, std::string>			ServerConfig::getErrorPage() const {std::cout << "inside config " << _error_page.size(); return _error_page;}
 int									ServerConfig::getClientBodyBufferSize() const {return _client_buff_size;}
 std::map<std::string, std::string>	ServerConfig::getCgiParam() const {return _cgi_param;}
 std::string							ServerConfig::getCgiPass() const {return _cgi_pass;}
