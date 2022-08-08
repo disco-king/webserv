@@ -367,7 +367,7 @@ void ServerConfig::parse_server(unsigned int &i, std::vector<std::string> &file)
 std::vector<t_listen>				ServerConfig::getListen() const {return _listen;}
 std::string							ServerConfig::getRoot() const {return _root;}
 std::vector<std::string>   			ServerConfig::getServerName() const {return _server_name;}
-std::map<int, std::string>			ServerConfig::getErrorPage() const {return _error_page;}
+std::map<int, std::string>			ServerConfig::getErrorPage() const {std::cout << "inside config " << _error_page.size(); return _error_page;}
 int									ServerConfig::getClientBodyBufferSize() const {return _client_buff_size;}
 std::map<std::string, std::string>	ServerConfig::getCgiParam() const {return _cgi_param;}
 std::string							ServerConfig::getCgiPass() const {return _cgi_pass;}

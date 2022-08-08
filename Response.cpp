@@ -37,6 +37,16 @@ void Response::SetIsCGI(bool value)
 	_is_cgi = value;
 }
 
+void Response::SetDefaultErrorPages(const std::map<int, std::string> &pages)
+{
+	_error_pages = pages;
+}
+
+std::map<int, std::string> Response::GetDefaultErrorPages()
+{
+	return _error_pages;
+}
+
 void Response::FillCodes()
 {
 	/*informational 100 - 103 */
@@ -135,7 +145,9 @@ void Response::MakeHTTPResponse(int code)
 	{
 		_body.clear();
 		std::string path_to_default;
-		path_to_default = "./webpages/default_error_pages/" + CodeToString(_response_code) + ".html";
+		//path_to_default = "./webpages/default_error_pages/" + CodeToString(_response_code) + ".html";
+		path_to_default = _error_pages[_response_code];
+		std::cout << "error page " << _error_pages[_response_code] << std::endl;
 			std::ifstream file;
 			std::stringstream buffer;
 

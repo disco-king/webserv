@@ -86,6 +86,7 @@ int Listener::_decodeChunks(std::string &request)
 int Listener::_process(std::string &request, content_type type)
 {
 	Response ServResponse("text/html", 0, "");
+
 	int decode_res = 0;
 	if(type == chunking)
 		decode_res = _decodeChunks(request);
@@ -98,14 +99,17 @@ int Listener::_process(std::string &request, content_type type)
 	}
 	Request req(request);
 	req.parseRequest();
-	if(req.getCode() >= 400){
-		std::cerr << "BAD REQUEST\n"
-			<< "CODE " << req.getCode() << '\n';
-		ServResponse.MakeHTTPResponse(400);
-		request = ServResponse.GetResponse();
-		return 0;
-	}
+	// if(req.getCode() >= 400){
+	// 	std::cerr << "BAD REQUEST\n"
+	// 		<< "CODE " << req.getCode() << '\n';
+	// 	ServResponse.MakeHTTPResponse(400);
+	// 	request = ServResponse.GetResponse();
+	// 	return 0;
+	// }
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
+	ServResponse.SetDefaultErrorPages(conf.getErrorPages());
+
+
 	if(!conf.getAllowedMethods().count(conf.getMethod()))
 		conf.setCode(405);
 	if(conf.getBody().size() > conf.getClientBodyBufferSize())

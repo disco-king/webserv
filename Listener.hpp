@@ -35,7 +35,7 @@ public:
 	// ~Listener();
 	Listener(Listener const& other);
 
-	int init(t_listen listen, int queue = 10);
+	int init(t_listen listen, int queue = 1000);
 	int read(int socket);
 	int write(int socket);
 	void close(int socket);
