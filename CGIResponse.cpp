@@ -207,6 +207,7 @@ void CGIResponse::ScanForScripts()
 			}
 		}
 	}
+	closedir(dir);
 	delete[] buff;
 }
 
