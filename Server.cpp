@@ -11,6 +11,7 @@ int Server::init()
 {
 	int fd, res;
 	_max_fd = 0;
+	FD_ZERO(&_fds);
 
 	std::vector<t_listen> listeners = _config.getListeners();
 	std::vector<t_listen>::const_iterator end = listeners.end();
@@ -27,6 +28,7 @@ int Server::init()
 		std::cout << "on port " << it->port
 		<< " got fd " << fd << '\n';
 		_listeners.insert(std::make_pair(fd, listener));
+		std::cout << "ADDING " << fd << " TO MAIN SET\n";
 		FD_SET(fd, &_fds);
 		_max_fd = std::max(_max_fd, fd);
 	}
@@ -48,7 +50,11 @@ void Server::select()
 		FD_ZERO(&rfds);
 		FD_ZERO(&wrfds);
 
-		memcpy(&rfds, &_fds, sizeof(fd_set));
+		for(int i = 0; i <= _max_fd + 1; ++i){
+			if(FD_ISSET(i, &_fds))
+				FD_SET(i, &rfds);
+		}
+		// memmove(&rfds, &_fds, sizeof(fd_set));
 		std::set<int>::const_iterator end = _to_write.end();
 		for(std::set<int>::const_iterator it = _to_write.begin(); it != end; it++)
 			FD_SET(*it, &wrfds);
@@ -75,6 +81,7 @@ void Server::select()
 			_max_fd = 0;
 			for(std::map<int, Listener>::iterator it = _listeners.begin();
 							it != _listeners.end(); ++it){
+				std::cout << "ADDING " << it->first << " TO MAIN SET\n";
 				FD_SET(it->first, &_fds);
 				_max_fd = std::max(it->first, _max_fd);
 			}
@@ -118,6 +125,7 @@ void Server::select()
 			std::cout << "accept: socket " << it->first << '\n';
 			res = it->second.accept();
 			if(res != -1){
+				std::cout << "ADDING " << res << " TO MAIN SET\n";
 				FD_SET(res, &_fds);
 				_max_fd = std::max(_max_fd, res);
 				_connections[res] = &(it->second);

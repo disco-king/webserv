@@ -3,16 +3,21 @@
 
 int main(int argc, char**argv)
 {
-	Config conf;
-	if (argv[1])
-		conf.setPath(argv[1]);
-	conf.parse();
-	conf.print_config();
+	try {Config conf;
+		if (argv[1])
+			conf.setPath(argv[1]);
+		conf.parse();
+		conf.print_config();
 
 
-	Server server(conf);
+		Server server(conf);
 
-	server.select();
+		server.select();
+	}
+
+	catch (std::exception &ex){
+		std::cout << ex.what() << std::endl;
+	}
 }
 
 

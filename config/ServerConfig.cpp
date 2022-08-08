@@ -150,9 +150,6 @@ void ServerConfig::addErrorPage(std::vector<std::string> tokens){
 	size_t		len = tokens.size();
 
 	for (size_t i = 0; i < len; i++){
-		std::cout << tokens[i] << std::endl;
-	}
-	for (size_t i = 0; i < len; i++){
 		if (onlyDigits(tokens[i]))
 			status_codes.push_back(atoi(tokens[i].c_str()));
 		else if (status_codes.empty())
