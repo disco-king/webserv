@@ -3,7 +3,8 @@
 
 int main(int argc, char**argv)
 {
-	try {Config conf;
+	try {
+		Config conf;
 		if (argv[1])
 			conf.setPath(argv[1]);
 		conf.parse();

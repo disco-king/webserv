@@ -292,7 +292,8 @@ void Response::GETMethod(RequestConfig &ReqConf)
 void Response::GetFileFromServer(const std::string &file_name)
 {
 	std::ifstream file;
-	std::stringstream buffer;
+	char buffer[512];
+	// std::stringstream buffer;
 
 	if (IsFile(file_name))
 	{
@@ -302,8 +303,30 @@ void Response::GetFileFromServer(const std::string &file_name)
 			_response_code = 403;
 			return ;
 		}
-		buffer << file.rdbuf();
-		_body = buffer.str();
+		// buffer << file.rdbuf();
+		// _body = buffer.str();
+		while(1)
+		{
+			file.read(buffer, sizeof(buffer));
+			if(file.fail() && !file.eof()){
+				perror("file.read()");
+				break;
+			}
+
+			
+			for(size_t i = 0; i < file.gcount(); ++i)
+				_body.push_back(buffer[i]);
+			// if(res < 0){
+			// 	perror("write");
+			// 	break;
+			// }
+			
+			if(file.eof()){
+				std::cout << "eof reached\n";
+				break;
+			}
+
+		}
 		_response_code = 200;
 		file.close();
 	}

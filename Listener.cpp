@@ -227,29 +227,40 @@ int Listener::read(int socket)
 
 int Listener::write(int socket)
 {
+	char buff[PACK_SIZE] = {0};
 	static bool first = true;
 	std::cout << "writing\n";
 	if(_written.count(socket) == 0)
 		_written[socket] = 0;
 
-	std::string to_send = _sockets[socket].substr(_written[socket],PACK_SIZE);
+	size_t &written = _written[socket];
+	std::string &response = _sockets[socket];
 
-	std::cout << "size before sending: " << _sockets[socket].size() << '\n';
-	int ret = ::write(socket, to_send.c_str(), to_send.length());
+	// std::string to_send = _sockets[socket].substr(_written[socket],PACK_SIZE);
+	size_t i;
+	for(i = 0; i < PACK_SIZE && i + written < response.size(); ++i)
+		buff[i] = response[i + written];
+
+	// std::cout << "size before sending: " << response.size() << '\n';
+	// int ret = ::write(socket, to_send.c_str(), to_send.length());
+	int ret = ::write(socket, buff, i);
+
 
 	if(ret == -1){
 		std::cerr << "error: write\n";
 		close(socket);
 		return -1;
 	}
-	std::cout << "sent " << to_send.size() << '\n';
+	// std::cout << "sent " << to_send.size() << '\n';
+	std::cout << "sent " << i << '\n';
 
-	size_t &written = _written[socket];
 	written += ret;
 	
-	if(written >= _sockets[socket].size()){
+	std::cout << written << " overall\n";
+
+	if(written >= response.size()){
 		std::cerr << "finished writing to socket " << socket << '\n'
-		<< _sockets[socket];
+		<< response;
 		_sockets.erase(socket);
 		written = 0;
 		std::cout << "returning 0\n";

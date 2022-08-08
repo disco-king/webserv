@@ -37,7 +37,7 @@ int main()
 	}
 
 	std::ofstream file;
-	file.open("../moved.png", std::ios::out | std::ios::binary);
+	file.open("../moved.mp3", std::ios::out | std::ios::binary);
 	if(file.fail()){
 		perror("open");
 		exit(1);
