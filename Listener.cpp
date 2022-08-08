@@ -125,6 +125,9 @@ int Listener::_process(std::string &request, content_type type)
 	if(body.size() < 300)
 		std::cout << "reqBody: " << body << '\n';
 
+	ServResponse.SetContentType(getFileType(conf.getPath()));
+
+
 	CGIResponse CGI(conf);
 	CGI.SetEnvp(conf);
 	if (CGI.HasSuchScript(conf.getPath()))
@@ -156,9 +159,9 @@ int Listener::_process(std::string &request, content_type type)
 		ServResponse.StartThings(conf);
 		request = ServResponse.GetResponse();
 	}
-	std::cout << request << std::endl;
-	// ServResponse.StartThings(conf);
-	// request = ServResponse.GetResponse();
+	std::cout << "RESPONSE FINAL SIZE:\n";
+	std::cout << request.size() << std::endl;
+
 	return 0;
 }
 
@@ -226,7 +229,7 @@ int Listener::write(int socket)
 
 	std::string to_send = _sockets[socket].substr(_written[socket],PACK_SIZE);
 
-	// std::cout << "what is sending\n" << to_send << std::endl;
+	std::cout << "size before sending: " << _sockets[socket].size() << '\n';
 	int ret = ::write(socket, to_send.c_str(), to_send.length());
 
 	if(ret == -1){
@@ -234,6 +237,7 @@ int Listener::write(int socket)
 		close(socket);
 		return -1;
 	}
+	std::cout << "sent " << to_send.size() << '\n';
 
 	size_t &written = _written[socket];
 	written += ret;
@@ -241,8 +245,12 @@ int Listener::write(int socket)
 	if(written >= _sockets[socket].size()){
 		_sockets.erase(socket);
 		written = 0;
+		std::cout << "returning 0\n";
+		// exit(0);
 		return 0;
 	}
+	std::cout << "returning 1\n";
+	// exit(0);
 	return 1;
 }
 
