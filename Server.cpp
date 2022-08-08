@@ -50,11 +50,18 @@ void Server::select()
 
 		memcpy(&rfds, &_fds, sizeof(fd_set));
 		std::set<int>::const_iterator end = _to_write.end();
-		for(std::set<int>::const_iterator it = _to_write.begin(); it != end; ++it)
+		for(std::set<int>::const_iterator it = _to_write.begin(); it != end; it++)
 			FD_SET(*it, &wrfds);
 
 		std::cout << "\nwaiting for connections\n\n";
 		res = ::select(_max_fd + 1, &rfds, &wrfds, NULL, NULL);
+
+		std::cout << "fd list: ";
+		for(int i = 0; i <= _max_fd + 1; ++i){
+			if(FD_ISSET(i, &_fds))
+				std::cout << i << ' ';
+		}
+		std::cout << '\n';
 
 		if(res < 0){
 			std::cerr << "error: select\n";
@@ -65,9 +72,12 @@ void Server::select()
 			FD_ZERO(&rfds);
 			_connections.clear();
 			_to_write.clear();
+			_max_fd = 0;
 			for(std::map<int, Listener>::iterator it = _listeners.begin();
-							it != _listeners.end(); ++it)
+							it != _listeners.end(); ++it){
 				FD_SET(it->first, &_fds);
+				_max_fd = std::max(it->first, _max_fd);
+			}
 			continue;
 		}
 
@@ -77,15 +87,13 @@ void Server::select()
 				continue;
 			std::cout << "write: socket " << *it << '\n';
 			res = _connections[*it]->write(*it);
-			if(res == 0){
+			if(res == 0)
 				_to_write.erase(*it);
-			}
 			if(res < 0){
 				FD_CLR(*it, &_fds);
 				FD_CLR(*it, &rfds);
 				_connections.erase(*it);
 			}
-			break;
 		}
 
 		std::map<int, Listener*>::iterator conn_end = _connections.end();
@@ -101,7 +109,6 @@ void Server::select()
 			}
 			if(res == 0)
 				_to_write.insert(it->first);
-			break;
 		}
 
 		std::map<int, Listener>::iterator lst_end = _listeners.end();
@@ -115,7 +122,6 @@ void Server::select()
 				_max_fd = std::max(_max_fd, res);
 				_connections[res] = &(it->second);
 			}
-			break;
 		}
 	}
 }

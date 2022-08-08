@@ -223,6 +223,7 @@ int Listener::read(int socket)
 
 int Listener::write(int socket)
 {
+	static bool first = true;
 	std::cout << "writing\n";
 	if(_written.count(socket) == 0)
 		_written[socket] = 0;
@@ -243,10 +244,15 @@ int Listener::write(int socket)
 	written += ret;
 	
 	if(written >= _sockets[socket].size()){
+		std::cerr << "finished writing to socket " << socket << '\n'
+		<< _sockets[socket];
 		_sockets.erase(socket);
 		written = 0;
 		std::cout << "returning 0\n";
-		// exit(0);
+		// if(first)
+		// 	first = false;
+		// else
+		// 	exit(0);
 		return 0;
 	}
 	std::cout << "returning 1\n";
