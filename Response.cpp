@@ -406,7 +406,6 @@ void Response::ShowDirectoryListing()
 	_response.append("Date: " + GetDateAndTime());
 	SetContentType("text/html");
 	_response.append("Content-Type: " + GetContentType() + "\n");
-	_body.append("directory_listing:");
 	_body.append("<style type=\"text/css\">\n");
 	_body.append(".button{\nborder: none;\nbackground-color: inherit;\npadding: 0px;\nfont-size: 16px;\ncursor: pointer;\ndisplay: inline-block;\n}\n</style>");
 
