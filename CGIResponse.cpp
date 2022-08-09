@@ -34,14 +34,6 @@ void CGIResponse::ExecuteCGIAndRedirect()
 	int fdOut;
 	int OldFds[2];
 
-	std::map<std::string, std::string>::iterator it = _scripts.begin();
-	std::map<std::string, std::string>::iterator ite = _scripts.end();
-
-	while (it != ite)
-	{
-		std::cout << "in execute " << it->first << " " << it->second << std::endl;
-		it++;
-	}
 	OldFds[0] = dup(STDIN_FILENO);
 	OldFds[1] = dup(STDOUT_FILENO);
 
@@ -62,7 +54,6 @@ void CGIResponse::ExecuteCGIAndRedirect()
 			std::cerr << "can't dup\n";
 		char **argv = new char*[3];
 
-		std::cerr << "scripts name" << _scripts[_name] << std::endl;
 		if (_is_python)
 		{
 			std::cerr << "name " << _name << std::endl;
@@ -78,7 +69,6 @@ void CGIResponse::ExecuteCGIAndRedirect()
 			argv[1] = NULL;
 		}
 		argv[2] = NULL;
-		std::cerr << "argv " << "0 "  <<argv[0] << " 1 " << argv[1] << std::endl;
 		_envp = EnvpToChar();
 		if (execve(argv[0], argv, _envp) < 0)
 		{
@@ -118,9 +108,6 @@ void CGIResponse::MakeResponse()
 
 	cgi_file.open("temp_fileOut");
 	stat("temp_fileOut", &file_stats);
-	// buffer << cgi_file.rdbuf();
-
-	// size = buffer.str().size();
 
 	buffer2.append(_firstHeader);
 	buffer2.append("Content-type:text/html\r\n");
@@ -133,11 +120,7 @@ void CGIResponse::MakeResponse()
 	buffer2.append("file_abs_path:");
 	buffer2.append(getcwd(absolute_path, 512));
 	buffer2.append("/temp_fileOut");
-	// buffer2.append(ss.str());
-	// buffer2.append("\r\n\r\n");
-	// buffer2.append(buffer.str());
 	_cgiresponse.append(buffer2);
-	//std::cout << _cgiresponse;
 	delete[] absolute_path;
 	cgi_file.close();
 }
@@ -150,7 +133,6 @@ std::string CGIResponse::GetCGIResponse()
 void CGIResponse::SetEnvp(RequestConfig &conf)
 {
 	_envp_map["PATH_INFO"] = conf.getPath();
-	//_envp_map["PATH_TRANSLATED"] = conf.getPath(); //actually should be a virtual path (what the hell is virual path)
 	_envp_map["SCRIPT_NAME"] = _name; //should be virtual path of script
 	_envp_map["SCRIPT_FILENAME"] = _name;
 	_envp_map["SCRIPT_URI"] = conf.getPath();
@@ -210,7 +192,6 @@ void CGIResponse::ScanForScripts()
 			if (ent->d_type == DT_REG && IsPythonScript(ent->d_name))
 			{
 				_scripts[path + "/" + ent->d_name] = "/usr/local/bin/python3";
-				//std::cout << "before path " <<path + "/" + ent->d_name << " and script "  << _scripts[path + "/" + ent->d_name] << std::endl;
 			}
 			else if (ent->d_type == DT_REG || ent->d_type == DT_UNKNOWN)
 			{
@@ -239,8 +220,6 @@ bool CGIResponse::HasSuchScript(const std::string &script_name)
 		{
 			if (_scripts[script_name].size() > 0)
 			{
-				std::cerr << "is python\n";
-				//_name = it->second;
 				_is_python = true;
 			}
 			else
@@ -256,10 +235,6 @@ bool CGIResponse::HasSuchScript(const std::string &script_name)
 
 void CGIResponse::Clear()
 {
-	for (int i = 0; _envp[i]; i++)
-	{
-		std::cout << _envp[i] << std::endl;
-	}
 	for (int i = 0; _envp[i] != NULL; i++)
 	{
 		delete[] _envp[i];
