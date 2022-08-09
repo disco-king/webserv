@@ -94,13 +94,17 @@ void Server::select()
 				continue;
 			std::cout << "write: socket " << *it << '\n';
 			res = _connections[*it]->write(*it);
-			if(res == 0)
+			if(res == 0){
+				std::cout << "erasing\n";
 				_to_write.erase(*it);
+				std::cout << "erased\n";
+			}
 			if(res < 0){
 				FD_CLR(*it, &_fds);
 				FD_CLR(*it, &rfds);
 				_connections.erase(*it);
 			}
+			break;
 		}
 
 		std::map<int, Listener*>::iterator conn_end = _connections.end();
@@ -116,6 +120,7 @@ void Server::select()
 			}
 			if(res == 0)
 				_to_write.insert(it->first);
+			break;
 		}
 
 		std::map<int, Listener>::iterator lst_end = _listeners.end();

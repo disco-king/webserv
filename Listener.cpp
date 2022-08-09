@@ -8,9 +8,7 @@
 #include "header.hpp"
 
 Listener::Listener(Config& config) : _config(config)
-{
-	_response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 18\n\nHello from server!";
-}
+{}
 
 Listener::Listener(Listener const &other) : _config(other._config)
 {
@@ -18,7 +16,6 @@ Listener::Listener(Listener const &other) : _config(other._config)
 	_addrlen = other._addrlen;
 	_listen = other._listen;
 	_address = other._address;
-	_response = other._response;
 	_sockets = other._sockets;
 	_written = other._written;
 }
@@ -92,20 +89,12 @@ int Listener::_process(std::string &request, content_type type)
 		decode_res = _decodeChunks(request);
 	
 	if(decode_res){
-		"DECODING FAIL\r\nContent-Encoding: Chunked";
 		ServResponse.MakeHTTPResponse(422);
 		request = ServResponse.GetResponse();
 		return 0;
 	}
 	Request req(request);
 	req.parseRequest();
-	// if(req.getCode() >= 400){
-	// 	std::cerr << "BAD REQUEST\n"
-	// 		<< "CODE " << req.getCode() << '\n';
-	// 	ServResponse.MakeHTTPResponse(400);
-	// 	request = ServResponse.GetResponse();
-	// 	return 0;
-	// }
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
 	ServResponse.SetDefaultErrorPages(conf.getErrorPages());
 
@@ -233,45 +222,35 @@ int Listener::write(int socket)
 	if(_written.count(socket) == 0)
 		_written[socket] = 0;
 
+
 	size_t &written = _written[socket];
 	std::string &response = _sockets[socket];
-
-	// std::string to_send = _sockets[socket].substr(_written[socket],PACK_SIZE);
 	size_t i;
+	std::cout << "got written size " << written << '\n';
+	std::cout << "got response " << &response << '\n';
+
 	for(i = 0; i < PACK_SIZE && i + written < response.size(); ++i)
 		buff[i] = response[i + written];
 
-	// std::cout << "size before sending: " << response.size() << '\n';
-	// int ret = ::write(socket, to_send.c_str(), to_send.length());
+	std::cout << "got " << i << " bytes out of the buffer\n";
+
 	int ret = ::write(socket, buff, i);
 
+	std::cout << "written " << ret << " bytes\n";
 
 	if(ret == -1){
 		std::cerr << "error: write\n";
 		close(socket);
 		return -1;
 	}
-	// std::cout << "sent " << to_send.size() << '\n';
-	std::cout << "sent " << i << '\n';
 
 	written += ret;
 	
-	std::cout << written << " overall\n";
-
 	if(written >= response.size()){
-		std::cerr << "finished writing to socket " << socket << '\n'
-		<< response;
 		_sockets.erase(socket);
 		written = 0;
-		std::cout << "returning 0\n";
-		// if(first)
-		// 	first = false;
-		// else
-		// 	exit(0);
 		return 0;
 	}
-	std::cout << "returning 1\n";
-	// exit(0);
 	return 1;
 }
 

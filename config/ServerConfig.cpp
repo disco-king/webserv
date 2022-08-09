@@ -132,6 +132,9 @@ void ServerConfig::addListen(std::vector<std::string> tokens){
 }
 
 void ServerConfig::addRoot(std::vector<std::string> tokens){
+	std::cout << "size " << tokens.size() << ' ' << _root << '\n';
+	for (int i = 0; i < tokens.size(); ++i)
+		std::cout << "tok " << tokens[i] << '\n';
 	if (tokens.size() != 1 || _root != "")
 		throw ServerConfigException("Invalid root");
 	_root = tokens[0];

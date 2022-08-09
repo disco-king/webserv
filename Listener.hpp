@@ -16,7 +16,6 @@ private:
 	int _addrlen;
 	t_listen _listen;
 	sockaddr_in _address;
-	std::string _response;
 	std::map<int, std::string> _sockets;
 	std::map<int, size_t> _written;
 	Config & _config;
