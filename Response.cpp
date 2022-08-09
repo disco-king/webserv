@@ -145,45 +145,39 @@ void Response::MakeHTTPResponse(int code)
 	{
 		_body.clear();
 		std::string path_to_default;
-		//path_to_default = "./webpages/default_error_pages/" + CodeToString(_response_code) + ".html";
 		path_to_default = _error_pages[_response_code];
-		std::cout << "error page " << _error_pages[_response_code] << std::endl;
-			std::ifstream file;
-			std::stringstream buffer;
-			struct stat file_stat;
-			char *buffer2 = new char[512];
-			file.open(path_to_default.c_str(), std::ifstream::in);
-			if (!file.is_open())
-			{
-				std::ofstream outFile;
-				std::string tmp_path = "./temp_file/error_page.html";
-				outFile.open(tmp_path.c_str());
-				
-				CreateAndSetErrorBody();
-				outFile << _error_string;
-				stat(tmp_path.c_str(), &file_stat);
-				_file_length = file_stat.st_size;
-				outFile.close();
-				getcwd(buffer2, 512);
-				_body.append("file_abs_path:");
-				_body.append(buffer2);
-				_body.append("/temp_file/error_page.html");
-			}
-			else
-			{
-				// buffer << file.rdbuf();
-				// _body = buffer.str();
-				stat(path_to_default.c_str(), &file_stat);
-				_file_length = file_stat.st_size;
-				file.close();
-				getcwd(buffer2, 512);
-				_body.append("file_abs_path:");
-				_body.append(buffer2);
-				_body.append("/");
-				_body.append(path_to_default);
-			}
-			delete[] buffer2;
-		//_content_length = _body.size() + 1;
+		std::ifstream file;
+		struct stat file_stat;
+		char *buffer2 = new char[512];
+		file.open(path_to_default.c_str(), std::ifstream::in);
+		if (!file.is_open())
+		{
+			std::ofstream outFile;
+			std::string tmp_path = "./temp_file/error_page.html";
+			outFile.open(tmp_path.c_str());
+			
+			CreateAndSetErrorBody();
+			outFile << _error_string;
+			stat(tmp_path.c_str(), &file_stat);
+			_file_length = file_stat.st_size;
+			outFile.close();
+			getcwd(buffer2, 512);
+			_body.append("file_abs_path:");
+			_body.append(buffer2);
+			_body.append("/temp_file/error_page.html");
+		}
+		else
+		{
+			stat(path_to_default.c_str(), &file_stat);
+			_file_length = file_stat.st_size;
+			file.close();
+			getcwd(buffer2, 512);
+			_body.append("file_abs_path:");
+			_body.append(buffer2);
+			_body.append("/");
+			_body.append(path_to_default);
+		}
+		delete[] buffer2;
 		SetContentType("text/html");
 	}
 	_response.append("Content-Type: " + GetContentType() + "\n");
@@ -193,12 +187,10 @@ void Response::MakeHTTPResponse(int code)
 	_response.append("Accept-Ranges: bytes\n");
 	_response.append("\r\n");
 
-	std::cout << "GOT RESPONSE HEAD\n\n"
-	<< _response << "\n\n";
-
 	_response.append(_body);
 	_response.append("\r\n");
 }
+
 std::string Response::CodeToString(int code)
 {
 	int temp = 0;
@@ -270,17 +262,6 @@ void Response::CheckMethod(RequestConfig &conf)
 	MethodMap.insert(std::make_pair("POST", &Response::POSTMethod));
 	MethodMap.insert(std::make_pair("DELETE", &Response::DELETEMethod));
 	(this->*MethodMap[conf.getMethod()])(conf);
-	//HTTPMethods Method[3] = {&Response::GETMethod, &Response::POSTMethod, &Response::DELETEMethod};
-	// for (size_t i = 0; i < _allowed_methods.size(); i++)
-	// {
-	// 	if (!conf.getMethod().compare(_allowed_methods[i]))
-	// 	{
-	// 		//std::cout << "nethod is" << conf.getMethod() << std::endl;
-	// 		(this->*Method[i])(conf);
-	// 		return ;
-	// 	}
-	// }
-	// _response_code = 405;
 }
 
 void Response::SetResponseCode(int code)
@@ -300,21 +281,13 @@ int Response::GetResponseCode()
 
 void Response::GETMethod(RequestConfig &ReqConf)
 {
-	// if (ReqConf.getCGIPass().size() > 0)
-	// {
-	// 	/*insert cgi here*/
-	// }
-	// else
-	// {
-		GetFileFromServer(ReqConf.getPath());
-	// }
+	GetFileFromServer(ReqConf.getPath());
 }
 
 void Response::GetFileFromServer(const std::string &file_name)
 {
 	std::ifstream file;
 	char buffer[512];
-	// std::stringstream buffer;
 
 	if (IsFile(file_name))
 	{
@@ -324,30 +297,6 @@ void Response::GetFileFromServer(const std::string &file_name)
 			_response_code = 403;
 			return ;
 		}
-		// buffer << file.rdbuf();
-		// _body = buffer.str();
-		// while(1)
-		// {
-		// 	file.read(buffer, sizeof(buffer));
-		// 	if(file.fail() && !file.eof()){
-		// 		perror("file.read()");
-		// 		break;
-		// 	}
-
-			
-		// 	for(size_t i = 0; i < file.gcount(); ++i)
-		// 		_body.push_back(buffer[i]);
-		// 	// if(res < 0){
-		// 	// 	perror("write");
-		// 	// 	break;
-		// 	// }
-			
-		// 	if(file.eof()){
-		// 		std::cout << "eof reached\n";
-		// 		break;
-		// 	}
-
-		// }
 		_body.append("file_abs_path:");
 		_body.append(_path_to_file);
 		_response_code = 200;
@@ -391,19 +340,9 @@ bool Response::IsFile(const std::string &file_name)
 void Response::POSTMethod(RequestConfig &ReqConf)
 {
 	std::string body_to_save;
-
-	// if (ReqConf.getCGIPass().size() > 0)
-	// {
-	// 	/*insert cgi here*/
-	// }
-	// else
-	// {
-		body_to_save = ReqConf.getBody();
-		_body.clear();
-		SaveFile(body_to_save, ReqConf);
-	// }
-
-
+	body_to_save = ReqConf.getBody();
+	_body.clear();
+	SaveFile(body_to_save, ReqConf);
 }
 
 void Response::SaveFile(const std::string &body, RequestConfig &ReqConf)
@@ -451,9 +390,7 @@ void Response::StartThings(RequestConfig &conf)
 		SetBody(conf.getBody());
 		CheckMethod(conf);
 	}
-	std::cout << conf.getPath() << "error code" << _response_code << std::endl;
 	MakeHTTPResponse(GetResponseCode());
-	//GetDirectoryListing(conf);
 }
 
 void Response::GetDirectoryListing(RequestConfig &conf)

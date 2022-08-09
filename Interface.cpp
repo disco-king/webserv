@@ -118,7 +118,7 @@ int Interface::_process(std::string &request, content_type type)
 		request = CGI.GetCGIResponse();
 		ServResponse.SetIsCGI(true);
 	}
-	if (ServResponse.IsDir(conf.getPath())) //change this?
+	if (ServResponse.IsDir(conf.getPath()))
 	{
 		if (conf.getAutoIndex())
 		{
