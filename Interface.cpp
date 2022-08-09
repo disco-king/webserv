@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include "header.hpp"
+#include "file_utils.hpp"
 
 Interface::Interface(Config& config) : _config(config)
 {}
@@ -117,7 +118,7 @@ int Interface::_process(std::string &request, content_type type)
 		request = CGI.GetCGIResponse();
 		ServResponse.SetIsCGI(true);
 	}
-	if (ServResponse.IsDir(conf.getPath())) //change this?
+	if (is_dirname(conf.getPath())) //change this?
 	{
 		if (conf.getAutoIndex())
 		{
@@ -205,29 +206,81 @@ int Interface::_writeFromFile(int socket, size_t head_end)
 	static std::map<int, std::ifstream> files;
 	size_t i = 0;
 
+	std::string fname = _sockets[socket].c_str() + head_end;
+	fname.push_back(0);
+	std::ifstream file;
 	if(!files.count(socket))
 	{
-		files[socket] = std::ifstream(_sockets[socket].c_str() + head_end, std::ios::binary);
+		files[socket] = std::ifstream();
+		files[socket].open(fname, std::ios::binary);
 		if(files[socket].fail()){
 			perror("open");
-			return(-1);
+			close(socket);
+			return -1;
 		}
 
 		for(; i < head_end; ++i)
 			buff[i] = _sockets[socket][i];
 	}
 	
-	files[socket].read(buff + i, PACK_SIZE - i);
+	std::ifstream &file = files[socket];
+
+	file.read(buff + i, PACK_SIZE - i);
 	if(file.fail() && !file.eof()){
 		perror("file.read()");
+		close(socket);
 		return -1;
 	}
 
+	int res = ::write(socket, buff, file.gcount());
+	if(res < 0){
+		perror("write");
+		close(socket);
+		return -1;
+	}
+
+	if(file.eof()){
+		_sockets.erase(socket);
+		files.erase(socket);
+		return 0;
+	}
+
+	return 1;
 }
 
 int Interface::write(int socket)
 {
-	
+	std::cout << "in write\n";
+	std::string &response = _sockets[socket];
+
+	std::cout << "finding\n";
+
+	size_t head_end = response.find("\r\n\r\n");
+	size_t header = response.find("file_abs_path:");
+	std::cout << "header " << header << " head end " << head_end << '\n';
+	if(header == head_end + 4)
+		return _writeFromFile(socket, header + 14);
+
+	if(!_written.count(socket))
+		_written[socket] = 0;
+
+	size_t &written = _written[socket];
+
+	int res = ::write(socket, response.c_str() + written, PACK_SIZE);
+
+	if(res == -1){
+		perror("write");
+		close(socket);
+		return -1;
+	}
+
+	written += res;
+	if(written >= response.size()){
+		_sockets.erase(socket);
+		written = 0;
+		return 0;
+	}
+	return 1;
 }
 
 // int Interface::write(int socket)

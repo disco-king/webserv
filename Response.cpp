@@ -191,7 +191,7 @@ void Response::MakeHTTPResponse(int code)
 	SetContentLength(_file_length);
 	_response.append("Content-Length: " + GetContentLength() + "\n");
 	_response.append("Connection: keep-alive\n");
-	_response.append("Accept-Ranges: bytes\n");
+	_response.append("Accept-Ranges: bytes\r\n");
 	_response.append("\r\n");
 
 	std::cout << "GOT RESPONSE HEAD\n\n"
@@ -496,7 +496,7 @@ void Response::ShowDirectoryListing()
 	_content_length = _body.size();
 	_response.append("Content-Length: " + GetContentLength() + "\n");
 	_response.append("Connection: keep-alive\n");
-	_response.append("Accept-Ranges: bytes\n");
+	_response.append("Accept-Ranges: bytes\r\n");
 	_response.append("\r\n");
 	_response.append(_body);
 }
