@@ -8,7 +8,7 @@
 
 #define PACK_SIZE 65536
 
-class Listener
+class Interface
 {
 
 private:
@@ -31,8 +31,8 @@ private:
 
 
 public:
-	Listener(Config& config);
-	Listener(Listener const& other);
+	Interface(Config& config);
+	Interface(Interface const& other);
 
 	int init(t_listen listen, int queue = 1000);
 	int read(int socket);

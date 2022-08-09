@@ -16,7 +16,7 @@ int Server::init()
 	std::vector<t_listen> listeners = _config.getListeners();
 	std::vector<t_listen>::const_iterator end = listeners.end();
 	for (std::vector<t_listen>::const_iterator it = listeners.begin(); it != end; ++it){
-		Listener listener(_config);
+		Interface listener(_config);
 
 		res = listener.init(*it);
 
@@ -25,10 +25,7 @@ int Server::init()
 		}
 
 		fd = listener.getFD();
-		std::cout << "on port " << it->port
-		<< " got fd " << fd << '\n';
 		_listeners.insert(std::make_pair(fd, listener));
-		std::cout << "ADDING " << fd << " TO MAIN SET\n";
 		FD_SET(fd, &_fds);
 		_max_fd = std::max(_max_fd, fd);
 	}
@@ -50,11 +47,7 @@ void Server::select()
 		FD_ZERO(&rfds);
 		FD_ZERO(&wrfds);
 
-		for(int i = 0; i <= _max_fd + 1; ++i){
-			if(FD_ISSET(i, &_fds))
-				FD_SET(i, &rfds);
-		}
-		// memmove(&rfds, &_fds, sizeof(fd_set));
+		memmove(&rfds, &_fds, sizeof(fd_set));
 		std::set<int>::const_iterator end = _to_write.end();
 		for(std::set<int>::const_iterator it = _to_write.begin(); it != end; it++)
 			FD_SET(*it, &wrfds);
@@ -62,16 +55,9 @@ void Server::select()
 		std::cout << "\nwaiting for connections\n\n";
 		res = ::select(_max_fd + 1, &rfds, &wrfds, NULL, NULL);
 
-		std::cout << "fd list: ";
-		for(int i = 0; i <= _max_fd + 1; ++i){
-			if(FD_ISSET(i, &_fds))
-				std::cout << i << ' ';
-		}
-		std::cout << '\n';
-
 		if(res < 0){
 			std::cerr << "error: select\n";
-			for(std::map<int, Listener*>::iterator it = _connections.begin();
+			for(std::map<int, Interface*>::iterator it = _connections.begin();
 							it != _connections.end(); ++it)
 				it->second->close(it->first);
 			FD_ZERO(&_fds);
@@ -79,9 +65,8 @@ void Server::select()
 			_connections.clear();
 			_to_write.clear();
 			_max_fd = 0;
-			for(std::map<int, Listener>::iterator it = _listeners.begin();
+			for(std::map<int, Interface>::iterator it = _listeners.begin();
 							it != _listeners.end(); ++it){
-				std::cout << "ADDING " << it->first << " TO MAIN SET\n";
 				FD_SET(it->first, &_fds);
 				_max_fd = std::max(it->first, _max_fd);
 			}
@@ -95,9 +80,7 @@ void Server::select()
 			std::cout << "write: socket " << *it << '\n';
 			res = _connections[*it]->write(*it);
 			if(res == 0){
-				std::cout << "erasing\n";
 				_to_write.erase(*it);
-				std::cout << "erased\n";
 			}
 			if(res < 0){
 				FD_CLR(*it, &_fds);
@@ -107,8 +90,8 @@ void Server::select()
 			break;
 		}
 
-		std::map<int, Listener*>::iterator conn_end = _connections.end();
-		for(std::map<int, Listener*>::iterator it = _connections.begin(); it != conn_end; ++it){
+		std::map<int, Interface*>::iterator conn_end = _connections.end();
+		for(std::map<int, Interface*>::iterator it = _connections.begin(); it != conn_end; ++it){
 			if(!FD_ISSET(it->first, &rfds))
 				continue;
 			std::cout << "read: socket " << it->first << '\n';
@@ -123,14 +106,13 @@ void Server::select()
 			break;
 		}
 
-		std::map<int, Listener>::iterator lst_end = _listeners.end();
-		for(std::map<int, Listener>::iterator it = _listeners.begin(); it != lst_end; ++it){
+		std::map<int, Interface>::iterator lst_end = _listeners.end();
+		for(std::map<int, Interface>::iterator it = _listeners.begin(); it != lst_end; ++it){
 			if(!FD_ISSET(it->first, &rfds))
 				continue;
 			std::cout << "accept: socket " << it->first << '\n';
 			res = it->second.accept();
 			if(res != -1){
-				std::cout << "ADDING " << res << " TO MAIN SET\n";
 				FD_SET(res, &_fds);
 				_max_fd = std::max(_max_fd, res);
 				_connections[res] = &(it->second);

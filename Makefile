@@ -3,7 +3,7 @@ NAME = serv
 CONF_SRCS = ./config/Config.cpp ./config/ConfigUtils.cpp \
 			./config/RequestConfig.cpp ./config/ServerConfig.cpp
 
-SRCS = Server.cpp Request.cpp Listener.cpp \
+SRCS = Server.cpp Request.cpp Interface.cpp \
 		file_utils.cpp string_utils.cpp main.cpp \
 		Response.cpp CGIResponse.cpp
 
@@ -13,7 +13,7 @@ OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))
 
 HEADERS = ./config/Config.hpp ./config/ConfigUtils.hpp \
 			./config/RequestConfig.hpp ./config/ServerConfig.hpp \
-			Server.hpp Request.hpp Listener.hpp \
+			Server.hpp Request.hpp Interface.hpp \
 			file_utils.hpp string_utils.hpp
 
 RM = rm -rf
