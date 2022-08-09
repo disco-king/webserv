@@ -142,6 +142,9 @@ void Response::MakeHTTPResponse(int code)
 	_response.append("HTTP/1.1 " + CodeToString(_response_code) + " " + _codes[_response_code] + "\n");
 	_response.append("Server: server\n");
 	_response.append("Date: " + GetDateAndTime());
+	struct stat file_stat;
+	stat(_path_to_file.c_str(), &file_stat);
+	_file_length = file_stat.st_size;
 	if (_response_code >= 400 && _response_code <= 500 )
 	{
 		_body.clear();
@@ -151,7 +154,7 @@ void Response::MakeHTTPResponse(int code)
 		std::cout << "error page " << _error_pages[_response_code] << std::endl;
 			std::ifstream file;
 			std::stringstream buffer;
-			struct stat file_stat;
+			
 			char *buffer2 = new char[512];
 			file.open(path_to_default.c_str(), std::ifstream::in);
 			if (!file.is_open())
