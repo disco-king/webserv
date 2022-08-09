@@ -137,7 +137,7 @@ void CGIResponse::SetEnvp(RequestConfig &conf)
 	_envp_map["SCRIPT_FILENAME"] = _name;
 	_envp_map["SCRIPT_URI"] = conf.getPath();
 	_envp_map["REQUEST_METHOD"] = conf.getMethod();
-	_envp_map["SERVER_NAME"] = "Server";
+	_envp_map["SERVER_NAME"] = conf.getServerName();
 	_envp_map["GATEWAY_INTERFACE"] = "CGI/1.1";
 	_envp_map["SERVER_PROTOCOL"] = "HTTP/1.1";
 }

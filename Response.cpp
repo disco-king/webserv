@@ -140,7 +140,7 @@ void Response::MakeHTTPResponse(int code)
 	if (!_response_code)
 		_response_code = code;
 	_response.append("HTTP/1.1 " + CodeToString(_response_code) + " " + _codes[_response_code] + "\n");
-	_response.append("Server: server\n");
+	_response.append("Server: " + GetServerName() + "\n");
 	_response.append("Date: " + GetDateAndTime());
 	struct stat file_stat;
 	stat(_path_to_file.c_str(), &file_stat);
@@ -402,7 +402,7 @@ void Response::ShowDirectoryListing()
 	std::sort(_files.begin(),_files.end());
 	_response.clear();
 	_response.append("HTTP/1.1 " + CodeToString(_response_code) + " " + _codes[_response_code] + "\n");
-	_response.append("Server: server\n");
+	_response.append("Server: " + GetServerName() + "\n");
 	_response.append("Date: " + GetDateAndTime());
 	SetContentType("text/html");
 	_response.append("Content-Type: " + GetContentType() + "\n");
@@ -440,4 +440,14 @@ void Response::ShowDirectoryListing()
 void Response::SetPathToFile(const std::string &path)
 {
 	_path_to_file = path;
+}
+
+void Response::SetServerName(const std::string &name)
+{
+	_server_name = name;
+}
+
+std::string Response::GetServerName()
+{
+	return _server_name;
 }

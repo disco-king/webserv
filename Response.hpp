@@ -19,6 +19,7 @@ class Response
 		std::string _path_to_file;
 		size_t _file_length;
 		std::string _error_string;
+		std::string _server_name;
 		int _content_length;
 		int _response_code;
 	public:
@@ -74,6 +75,9 @@ class Response
 		std::map<int, std::string> GetDefaultErrorPages();
 
 		void SetPathToFile(const std::string &path);
+
+		void SetServerName(const std::string &name);
+		std::string GetServerName();
 };
 
 typedef void (Response::*HTTPMethods)(RequestConfig &conf);

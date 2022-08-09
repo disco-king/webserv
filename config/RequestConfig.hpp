@@ -24,6 +24,7 @@ private:
 	std::set<std::string> _allowedMethods;
 	t_listen _addrData;
 	std::vector<std::string> _index;
+	std::string _server_name;
 	int _code;
 	bool _autoIndex;
 
@@ -44,6 +45,7 @@ public:
 	std::set<std::string>	const &getAllowedMethods() const;
 	t_listen const &getAddrData() const;
 	bool getAutoIndex() const;
+	std::string getServerName() const;
 
 	void setAddrData(t_listen const &data);
 	void setCode(int code);

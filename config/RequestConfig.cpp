@@ -9,7 +9,8 @@ _clientBodyBufferSize(config.getClientBodyBufferSize()),
 _allowedMethods(config.getAllowedMethods()),
 _autoIndex(config.getAutoIndex()),
 _index(config.getIndex()),
-_code(request.getCode())
+_code(request.getCode()),
+_server_name(config.getServerName()[0])
 {
 	std::string root = config.getRoot();
 
@@ -106,4 +107,9 @@ std::string RequestConfig::getMethod() const
 void RequestConfig::setCode(int code)
 {
 	_code = code;
+}
+
+std::string RequestConfig::getServerName() const
+{
+	return _server_name;
 }

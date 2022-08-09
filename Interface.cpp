@@ -99,7 +99,7 @@ int Interface::_process(std::string &request, content_type type)
 	req.parseRequest();
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
 	ServResponse.SetDefaultErrorPages(conf.getErrorPages());
-
+	ServResponse.SetServerName(conf.getServerName());
 
 	if(!conf.getAllowedMethods().count(conf.getMethod()))
 		conf.setCode(405);
