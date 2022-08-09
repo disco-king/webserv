@@ -10,6 +10,7 @@ private:
 	std::string _name;
 	std::string _firstHeader;
 	std::string _cgiresponse;
+	//std::string _path_to_script;
 	char **_envp;
 	char **_argv;
 	bool _is_CGI;

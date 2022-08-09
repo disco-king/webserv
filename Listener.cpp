@@ -149,6 +149,7 @@ int Listener::_process(std::string &request, content_type type)
 	}
 	else if (!ServResponse.GetIsCGI())
 	{
+		ServResponse.SetPathToFile(conf.getPath());
 		ServResponse.StartThings(conf);
 		request = ServResponse.GetResponse();
 	}

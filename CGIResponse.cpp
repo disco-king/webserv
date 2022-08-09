@@ -51,7 +51,7 @@ void CGIResponse::ExecuteCGIAndRedirect()
 		return ;
 	}
 	pid = fork();
-
+	
 	if (pid < 0)
 	{
 		std::cerr << "Fork failed\n";
@@ -112,23 +112,34 @@ void CGIResponse::MakeResponse()
 	std::ifstream cgi_file;
 	std::stringstream buffer;
 	std::string buffer2;
+	char *absolute_path = new char[512];
+	struct stat file_stats;
 	int size = 0;
 
 	cgi_file.open("temp_fileOut");
-	buffer << cgi_file.rdbuf();
+	stat("temp_fileOut", &file_stats);
+	// buffer << cgi_file.rdbuf();
 
-	size = buffer.str().size();
+	// size = buffer.str().size();
 
 	buffer2.append(_firstHeader);
 	buffer2.append("Content-type:text/html\r\n");
 	buffer2.append("Content-length: ");
 	std::stringstream ss;
-	ss << size;
+	ss << file_stats.st_size;
+	std::cout << "size of temp " << ss.str() << std::endl;
 	buffer2.append(ss.str());
 	buffer2.append("\r\n\r\n");
-	buffer2.append(buffer.str());
+	buffer2.append("file_abs_path:");
+	buffer2.append(getcwd(absolute_path, 512));
+	buffer2.append("/temp_fileOut");
+	// buffer2.append(ss.str());
+	// buffer2.append("\r\n\r\n");
+	// buffer2.append(buffer.str());
 	_cgiresponse.append(buffer2);
-	std::cout << _cgiresponse;
+	//std::cout << _cgiresponse;
+	delete[] absolute_path;
+	cgi_file.close();
 }
 
 std::string CGIResponse::GetCGIResponse()

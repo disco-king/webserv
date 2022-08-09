@@ -16,6 +16,9 @@ class Response
 		std::vector<std::string> _files;
 		std::vector<std::string> _dirs;
 		std::map<int, std::string> _error_pages;
+		std::string _path_to_file;
+		size_t _file_length;
+		std::string _error_string;
 		int _content_length;
 		int _response_code;
 	public:
@@ -69,6 +72,8 @@ class Response
 
 		void SetDefaultErrorPages(const std::map<int, std::string> &pages);
 		std::map<int, std::string> GetDefaultErrorPages();
+
+		void SetPathToFile(const std::string &path);
 };
 
 typedef void (Response::*HTTPMethods)(RequestConfig &conf);

@@ -125,13 +125,13 @@ void Response::FillCodes()
 
 void Response::CreateAndSetErrorBody()
 {
-	_body.append("<p style=\"text-align:center;\">");
-	_body.append("<b>");
-	_body.append("Sorry! Can't load page. Please, contact administrator. Error: ");
-	_body.append(_codes[_response_code]);
-	_body.append("<b>");
-	_body.append("</p>");
-	_body.append("\n");
+	_error_string.append("<p style=\"text-align:center;\">");
+	_error_string.append("<b>");
+	_error_string.append("Sorry! Can't load page. Please, contact administrator. Error: ");
+	_error_string.append(_codes[_response_code]);
+	_error_string.append("<b>");
+	_error_string.append("</p>");
+	_error_string.append("\n");
 }
 
 void Response::MakeHTTPResponse(int code)
@@ -150,23 +150,44 @@ void Response::MakeHTTPResponse(int code)
 		std::cout << "error page " << _error_pages[_response_code] << std::endl;
 			std::ifstream file;
 			std::stringstream buffer;
-
+			struct stat file_stat;
+			char *buffer2 = new char[512];
 			file.open(path_to_default.c_str(), std::ifstream::in);
 			if (!file.is_open())
 			{
+				std::ofstream outFile;
+				std::string tmp_path = "./temp_file/error_page.html";
+				outFile.open(tmp_path.c_str());
+				
 				CreateAndSetErrorBody();
+				outFile << _error_string;
+				stat(tmp_path.c_str(), &file_stat);
+				_file_length = file_stat.st_size;
+				outFile.close();
+				getcwd(buffer2, 512);
+				_body.append("file_abs_path:");
+				_body.append(buffer2);
+				_body.append("/temp_file/error_page.html");
 			}
 			else
 			{
-				buffer << file.rdbuf();
-				_body = buffer.str();
+				// buffer << file.rdbuf();
+				// _body = buffer.str();
+				stat(path_to_default.c_str(), &file_stat);
+				_file_length = file_stat.st_size;
 				file.close();
+				getcwd(buffer2, 512);
+				_body.append("file_abs_path:");
+				_body.append(buffer2);
+				_body.append("/");
+				_body.append(path_to_default);
 			}
-		_content_length = _body.size() + 1;
+			delete[] buffer2;
+		//_content_length = _body.size() + 1;
 		SetContentType("text/html");
 	}
 	_response.append("Content-Type: " + GetContentType() + "\n");
-	SetContentLength(_body.size() + 1);
+	SetContentLength(_file_length);
 	_response.append("Content-Length: " + GetContentLength() + "\n");
 	_response.append("Connection: keep-alive\n");
 	_response.append("Accept-Ranges: bytes\n");
@@ -305,28 +326,30 @@ void Response::GetFileFromServer(const std::string &file_name)
 		}
 		// buffer << file.rdbuf();
 		// _body = buffer.str();
-		while(1)
-		{
-			file.read(buffer, sizeof(buffer));
-			if(file.fail() && !file.eof()){
-				perror("file.read()");
-				break;
-			}
+		// while(1)
+		// {
+		// 	file.read(buffer, sizeof(buffer));
+		// 	if(file.fail() && !file.eof()){
+		// 		perror("file.read()");
+		// 		break;
+		// 	}
 
 			
-			for(size_t i = 0; i < file.gcount(); ++i)
-				_body.push_back(buffer[i]);
-			// if(res < 0){
-			// 	perror("write");
-			// 	break;
-			// }
+		// 	for(size_t i = 0; i < file.gcount(); ++i)
+		// 		_body.push_back(buffer[i]);
+		// 	// if(res < 0){
+		// 	// 	perror("write");
+		// 	// 	break;
+		// 	// }
 			
-			if(file.eof()){
-				std::cout << "eof reached\n";
-				break;
-			}
+		// 	if(file.eof()){
+		// 		std::cout << "eof reached\n";
+		// 		break;
+		// 	}
 
-		}
+		// }
+		_body.append("file_abs_path:");
+		_body.append(_path_to_file);
 		_response_code = 200;
 		file.close();
 	}
@@ -352,10 +375,14 @@ bool Response::IsDir(const std::string &dir)
 bool Response::IsFile(const std::string &file_name)
 {
 	struct stat file_stats;
+	_file_length = 0;
 	if (!stat(file_name.c_str(), &file_stats))
 	{
 		if (file_stats.st_mode & S_IFREG)
+		{
+			_file_length = file_stats.st_size;
 			return true;
+		}
 	}
 	return false;
 }
@@ -466,7 +493,7 @@ void Response::ShowDirectoryListing()
 	_response.append("Date: " + GetDateAndTime());
 	SetContentType("text/html");
 	_response.append("Content-Type: " + GetContentType() + "\n");
-
+	_body.append("directory_listing:");
 	_body.append("<style type=\"text/css\">\n");
 	_body.append(".button{\nborder: none;\nbackground-color: inherit;\npadding: 0px;\nfont-size: 16px;\ncursor: pointer;\ndisplay: inline-block;\n}\n</style>");
 
@@ -496,4 +523,9 @@ void Response::ShowDirectoryListing()
 	_response.append("Accept-Ranges: bytes\n");
 	_response.append("\r\n");
 	_response.append(_body);
+}
+
+void Response::SetPathToFile(const std::string &path)
+{
+	_path_to_file = path;
 }
