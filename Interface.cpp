@@ -203,43 +203,44 @@ int Interface::read(int socket)
 int Interface::_writeFromFile(int socket, size_t head_end)
 {
 	static char buff[PACK_SIZE] = {0};
-	static std::map<int, std::ifstream> files;
+	static std::map<int, int> files;
 	size_t i = 0;
 
 	std::string fname = _sockets[socket].c_str() + head_end;
 	fname.push_back(0);
-	std::ifstream file;
 	if(!files.count(socket))
 	{
-		files[socket] = std::ifstream();
-		files[socket].open(fname, std::ios::binary);
-		if(files[socket].fail()){
+		for (int i = 0; i < fname.size(); ++i)
+			std::cout << fname[i];
+		std::cout << '\n';
+		int fd = ::open(fname.c_str(), O_RDONLY);
+		if(fd < 0){
 			perror("open");
 			close(socket);
 			return -1;
 		}
-
+		files[socket] = fd;
 		for(; i < head_end; ++i)
 			buff[i] = _sockets[socket][i];
 	}
 	
-	std::ifstream &file = files[socket];
+	int &file = files[socket];
 
-	file.read(buff + i, PACK_SIZE - i);
-	if(file.fail() && !file.eof()){
-		perror("file.read()");
+	int res = ::read(file, buff + i, PACK_SIZE - i);
+	if(res < 0){
+		perror("read");
 		close(socket);
 		return -1;
 	}
 
-	int res = ::write(socket, buff, file.gcount());
+	res = ::write(socket, buff, res);
 	if(res < 0){
 		perror("write");
 		close(socket);
 		return -1;
 	}
 
-	if(file.eof()){
+	if(res == 0){
 		_sockets.erase(socket);
 		files.erase(socket);
 		return 0;
