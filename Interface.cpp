@@ -207,7 +207,6 @@ int Interface::_writeFromFile(int socket, size_t head_end)
 	size_t i = 0;
 
 	std::string fname = _sockets[socket].c_str() + head_end;
-	fname.push_back(0);
 	if(!files.count(socket))
 	{
 		for (int i = 0; i < fname.size(); ++i)
@@ -220,10 +219,10 @@ int Interface::_writeFromFile(int socket, size_t head_end)
 			return -1;
 		}
 		files[socket] = fd;
-		for(; i < head_end; ++i)
+		for(; i < head_end - 14; ++i)
 			buff[i] = _sockets[socket][i];
 	}
-	
+
 	int &file = files[socket];
 
 	int res = ::read(file, buff + i, PACK_SIZE - i);
@@ -233,7 +232,7 @@ int Interface::_writeFromFile(int socket, size_t head_end)
 		return -1;
 	}
 
-	res = ::write(socket, buff, res);
+	res = ::write(socket, buff, res + i);
 	if(res < 0){
 		perror("write");
 		close(socket);

@@ -198,7 +198,6 @@ void Response::MakeHTTPResponse(int code)
 	<< _response << "\n\n";
 
 	_response.append(_body);
-	_response.append("\r\n");
 }
 std::string Response::CodeToString(int code)
 {

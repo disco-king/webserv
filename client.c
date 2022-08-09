@@ -65,8 +65,9 @@ int main(int argc, char const *argv[])
 	//hello = "POST /test.txt HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\nTransfer-Encoding: Chunked\r\n\r\n9\r\nChunk one\r\n9\r\nChunk two\r\nB\r\nChunk three\r\n0\r\n\r\n";
 	//hello = "GET /webpages/forbidden_file HTTP/1.1\r\nHost: localhost:8000\r\n\r\n";
 	//hello = "GET /test.txt HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\n\r\n";
-	//=hello = "DELETE /test.txt HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\n\r\n";
-	char buffer[1024] = {0};
+	//hello = "DELETE /test.txt HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\n\r\n";
+	char buffer[1024];
+	memset(buffer, 0, 1024);
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	{
 		printf("\n Socket creation error \n");
