@@ -1,7 +1,1 @@
-<html>
-<head>
-<title>CGI Envrionment Variables</title>
-</head>
-<body>
-GATEWAY_INTERFACE=CGI/1.1<br/>PATH_INFO=/Users/fmalphit/webserv/cgi-bin/cgi<br/>REQUEST_METHOD=GET<br/>SCRIPT_FILENAME=/Users/fmalphit/webserv/cgi-bin/cgi<br/>SCRIPT_NAME=/Users/fmalphit/webserv/cgi-bin/cgi<br/>SCRIPT_URI=/Users/fmalphit/webserv/cgi-bin/cgi<br/>SERVER_NAME=Server<br/>SERVER_PROTOCOL=HTTP/1.1<br/></body>
-</html>
+inside config 5/usr/local/bin/python3

@@ -145,10 +145,10 @@ button {
 button.fade:hover {
   opacity: 0.8;
 }
-
+/* 
 button:before {
   content:"\01F508"
-}
+} */
 
 .fade {
   opacity: 0.2;

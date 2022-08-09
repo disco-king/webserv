@@ -290,10 +290,6 @@ void Response::GETMethod(RequestConfig &ReqConf)
 void Response::GetFileFromServer(const std::string &file_name)
 {
 	std::ifstream file;
-<<<<<<< HEAD
-=======
-	char buffer[512];
->>>>>>> 65214c9b1269abcda61ebe13a0cf6a9d3921c445
 
 	if (is_filename(file_name))
 	{
@@ -303,10 +299,7 @@ void Response::GetFileFromServer(const std::string &file_name)
 			_response_code = 403;
 			return ;
 		}
-<<<<<<< HEAD
 
-=======
->>>>>>> 65214c9b1269abcda61ebe13a0cf6a9d3921c445
 		_body.append("file_abs_path:");
 		_body.append(_path_to_file);
 		_response_code = 200;
@@ -318,33 +311,6 @@ void Response::GetFileFromServer(const std::string &file_name)
 		return ;
 	}
 }
-
-// bool Response::IsDir(const std::string &dir)
-// {
-// 	struct stat stats;
-// 	if (!stat(dir.c_str(), &stats))
-// 	{
-// 		if (stats.st_mode & S_IFDIR)
-// 			return true;
-// 	}
-// 	return false;
-// }
-
-
-// bool Response::IsFile(const std::string &file_name)
-// {
-// 	struct stat file_stats;
-// 	_file_length = 0;
-// 	if (!stat(file_name.c_str(), &file_stats))
-// 	{
-// 		if (file_stats.st_mode & S_IFREG)
-// 		{
-// 			_file_length = file_stats.st_size;
-// 			return true;
-// 		}
-// 	}
-// 	return false;
-// }
 
 
 void Response::POSTMethod(RequestConfig &ReqConf)
