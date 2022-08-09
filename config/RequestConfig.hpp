@@ -29,9 +29,10 @@ private:
 
 	void _addIndex();
 
+	RequestConfig();
+
 public:
 	RequestConfig(ServerConfig &config, Request const &request, std::string &location);
-	RequestConfig(RequestConfig const &src);
 
 	int getCode() const;
 	std::string const &getBody() const;
@@ -40,15 +41,10 @@ public:
 	std::string const &getPath() const;
 	std::map<int, std::string> const &getErrorPages() const;
 	unsigned long getClientBodyBufferSize() const;
-	std::map<std::string, std::string> const &getCGIParams() const;
-	std::string const &getCGIPass() const;
 	std::set<std::string>	const &getAllowedMethods() const;
 	t_listen const &getAddrData() const;
 	bool getAutoIndex() const;
 
-	// void setPath(int code);
-	// void setContentLocation(std::string const &path);
 	void setAddrData(t_listen const &data);
 	void setCode(int code);
-	void setPath(const std::string &path);
 };

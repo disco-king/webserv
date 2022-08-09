@@ -279,14 +279,14 @@ int Response::GetResponseCode()
 
 void Response::GETMethod(RequestConfig &ReqConf)
 {
-	if (ReqConf.getCGIPass().size() > 0)
-	{
-		/*insert cgi here*/
-	}
-	else
-	{
+	// if (ReqConf.getCGIPass().size() > 0)
+	// {
+	// 	/*insert cgi here*/
+	// }
+	// else
+	// {
 		GetFileFromServer(ReqConf.getPath());
-	}
+	// }
 }
 
 void Response::GetFileFromServer(const std::string &file_name)
@@ -365,16 +365,16 @@ void Response::POSTMethod(RequestConfig &ReqConf)
 {
 	std::string body_to_save;
 
-	if (ReqConf.getCGIPass().size() > 0)
-	{
-		/*insert cgi here*/
-	}
-	else
-	{
+	// if (ReqConf.getCGIPass().size() > 0)
+	// {
+	// 	/*insert cgi here*/
+	// }
+	// else
+	// {
 		body_to_save = ReqConf.getBody();
 		_body.clear();
 		SaveFile(body_to_save, ReqConf);
-	}
+	// }
 
 
 }

@@ -6,18 +6,15 @@ _body(request.getBody()),
 _method(request.getMethod()),
 _errorPages(config.getErrorPage()),
 _clientBodyBufferSize(config.getClientBodyBufferSize()),
-_CGIParams(config.getCgiParam()),
-_CGIPass(config.getCgiPass()),
 _allowedMethods(config.getAllowedMethods()),
 _autoIndex(config.getAutoIndex()),
 _index(config.getIndex()),
 _code(request.getCode())
 {
 	std::string root = config.getRoot();
-	std::string alias = config.getAlias();
 
 	if(config.getAliasSet() && location[0] != '*'){
-		_contentLocation = alias + request.getPath().substr(location.size());
+		_contentLocation = config.getAlias() + request.getPath().substr(location.size());
 		_path = root + _contentLocation;
 	}
 	else{
@@ -31,7 +28,6 @@ _code(request.getCode())
 		_addIndex();
 		config = config.getRequestLoc(_path, location);
 	}
-
 }
 
 void RequestConfig::_addIndex()
@@ -72,16 +68,6 @@ unsigned long RequestConfig::getClientBodyBufferSize() const
 	return _clientBodyBufferSize;
 }
 
-std::map<std::string, std::string> const &RequestConfig::getCGIParams() const
-{
-	return _CGIParams;
-}
-
-std::string const &RequestConfig::getCGIPass() const
-{
-	return _CGIPass;
-}
-
 std::set<std::string>	const &RequestConfig::getAllowedMethods() const
 {
 	return _allowedMethods;
@@ -99,8 +85,7 @@ bool RequestConfig::getAutoIndex() const
 
 void RequestConfig::setAddrData(t_listen const &data)
 {
-	_addrData.host = data.host;
-	_addrData.port = data.port;
+	_addrData = data;
 }
 
 int RequestConfig::getCode() const
@@ -121,9 +106,4 @@ std::string RequestConfig::getMethod() const
 void RequestConfig::setCode(int code)
 {
 	_code = code;
-}
-
-void RequestConfig::setPath(const std::string &path)
-{
-	_path = path;
 }

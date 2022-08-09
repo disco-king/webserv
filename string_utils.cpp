@@ -35,11 +35,8 @@ void fill()
 
 std::string getFileType(std::string path)
 {
-
-	std::cout << "GETTING FILE TYPE\n";
 	static bool time_to_fill = true;
 	if(time_to_fill){
-		std::cout << "filling\n";
 		time_to_fill = false;
 		fill();
 	}
@@ -50,9 +47,6 @@ std::string getFileType(std::string path)
 	if(point == std::string::npos)
 		return res;
 	path = path.substr(point + 1);
-	std::cout << "FOUND EXTENTION: " << path << '\n';
-
-	std::cout << "LEN TEXT " << text.size() << '\n';
 
 	if(text.count(path))
 		res = "text/" + path;
@@ -72,56 +66,6 @@ std::string getFileType(std::string path)
 	}
 	return res;
 }
-
-// std::string getFileType(std::string path)
-// {
-// 	std::string text[] = {"cmd", "css", "csv", "html", "php"};
-// 	std::string audio[] = {"aac", "mp3", "flac"};//mp3 is mpeg; flac is ogg
-// 	std::string video[] = {"mp4", "mpeg"};
-// 	std::string applic[] = {"pdf", "json", "zip"};
-// 	std::string image[] = {"gif", "jpg", "png"};
-
-// 	std::string res = "text/plain";
-
-// 	size_t point = path.find_last_of('.');
-// 	if(point == std::string::npos)
-// 		return res;
-
-// 	path = path.substr(path.find_last_of('.') + 1);
-
-// 	int i;
-// 	for(i = 0; i < 5; ++i)
-// 	{
-// 		if(text[i] == path)
-// 			return "text/" + path;
-// 	}
-// 	for(i = 0; i < 2; ++i)
-// 	{
-// 		if(text[i] == path)
-// 			return "video/" + path;
-// 	}
-// 	for(i = 0; i < 3; ++i)
-// 	{
-// 		if(text[i] == path)
-// 			return "applic/" + path;
-// 	}
-// 	for(i = 0; i < 3; ++i)
-// 	{
-// 		if(text[i] == path)
-// 			return "image/" + path;
-// 	}
-// 	for(i = 0; i < 3; ++i)
-// 	{
-// 		if(audio[i] != path)
-// 			continue;
-// 		if(path == "mp3")
-// 			return "audio/mpeg";
-// 		if(path == "flac")
-// 			return "audio/ogg";
-// 		return "audio/" + path;
-// 	}
-// 	return res;
-// }
 
 
 std::vector<std::string> split(std::string const &str, char del)

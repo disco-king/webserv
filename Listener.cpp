@@ -105,21 +105,9 @@ int Listener::_process(std::string &request, content_type type)
 		conf.setCode(413);
 	std::set<std::string> methods = conf.getAllowedMethods();
 
-	std::cout << "reqMethod: " << conf.getMethod() << '\n';
-	std::cout << "respCode: " << conf.getCode() << '\n';
-	std::cout << "contentLoc: " << conf.getContentLocation() << '\n';
-	std::cout << "path: " << conf.getPath() << '\n';
-	std::cout << "buffSize: " << conf.getClientBodyBufferSize() << '\n';
-	std::cout << "methods: " << '\n';
-	for(std::set<std::string>::const_iterator it = methods.begin();
-		it != methods.end(); ++it)
-		std::cout << '\t' << *it << '\n';
 	std::string body = conf.getBody();
-	if(body.size() < 300)
-		std::cout << "reqBody: " << body << '\n';
 
 	ServResponse.SetContentType(getFileType(conf.getPath()));
-
 
 	CGIResponse CGI(conf);
 	CGI.SetEnvp(conf);
@@ -130,7 +118,6 @@ int Listener::_process(std::string &request, content_type type)
 		request = CGI.GetCGIResponse();
 		ServResponse.SetIsCGI(true);
 	}
-	std::cout << "error code " << conf.getCode() << std::endl;
 	if (ServResponse.IsDir(conf.getPath())) //change this?
 	{
 		if (conf.getAutoIndex())
@@ -152,8 +139,6 @@ int Listener::_process(std::string &request, content_type type)
 		ServResponse.StartThings(conf);
 		request = ServResponse.GetResponse();
 	}
-	std::cout << "RESPONSE FINAL SIZE:\n";
-	std::cout << request.size() << std::endl;
 
 	return 0;
 }

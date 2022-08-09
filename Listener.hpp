@@ -29,9 +29,9 @@ private:
 	int _process(std::string &request, content_type type);
 	int _decodeChunks(std::string &request);
 
+
 public:
 	Listener(Config& config);
-	// ~Listener();
 	Listener(Listener const& other);
 
 	int init(t_listen listen, int queue = 1000);
