@@ -218,7 +218,6 @@ int Listener::write(int socket)
 {
 	char buff[PACK_SIZE] = {0};
 	static bool first = true;
-	std::cout << "writing\n";
 	if(_written.count(socket) == 0)
 		_written[socket] = 0;
 
@@ -226,17 +225,11 @@ int Listener::write(int socket)
 	size_t &written = _written[socket];
 	std::string &response = _sockets[socket];
 	size_t i;
-	std::cout << "got written size " << written << '\n';
-	std::cout << "got response " << &response << '\n';
 
 	for(i = 0; i < PACK_SIZE && i + written < response.size(); ++i)
 		buff[i] = response[i + written];
 
-	std::cout << "got " << i << " bytes out of the buffer\n";
-
 	int ret = ::write(socket, buff, i);
-
-	std::cout << "written " << ret << " bytes\n";
 
 	if(ret == -1){
 		std::cerr << "error: write\n";
