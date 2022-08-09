@@ -8,7 +8,7 @@
 
 #define PACK_SIZE 65536
 
-class Listener
+class Interface
 {
 
 private:
@@ -29,10 +29,10 @@ private:
 	int _process(std::string &request, content_type type);
 	int _decodeChunks(std::string &request);
 
+
 public:
-	Listener(Config& config);
-	// ~Listener();
-	Listener(Listener const& other);
+	Interface(Config& config);
+	Interface(Interface const& other);
 
 	int init(t_listen listen, int queue = 1000);
 	int read(int socket);

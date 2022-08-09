@@ -132,9 +132,6 @@ void ServerConfig::addListen(std::vector<std::string> tokens){
 }
 
 void ServerConfig::addRoot(std::vector<std::string> tokens){
-	std::cout << "size " << tokens.size() << ' ' << _root << '\n';
-	for (int i = 0; i < tokens.size(); ++i)
-		std::cout << "tok " << tokens[i] << '\n';
 	if (tokens.size() != 1 || _root != "")
 		throw ServerConfigException("Invalid root");
 	_root = tokens[0];
@@ -446,13 +443,6 @@ std::ostream &operator<<(std::ostream &out, ServerConfig const &serv){
 		out << "\t" << it->first << " " << it->second << std::endl;
 	out<<std::endl;
 	out << "client body buffer size: " << serv.getClientBodyBufferSize() << std::endl;
-	out<<std::endl;
-	out << "cgi param:\n";
-	for(std::map<std::string, std::string>::const_iterator it = cgi_param.begin();
-		it != cgi_param.end(); it++)
-		out << "\t" << it->first << " = " << it->second << std::endl;
-	out<<std::endl;
-	out << "cgi password: " << serv.getCgiPass() << std::endl;
 	out<<std::endl;
 	out << "allowed methods:";
 	for (std::set<std::string>::iterator it = methods.begin(); it != methods.end(); it++)

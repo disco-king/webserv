@@ -1,4 +1,4 @@
-#include "Listener.hpp"
+#include "Interface.hpp"
 #include "Request.hpp"
 #include "./config/RequestConfig.hpp"
 #include <cstring>
@@ -7,10 +7,10 @@
 #include <sys/socket.h>
 #include "header.hpp"
 
-Listener::Listener(Config& config) : _config(config)
+Interface::Interface(Config& config) : _config(config)
 {}
 
-Listener::Listener(Listener const &other) : _config(other._config)
+Interface::Interface(Interface const &other) : _config(other._config)
 {
 	_listen_fd = other._listen_fd;
 	_addrlen = other._addrlen;
@@ -20,7 +20,7 @@ Listener::Listener(Listener const &other) : _config(other._config)
 	_written = other._written;
 }
 
-int Listener::init(t_listen listen_data, int queue)
+int Interface::init(t_listen listen_data, int queue)
 {
 	_listen = listen_data;
 
@@ -53,7 +53,7 @@ int Listener::init(t_listen listen_data, int queue)
 }
 
 
-int Listener::_decodeChunks(std::string &request)
+int Interface::_decodeChunks(std::string &request)
 {
 	size_t pos = request.find("\r\n\r\n");
 	std::string processed = request.substr(0, pos + 4);
@@ -80,7 +80,7 @@ int Listener::_decodeChunks(std::string &request)
 }
 
 
-int Listener::_process(std::string &request, content_type type)
+int Interface::_process(std::string &request, content_type type)
 {
 	Response ServResponse("text/html", 0, "");
 
@@ -105,21 +105,9 @@ int Listener::_process(std::string &request, content_type type)
 		conf.setCode(413);
 	std::set<std::string> methods = conf.getAllowedMethods();
 
-	std::cout << "reqMethod: " << conf.getMethod() << '\n';
-	std::cout << "respCode: " << conf.getCode() << '\n';
-	std::cout << "contentLoc: " << conf.getContentLocation() << '\n';
-	std::cout << "path: " << conf.getPath() << '\n';
-	std::cout << "buffSize: " << conf.getClientBodyBufferSize() << '\n';
-	std::cout << "methods: " << '\n';
-	for(std::set<std::string>::const_iterator it = methods.begin();
-		it != methods.end(); ++it)
-		std::cout << '\t' << *it << '\n';
 	std::string body = conf.getBody();
-	if(body.size() < 300)
-		std::cout << "reqBody: " << body << '\n';
 
 	ServResponse.SetContentType(getFileType(conf.getPath()));
-
 
 	CGIResponse CGI(conf);
 	CGI.SetEnvp(conf);
@@ -130,7 +118,6 @@ int Listener::_process(std::string &request, content_type type)
 		request = CGI.GetCGIResponse();
 		ServResponse.SetIsCGI(true);
 	}
-	std::cout << "error code " << conf.getCode() << std::endl;
 	if (ServResponse.IsDir(conf.getPath())) //change this?
 	{
 		if (conf.getAutoIndex())
@@ -153,13 +140,11 @@ int Listener::_process(std::string &request, content_type type)
 		ServResponse.StartThings(conf);
 		request = ServResponse.GetResponse();
 	}
-	std::cout << "RESPONSE FINAL SIZE:\n";
-	std::cout << request.size() << std::endl;
 
 	return 0;
 }
 
-int Listener::accept()
+int Interface::accept()
 {
 	int new_socket = ::accept(_listen_fd, (sockaddr*)&_address,
 									(socklen_t*)&_addrlen);
@@ -172,7 +157,7 @@ int Listener::accept()
 	return new_socket;
 }
 
-int Listener::read(int socket)
+int Interface::read(int socket)
 {
 	char buff[PACK_SIZE] = {0};
 	content_type type = plain;
@@ -215,7 +200,7 @@ int Listener::read(int socket)
 	return 0;
 }
 
-int Listener::write(int socket)
+int Interface::write(int socket)
 {
 	char buff[PACK_SIZE] = {0};
 	static bool first = true;
@@ -248,13 +233,13 @@ int Listener::write(int socket)
 	return 1;
 }
 
-void Listener::close(int socket)
+void Interface::close(int socket)
 {
 	::close(socket);
 	this->_sockets.erase(socket);
 }
 
-int Listener::getFD()
+int Interface::getFD()
 {
 	return _listen_fd;
 }
