@@ -1,6 +1,7 @@
 #include "Interface.hpp"
 #include "Request.hpp"
 #include "./config/RequestConfig.hpp"
+#include <fstream>
 #include <cstring>
 #include <cstdlib>
 #include <unistd.h>
@@ -105,8 +106,6 @@ int Interface::_process(std::string &request, content_type type)
 		conf.setCode(413);
 	std::set<std::string> methods = conf.getAllowedMethods();
 
-	std::string body = conf.getBody();
-
 	ServResponse.SetContentType(getFileType(conf.getPath()));
 
 	CGIResponse CGI(conf);
@@ -200,38 +199,69 @@ int Interface::read(int socket)
 	return 0;
 }
 
-int Interface::write(int socket)
+int Interface::_writeFromFile(int socket, size_t head_end)
 {
-	char buff[PACK_SIZE] = {0};
-	static bool first = true;
-	if(_written.count(socket) == 0)
-		_written[socket] = 0;
+	static char buff[PACK_SIZE] = {0};
+	static std::map<int, std::ifstream> files;
+	size_t i = 0;
 
+	if(!files.count(socket))
+	{
+		files[socket] = std::ifstream(_sockets[socket].c_str() + head_end, std::ios::binary);
+		if(files[socket].fail()){
+			perror("open");
+			return(-1);
+		}
 
-	size_t &written = _written[socket];
-	std::string &response = _sockets[socket];
-	size_t i;
-
-	for(i = 0; i < PACK_SIZE && i + written < response.size(); ++i)
-		buff[i] = response[i + written];
-
-	int ret = ::write(socket, buff, i);
-
-	if(ret == -1){
-		std::cerr << "error: write\n";
-		close(socket);
+		for(; i < head_end; ++i)
+			buff[i] = _sockets[socket][i];
+	}
+	
+	files[socket].read(buff + i, PACK_SIZE - i);
+	if(file.fail() && !file.eof()){
+		perror("file.read()");
 		return -1;
 	}
 
-	written += ret;
-	
-	if(written >= response.size()){
-		_sockets.erase(socket);
-		written = 0;
-		return 0;
-	}
-	return 1;
 }
+
+int Interface::write(int socket)
+{
+	
+}
+
+// int Interface::write(int socket)
+// {
+// 	char buff[PACK_SIZE] = {0};
+// 	static bool first = true;
+// 	if(_written.count(socket) == 0)
+// 		_written[socket] = 0;
+
+
+// 	size_t &written = _written[socket];
+// 	std::string &response = _sockets[socket];
+// 	size_t i;
+
+// 	for(i = 0; i < PACK_SIZE && i + written < response.size(); ++i)
+// 		buff[i] = response[i + written];
+
+// 	int ret = ::write(socket, buff, i);
+
+// 	if(ret == -1){
+// 		std::cerr << "error: write\n";
+// 		close(socket);
+// 		return -1;
+// 	}
+
+// 	written += ret;
+	
+// 	if(written >= response.size()){
+// 		_sockets.erase(socket);
+// 		written = 0;
+// 		return 0;
+// 	}
+// 	return 1;
+// }
 
 void Interface::close(int socket)
 {

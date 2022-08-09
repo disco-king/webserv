@@ -1,4 +1,5 @@
 #include "Response.hpp"
+#include "file_utils.hpp"
 
 Response::Response()
 {
@@ -313,10 +314,8 @@ void Response::GETMethod(RequestConfig &ReqConf)
 void Response::GetFileFromServer(const std::string &file_name)
 {
 	std::ifstream file;
-	char buffer[512];
-	// std::stringstream buffer;
 
-	if (IsFile(file_name))
+	if (is_filename(file_name))
 	{
 		file.open(file_name.c_str(), std::ifstream::in);
 		if (!file.is_open())
@@ -324,30 +323,7 @@ void Response::GetFileFromServer(const std::string &file_name)
 			_response_code = 403;
 			return ;
 		}
-		// buffer << file.rdbuf();
-		// _body = buffer.str();
-		// while(1)
-		// {
-		// 	file.read(buffer, sizeof(buffer));
-		// 	if(file.fail() && !file.eof()){
-		// 		perror("file.read()");
-		// 		break;
-		// 	}
 
-			
-		// 	for(size_t i = 0; i < file.gcount(); ++i)
-		// 		_body.push_back(buffer[i]);
-		// 	// if(res < 0){
-		// 	// 	perror("write");
-		// 	// 	break;
-		// 	// }
-			
-		// 	if(file.eof()){
-		// 		std::cout << "eof reached\n";
-		// 		break;
-		// 	}
-
-		// }
 		_body.append("file_abs_path:");
 		_body.append(_path_to_file);
 		_response_code = 200;
@@ -360,32 +336,32 @@ void Response::GetFileFromServer(const std::string &file_name)
 	}
 }
 
-bool Response::IsDir(const std::string &dir)
-{
-	struct stat stats;
-	if (!stat(dir.c_str(), &stats))
-	{
-		if (stats.st_mode & S_IFDIR)
-			return true;
-	}
-	return false;
-}
+// bool Response::IsDir(const std::string &dir)
+// {
+// 	struct stat stats;
+// 	if (!stat(dir.c_str(), &stats))
+// 	{
+// 		if (stats.st_mode & S_IFDIR)
+// 			return true;
+// 	}
+// 	return false;
+// }
 
 
-bool Response::IsFile(const std::string &file_name)
-{
-	struct stat file_stats;
-	_file_length = 0;
-	if (!stat(file_name.c_str(), &file_stats))
-	{
-		if (file_stats.st_mode & S_IFREG)
-		{
-			_file_length = file_stats.st_size;
-			return true;
-		}
-	}
-	return false;
-}
+// bool Response::IsFile(const std::string &file_name)
+// {
+// 	struct stat file_stats;
+// 	_file_length = 0;
+// 	if (!stat(file_name.c_str(), &file_stats))
+// 	{
+// 		if (file_stats.st_mode & S_IFREG)
+// 		{
+// 			_file_length = file_stats.st_size;
+// 			return true;
+// 		}
+// 	}
+// 	return false;
+// }
 
 
 void Response::POSTMethod(RequestConfig &ReqConf)
@@ -431,7 +407,7 @@ void Response::DELETEMethod(RequestConfig &ReqConf)
 {
 	std::string path = ReqConf.getPath();
 
-	if (IsFile(path))
+	if (is_filename(path))
 	{
 		if (!remove(path.c_str()))
 			_response_code = 204;
