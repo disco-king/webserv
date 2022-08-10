@@ -156,7 +156,7 @@ std::vector<t_listen> Config::getListeners() const {
 // for testing purposes
 
 void Config::print_file() const{
-	for (int i = 0; i < _file.size(); i++)
+	for (size_t i = 0; i < _file.size(); i++)
 		std::cout << _file.at(i) << '\n';
 }
 

@@ -1,5 +1,7 @@
 NAME = serv
 
+CFLAGS = -Wall -Wextra -Werror
+
 CONF_DIR = config
 _CONF_SRCS = Config.cpp ConfigUtils.cpp \
 			RequestConfig.cpp ServerConfig.cpp
@@ -46,7 +48,7 @@ $(ODIR):
 	echo $(HEADERS)
 
 $(ODIR)/%.o: %.cpp $(HEADERS)
-	g++ -c -o $@ $<
+	g++ $(CFLAGS) -c -o $@ $<
 
 clean:
 	$(RM) $(OBJS)

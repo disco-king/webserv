@@ -104,7 +104,6 @@ void CGIResponse::MakeResponse()
 	std::string buffer2;
 	char *absolute_path = new char[512];
 	struct stat file_stats;
-	int size = 0;
 
 	cgi_file.open("temp_fileOut");
 	stat("temp_fileOut", &file_stats);
@@ -175,7 +174,6 @@ char **CGIResponse::EnvpToChar()
 
 void CGIResponse::ScanForScripts()
 {
-	struct stat file_stats;
 	DIR *dir;
 	struct dirent *ent;
 	char *buff = new char[1000];

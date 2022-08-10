@@ -140,7 +140,7 @@ void ServerConfig::addRoot(std::vector<std::string> tokens){
 void ServerConfig::addServerName(std::vector<std::string> tokens){
 	if (tokens.size() == 0)
 		throw ServerConfigException("Invalid server name");
-	for (int i = 0; i < tokens.size(); i++)
+	for (size_t i = 0; i < tokens.size(); i++)
 		_server_name.push_back(tokens[0]);
 }
 

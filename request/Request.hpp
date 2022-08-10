@@ -9,8 +9,8 @@ class Request
 {
 
 private:
-	int _code;
 	std::string const &_request;
+	int _code;
 	std::string _path;
 	std::string _method;
 	std::string _body;

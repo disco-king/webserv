@@ -379,7 +379,6 @@ void Response::StartThings(RequestConfig &conf)
 
 void Response::GetDirectoryListing(RequestConfig &conf)
 {
-	struct stat file_stats;
 	DIR *dir;
 	struct dirent *ent;
 
@@ -419,14 +418,14 @@ void Response::ShowDirectoryListing()
 
 	_body.append("<b>");
 	_body.append("<h1>Index of files</h1><hr></hr>");
-	for (int i = 0; i < _dirs.size(); i++)
+	for (size_t i = 0; i < _dirs.size(); i++)
 	{
 		_body.append("<button class=\"button\"<br>");
 		_body.append(_dirs[i]);
 		_body.append("</button>");
 		_body.append("<br>");
 	}
-	for (int i = 0; i < _files.size(); i++)
+	for (size_t i = 0; i < _files.size(); i++)
 	{
 		_body.append("<button class=\"button\"<br>");
 		_body.append(_files[i]);

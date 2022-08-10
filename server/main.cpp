@@ -4,6 +4,7 @@
 
 int main(int argc, char**argv)
 {
+	(void) argc;
 	Config conf;
 	if (argv[1])
 		conf.setPath(argv[1]);

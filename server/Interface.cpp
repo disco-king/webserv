@@ -212,7 +212,7 @@ int Interface::_writeFromFile(int socket, size_t head_end)
 	std::string fname = _sockets[socket].c_str() + head_end;
 	if(!files.count(socket))
 	{
-		for (int i = 0; i < fname.size(); ++i)
+		for (size_t i = 0; i < fname.size(); ++i)
 			std::cout << fname[i];
 		std::cout << '\n';
 		int fd = ::open(fname.c_str(), O_RDONLY);

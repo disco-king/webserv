@@ -144,7 +144,7 @@ void removeExtraSlashes(std::string &str, size_t index, size_t shift)
 	shift += count;
 	count = --index;
 	for(; index < str.size(); ++index){
-		if(str[index] == '/' && index != count)
+		if(str[index] == '/' && (int)index != count)
 			return(removeExtraSlashes(str, index, shift));
 		str[index - shift] = str[index];
 	}
