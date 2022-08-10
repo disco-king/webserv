@@ -230,6 +230,7 @@ int Interface::_writeFromFile(int socket, size_t head_end)
 	int res = ::read(file, buff + i, PACK_SIZE - i);
 	if(res < 0){
 		perror("read");
+		::close(file);
 		close(socket);
 		return -1;
 	}
@@ -237,11 +238,14 @@ int Interface::_writeFromFile(int socket, size_t head_end)
 	res = ::write(socket, buff, res + i);
 	if(res < 0){
 		perror("write");
+		::close(file);
+		files.erase(file);
 		close(socket);
 		return -1;
 	}
 
 	if(res == 0){
+		::close(file);
 		_sockets.erase(socket);
 		files.erase(socket);
 		return 0;
@@ -285,38 +289,6 @@ int Interface::write(int socket)
 	return 1;
 }
 
-// int Interface::write(int socket)
-// {
-// 	char buff[PACK_SIZE] = {0};
-// 	static bool first = true;
-// 	if(_written.count(socket) == 0)
-// 		_written[socket] = 0;
-
-
-// 	size_t &written = _written[socket];
-// 	std::string &response = _sockets[socket];
-// 	size_t i;
-
-// 	for(i = 0; i < PACK_SIZE && i + written < response.size(); ++i)
-// 		buff[i] = response[i + written];
-
-// 	int ret = ::write(socket, buff, i);
-
-// 	if(ret == -1){
-// 		std::cerr << "error: write\n";
-// 		close(socket);
-// 		return -1;
-// 	}
-
-// 	written += ret;
-	
-// 	if(written >= response.size()){
-// 		_sockets.erase(socket);
-// 		written = 0;
-// 		return 0;
-// 	}
-// 	return 1;
-// }
 
 void Interface::close(int socket)
 {

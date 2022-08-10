@@ -52,6 +52,14 @@ void Server::select()
 		for(std::set<int>::const_iterator it = _to_write.begin(); it != end; it++)
 			FD_SET(*it, &wrfds);
 
+		std::cout << "got fds: ";
+		for(int i = 0; i < _max_fd + 1; ++i)
+		{
+			if (FD_ISSET(i, &_fds))
+				std::cout << i << ' ';
+		}
+		std::cout << '\n';
+
 		std::cout << "\nwaiting for connections\n\n";
 		res = ::select(_max_fd + 1, &rfds, &wrfds, NULL, NULL);
 
