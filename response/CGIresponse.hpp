@@ -1,6 +1,6 @@
 #pragma once
 #include "header.hpp"
-#include "./config/RequestConfig.hpp"
+#include "../config/RequestConfig.hpp"
 
 class CGIResponse
 {
