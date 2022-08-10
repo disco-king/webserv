@@ -15,7 +15,6 @@
 #include <map>
 #include "CGIresponse.hpp"
 #include <vector>
-//#include "Imagetobrowser.hpp"
 #include <string>
 #include <ctime>
 #include "Response.hpp"

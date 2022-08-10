@@ -1,7 +1,7 @@
 #pragma once
 #include "header.hpp"
-#include "Request.hpp"
-#include "./config/RequestConfig.hpp"
+#include "../request/Request.hpp"
+#include "../config/RequestConfig.hpp"
 
 class Response
 {
