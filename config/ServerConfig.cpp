@@ -1,11 +1,11 @@
 #include "ServerConfig.hpp"
 
-// 
-
 //Constructors, destructor, operator overload
 
 ServerConfig::ServerConfig(): _root(""), _client_buff_size(1000),
-_autoindex(false), _alias_set(false) {}
+_autoindex(false), _alias_set(false) {
+	_server_name.push_back("default_server");
+}
 
 ServerConfig::ServerConfig(ServerConfig const &ref){
 	if (this != &ref){
