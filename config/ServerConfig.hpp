@@ -2,7 +2,7 @@
 # define SERVER_CONFIG_HPP
 
 # include "Config.hpp"
-# include "../utils.hpp"
+# include "../utils/utils.hpp"
 
 class RequestConfig;
 

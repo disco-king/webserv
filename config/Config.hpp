@@ -3,8 +3,8 @@
 
 # include "ConfigUtils.hpp"
 # include "ServerConfig.hpp"
-# include "../Request.hpp"
-# include "../utils.hpp"
+# include "../request/Request.hpp"
+# include "../utils/utils.hpp"
 
 # define BUFF_SIZE 1024
 # define DEFAULT_CONFIG_PATH "config/default.conf"

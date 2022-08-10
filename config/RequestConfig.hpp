@@ -5,8 +5,8 @@
 #include <map>
 #include <set>
 #include "ServerConfig.hpp"
-#include "../Request.hpp"
-#include "../utils.hpp"
+#include "../request/Request.hpp"
+#include "../utils/utils.hpp"
 #include "ConfigUtils.hpp"
 
 class RequestConfig
