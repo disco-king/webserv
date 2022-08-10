@@ -473,6 +473,6 @@ std::string Response::GetServerName()
 std::string Response::getCodeRep(int code)
 {
 	if(!_codes.count(code))
-		return "You're a fool";
+		return "OK";
 	return _codes[code];
 }

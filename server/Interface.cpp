@@ -156,9 +156,11 @@ int Interface::_process(std::string &request, content_type type)
 
 	_getResponse(ServResponse, conf, request);
 
-	std::string color = conf.getCode() >= 400 ? RED : GREEN;
+	int code = (conf.getCode() == 0) ? 200 : conf.getCode();
+	std::string color = code >= 400 ? RED : GREEN;
 	std::cout << color << "HTTP/1.1 "
-		<< conf.getCode() << ' '<< ServResponse.getCodeRep(conf.getCode())
+		<< code
+		<< ' ' << ServResponse.getCodeRep(code)
 		<< RESET << '\n';
 	return 0;
 }
