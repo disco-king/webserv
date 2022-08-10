@@ -39,7 +39,7 @@ void Request::startLine(std::string const &line)
 	std::vector<std::string> tokens = split(line);
 
 	if(tokens.size() != 3){
-		std::cerr << "error: invalid start-line\n";
+		std::cerr << "Error: invalid start-line\n";
 		return;
 	}
 
@@ -48,9 +48,9 @@ void Request::startLine(std::string const &line)
 	_version = strip(tokens[2]);
 	
 	if(_version != "HTTP/1.0" && _version != "HTTP/1.1")
-		std::cerr << "error: wrong HTTP version\n";
+		std::cerr << "Error: wrong HTTP version\n";
 	else if(verifyMethod())
-		std::cerr << "error: invalid request method\n";
+		std::cerr << "Error: invalid request method\n";
 	else
 		_code = 200;
 }
@@ -75,12 +75,8 @@ void Request::parseRequest()
 	size_t begin, end = _request.find('\n');
 
 	startLine(_request.substr(0, end));
-	if(_code == 400){
-		std::cout << "got code 400 in req parse\n";
+	if(_code == 400)
 		return ;
-	}
-
-	std::cout << "NOPE, IT'S AIGHT. CODE " << _code << '\n';
 
 	begin = end + 1;
 	end = _request.find('\n', begin);

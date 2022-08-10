@@ -15,11 +15,10 @@ int main(int argc, char**argv)
 		std::cout << ex.what() << std::endl;
 	}
 
-	conf.print_config();
+	// conf.print_config();
 
 	signal(SIGPIPE, SIG_IGN);
 
 	Server server(conf);
-
-	server.select();
+	server.run();
 }

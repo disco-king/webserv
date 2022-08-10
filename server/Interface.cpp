@@ -27,9 +27,11 @@ int Interface::init(t_listen listen_data, int queue)
 {
 	_listen = listen_data;
 
+	std::cout << "Establishing server on port " << _listen.port << '\n';
+
 	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(_listen_fd == 0){
-		std::cerr << "error: socket creation\n";
+		perror("socket");
 		return -1;
 	}
 
@@ -43,11 +45,11 @@ int Interface::init(t_listen listen_data, int queue)
 	memset(_address.sin_zero, '\0', sizeof(_address.sin_zero));
 
 	if(bind(_listen_fd, (sockaddr *)&_address, sizeof(_address)) < 0){
-		std::cerr << "error: bind\n";
+		perror("bind");
 		return -1;
 	}
 	if (listen(_listen_fd, queue) < 0){
-		std::cerr << "error: listen\n";
+		perror("listen");
 		return -1;
 	}
 
@@ -154,9 +156,9 @@ int Interface::accept()
 	int new_socket = ::accept(_listen_fd, (sockaddr*)&_address,
 									(socklen_t*)&_addrlen);
 	if(new_socket <= 0)
-		std::cerr << "error: accept\n";
+		perror("accept");
 	else{
-		std::cout << "new connection on socket " << new_socket << '\n';
+		std::cout << "New connection on socket " << new_socket << '\n';
 		_sockets[new_socket] = "";
 	}
 	return new_socket;
@@ -172,8 +174,8 @@ int Interface::read(int socket)
 	if(ret <= 0){
 		close(socket);
 		if(ret < 0)
-			std::cerr << "error: socket " << socket << '\n';
-		std::cout << "client on socket " << socket << " closed connection\n";
+			perror("read");
+		std::cout << "Client on socket " << socket << " closed connection\n";
 		return -1;
 	}
 
@@ -259,15 +261,11 @@ int Interface::_writeFromFile(int socket, size_t head_end)
 
 int Interface::write(int socket)
 {
-	std::cout << "in write\n";
 	std::string &response = _sockets[socket];
 
-	std::cout << "finding\n";
 
-	size_t head_end = response.find("\r\n\r\n");
 	size_t header = response.find("file_abs_path:");
-	std::cout << "header " << header << " head end " << head_end << '\n';
-	if(header == head_end + 4)
+	if(header == response.find("\r\n\r\n") + 4)
 		return _writeFromFile(socket, header + 14);
 
 	if(!_written.count(socket))
