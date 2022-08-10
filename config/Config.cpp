@@ -88,15 +88,10 @@ RequestConfig Config::getConfigForRequest(t_listen const listen, Request &req) c
 	ServerConfig serv;
 	std::string uri = req.getPath();
 	std::string host;
-	try
-	{
+	if(req.getCode() >= 400)
+		host = "default_server";
+	else
 		host = req.getHeaders().at("host");
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << "caught host absence error\n";
-		std::cerr << e.what() << '\n';
-	}
 	
 	std::string method = req.getMethod();
 	std::string locpath;

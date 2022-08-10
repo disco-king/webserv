@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 
-#define PORT 8000
+#define PORT 8001
 
 #ifndef FOREIGN
 
@@ -60,9 +60,9 @@ int main(int argc, char const *argv[])
 	}
 
 	//hello = "POST /dir/long_test.txt HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\nTransfer-Encoding: Chunked\r\n\r\n9\r\nChunk one\r\n9\r\nChunk two\r\nB\r\nChunk three\r\n0\r\n\r\n";
-	//hello = "POST /new_post.txt HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\nTransfer-Encoding: Chunked\r\n\r\n9\r\nChunk one\r\n9\r\nChunk two\r\nB\r\nChunk three\r\n0\r\n\r\n";
+	hello = "POST /new_post.txt HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\nTransfer-Encoding: Chunked\r\n\r\n9\r\nChunk one\r\n9\r\nChunk two\r\nB\r\nChunk three\r\n0\r\n\r\n";
 	//hello = "POST /dir/test.txt HTTP/1.1\r\nHost: any\r\nTransfer-Encoding: Chunked\r\n\r\n1\r\na\r\n1\r\na\r\n1\r\na\r\n0\r\n\r\n";
-	hello = "GET /secret.txt HTTP/1.1\r\nHost: localhost:8000\r\n\r\n";
+	//hello = "GET /secret.txt HTTP/1.1\r\nHost: localhost:8000\r\n\r\n";
 	//hello = "POST /files/cage.png HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\nTransfer-Encoding: Chunked\r\n\r\n9\r\nChunk one\r\n9\r\nChunk two\r\nB\r\nChunk three\r\n0\r\n\r\n";
 	//hello = "GET / HTTP/1.1\r\nHost: localhost:8000\r\n\r\n";
 	//hello = "GET /dir/test.txt HTTP/1.1\r\nHost: localhost:8000\r\nConnection: keep-alive\r\n\r\n";

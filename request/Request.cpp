@@ -49,8 +49,10 @@ void Request::startLine(std::string const &line)
 	
 	if(_version != "HTTP/1.0" && _version != "HTTP/1.1")
 		std::cerr << "Error: wrong HTTP version\n";
-	else if(verifyMethod())
+	else if(verifyMethod()){
+		_code = 405;
 		std::cerr << "Error: invalid request method\n";
+	}
 	else
 		_code = 200;
 }
@@ -75,7 +77,7 @@ void Request::parseRequest()
 	size_t begin, end = _request.find('\n');
 
 	startLine(_request.substr(0, end));
-	if(_code == 400)
+	if(_code >= 400)
 		return ;
 
 	begin = end + 1;
