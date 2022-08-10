@@ -122,7 +122,6 @@ void CGIResponse::MakeResponse()
 	buffer2.append("Content-length: ");
 	std::stringstream ss;
 	ss << file_stats.st_size;
-	std::cout << "size of temp " << ss.str() << std::endl;
 	buffer2.append(ss.str());
 	buffer2.append("\r\n\r\n");
 	buffer2.append("file_abs_path:");
@@ -226,24 +225,33 @@ void CGIResponse::ScanForScripts()
 bool CGIResponse::IsPythonScript(const std::string &file_name)
 {
 	if (file_name.substr(file_name.find_last_of(".") + 1) == "py")
+	{
+		_is_python = true;
+		_scripts[file_name] = "/usr/local/bin/python3";
 		return true;
+	}
 	return false;
 }
 
 bool CGIResponse::HasSuchScript(const std::string &script_name)
 {
 	std::map<std::string, std::string>::iterator it = _scripts.begin();
-
+	std::string str = script_name;
+	// if (str[str.size() - 1] == '/')
+	// 	str[str.size() - 1] = 0;
 	while (it != _scripts.end())
 	{
-		if (it->first == script_name)
+		std::cout << str << std::endl;
+		std::cout << it->first << std::endl;
+		if (it->first == str)
 		{
-			if (_scripts[script_name].size() > 0)
+			if (_scripts[str].size() > 0)
 			{
+				std::cout << "here\n";
 				_is_python = true;
 			}
 			else
-				_name = script_name;
+				_name = str;
 
 			return true;		
 		}

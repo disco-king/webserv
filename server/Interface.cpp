@@ -89,7 +89,7 @@ void Interface::_getResponse(Response& ServResponse, RequestConfig &conf, std::s
 	ServResponse.SetContentType(getFileType(conf.getPath()));
 	CGIResponse CGI(conf);
 	CGI.SetEnvp(conf);
-	if (CGI.HasSuchScript(conf.getPath()))
+	if (CGI.IsPythonScript(conf.getPath()))
 	{
 		CGI.ExecuteCGIAndRedirect();
 		CGI.MakeResponse();
