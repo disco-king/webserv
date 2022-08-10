@@ -224,15 +224,6 @@ ServerConfig ServerConfig::DefaultServerConfig(std::vector<std::string> &file){
 	serv.parse_server(i, file);
 	ServerConfig::_default_config = serv;
 	return serv;
-
-	// std::vector<std::string> begin;
-	// begin.push_back("server");
-	// begin.push_back("{");
-	// file.insert(file.begin(), begin.begin(), begin.end());
-	// file.insert(file.end(), "}");
-	// serv.parse_server(i, file);
-	// ServerConfig::_default_config = serv;
-	// return serv;
 }
 
 // parse methods
