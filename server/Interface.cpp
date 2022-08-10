@@ -25,7 +25,8 @@ int Interface::init(t_listen listen_data, int queue)
 {
 	_listen = listen_data;
 
-	std::cout << "Establishing server on port " << _listen.port << '\n';
+	std::cout << GRAY << "Establishing server on port "
+		<< _listen.port << RESET << '\n';
 
 	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(_listen_fd == 0){
@@ -122,6 +123,7 @@ void Interface::_getResponse(Response& ServResponse, RequestConfig &conf, std::s
 		ServResponse.StartThings(conf);
 		response = ServResponse.GetResponse();
 	}
+	conf.setCode(ServResponse.GetResponseCode());
 }
 
 int Interface::_process(std::string &request, content_type type)
@@ -139,6 +141,10 @@ int Interface::_process(std::string &request, content_type type)
 	}
 	Request req(request);
 	req.parseRequest();
+
+	std::cout << BLUE << req.getMethod() << ' '
+		<< req.getPath() << ' ' << req.getVersion()  << RESET << '\n';
+
 	RequestConfig conf = _config.getConfigForRequest(_listen, req);
 	ServResponse.SetDefaultErrorPages(conf.getErrorPages());
 	ServResponse.SetServerName(conf.getServerName());
@@ -149,6 +155,11 @@ int Interface::_process(std::string &request, content_type type)
 		conf.setCode(413);
 
 	_getResponse(ServResponse, conf, request);
+
+	std::string color = conf.getCode() >= 400 ? RED : GREEN;
+	std::cout << color << "HTTP/1.1 "
+		<< conf.getCode() << ' '<< ServResponse.getCodeRep(conf.getCode())
+		<< RESET << '\n';
 	return 0;
 }
 
@@ -159,7 +170,8 @@ int Interface::accept()
 	if(new_socket <= 0)
 		perror("accept");
 	else{
-		std::cout << ">>> New connection on socket " << new_socket << '\n';
+		std::cout << GRAY << ">>> New connection on socket "
+			<< new_socket << RESET << '\n';
 		_sockets[new_socket] = "";
 	}
 	return new_socket;
@@ -176,7 +188,8 @@ int Interface::read(int socket)
 		close(socket);
 		if(ret < 0)
 			perror("read");
-		std::cout << "<<< Client on socket " << socket << " closed connection\n";
+		std::cout << GRAY << "<<< Client on socket "
+			<< socket << " closed connection" << RESET << '\n';
 		return -1;
 	}
 

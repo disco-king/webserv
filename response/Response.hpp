@@ -49,11 +49,11 @@ class Response
 
 		std::string GetResponse();
 		void ClearContents();
+		std::string getCodeRep(int code);
 
 		/*Methods*/
 		void GETMethod(RequestConfig &ReqConf);
 		void GetFileFromServer(const std::string &file_name);
-		// bool IsFile(const std::string &file_name);
 
 		void POSTMethod(RequestConfig &ReqConf);
 		void SaveFile(const std::string &body, RequestConfig &ReqConfig);
@@ -64,7 +64,6 @@ class Response
 
 		void GetDirectoryListing(RequestConfig &conf);
 		void ShowDirectoryListing();
-		// bool IsDir(const std::string &dir);
 
 		bool GetIsCGI();
 		void SetIsCGI(bool value);

@@ -117,7 +117,7 @@ void Server::run()
 	fd_set rfds;
 	fd_set wrfds;
 
-	std::cout << "Running\n";
+	std::cout << GRAY << "<<< Running >>> " << RESET << '\n';
 	while(1){
 		FD_ZERO(&rfds);
 		FD_ZERO(&wrfds);

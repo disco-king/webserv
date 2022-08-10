@@ -469,3 +469,10 @@ std::string Response::GetServerName()
 {
 	return _server_name;
 }
+
+std::string Response::getCodeRep(int code)
+{
+	if(!_codes.count(code))
+		return "You're a fool";
+	return _codes[code];
+}
