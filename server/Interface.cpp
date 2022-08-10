@@ -1,7 +1,5 @@
 #include "Interface.hpp"
 #include "../request/Request.hpp"
-#include "../config/RequestConfig.hpp"
-#include "../response/Response.hpp"
 #include "../response/CGIResponse.hpp"
 #include <fstream>
 #include <cstring>
@@ -85,6 +83,47 @@ int Interface::_decodeChunks(std::string &request)
 }
 
 
+void Interface::_getResponse(Response& ServResponse, RequestConfig &conf, std::string &response)
+{
+	ServResponse.SetContentType(getFileType(conf.getPath()));
+	CGIResponse CGI(conf);
+	CGI.SetEnvp(conf);
+	if (CGI.HasSuchScript(conf.getPath()))
+	{
+		CGI.ExecuteCGIAndRedirect();
+		CGI.MakeResponse();
+		response = CGI.GetCGIResponse();
+		ServResponse.SetIsCGI(true);
+		if (CGI.GetFailed())
+		{
+			ServResponse.SetIsCGI(false);
+			ServResponse.SetResponseCode(500);
+		}
+	}
+	if (is_dirname(conf.getPath()) && conf.getMethod().compare("POST"))
+	{
+		if (conf.getAutoIndex())
+		{
+			ServResponse.GetDirectoryListing(conf);
+			ServResponse.ShowDirectoryListing();
+			response = ServResponse.GetResponse();
+		}
+		else
+		{
+			conf.setCode(403);
+			ServResponse.StartThings(conf);
+			response = ServResponse.GetResponse();
+		}
+
+	}
+	else if (!ServResponse.GetIsCGI())
+	{
+		ServResponse.SetPathToFile(conf.getPath());
+		ServResponse.StartThings(conf);
+		response = ServResponse.GetResponse();
+	}
+}
+
 int Interface::_process(std::string &request, content_type type)
 {
 	Response ServResponse("text/html", 0, "");
@@ -108,46 +147,8 @@ int Interface::_process(std::string &request, content_type type)
 		conf.setCode(405);
 	if(conf.getBody().size() > conf.getClientBodyBufferSize())
 		conf.setCode(413);
-	std::set<std::string> methods = conf.getAllowedMethods();
 
-	ServResponse.SetContentType(getFileType(conf.getPath()));
-	CGIResponse CGI(conf);
-	CGI.SetEnvp(conf);
-	if (CGI.HasSuchScript(conf.getPath()))
-	{
-		CGI.ExecuteCGIAndRedirect();
-		CGI.MakeResponse();
-		request = CGI.GetCGIResponse();
-		ServResponse.SetIsCGI(true);
-		if (CGI.GetFailed())
-		{
-			ServResponse.SetIsCGI(false);
-			ServResponse.SetResponseCode(500);
-		}
-	}
-	if (is_dirname(conf.getPath()) && conf.getMethod().compare("POST")) //change this?
-	{
-		if (conf.getAutoIndex())
-		{
-			ServResponse.GetDirectoryListing(conf);
-			ServResponse.ShowDirectoryListing();
-			request = ServResponse.GetResponse();
-		}
-		else
-		{
-			conf.setCode(403);
-			ServResponse.StartThings(conf);
-			request = ServResponse.GetResponse();
-		}
-
-	}
-	else if (!ServResponse.GetIsCGI())
-	{
-		ServResponse.SetPathToFile(conf.getPath());
-		ServResponse.StartThings(conf);
-		request = ServResponse.GetResponse();
-	}
-
+	_getResponse(ServResponse, conf, request);
 	return 0;
 }
 
@@ -158,7 +159,7 @@ int Interface::accept()
 	if(new_socket <= 0)
 		perror("accept");
 	else{
-		std::cout << "New connection on socket " << new_socket << '\n';
+		std::cout << ">>> New connection on socket " << new_socket << '\n';
 		_sockets[new_socket] = "";
 	}
 	return new_socket;
@@ -175,7 +176,7 @@ int Interface::read(int socket)
 		close(socket);
 		if(ret < 0)
 			perror("read");
-		std::cout << "Client on socket " << socket << " closed connection\n";
+		std::cout << "<<< Client on socket " << socket << " closed connection\n";
 		return -1;
 	}
 
@@ -216,9 +217,6 @@ int Interface::_writeFromFile(int socket, size_t head_end)
 	std::string fname = _sockets[socket].c_str() + head_end;
 	if(!files.count(socket))
 	{
-		for (size_t i = 0; i < fname.size(); ++i)
-			std::cout << fname[i];
-		std::cout << '\n';
 		int fd = ::open(fname.c_str(), O_RDONLY);
 		if(fd < 0){
 			perror("open");
