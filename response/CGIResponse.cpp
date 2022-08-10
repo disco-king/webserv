@@ -5,6 +5,7 @@ CGIResponse::CGIResponse(const RequestConfig &conf)
 	ScanForScripts();
 	_name = conf.getPath();
 	_is_python = false;
+	_failed = false;
 }
 
 CGIResponse::CGIResponse(std::string name) :
@@ -40,6 +41,7 @@ void CGIResponse::ExecuteCGIAndRedirect()
 	if ((fdOut = open("temp_fileOut", O_CREAT | O_TRUNC | O_RDWR, 0777)) < 0)
 	{
 		std::cerr << "can't open or create file\n";
+		_failed = true;
 		return ;
 	}
 	pid = fork();
@@ -47,36 +49,43 @@ void CGIResponse::ExecuteCGIAndRedirect()
 	if (pid < 0)
 	{
 		std::cerr << "Fork failed\n";
+		_failed = true;
+		return ;
 	}
 	else if (pid == 0)
 	{
 		if (dup2(fdOut, STDOUT_FILENO) < 0)
 			std::cerr << "can't dup\n";
-		char **argv = new char*[3];
-
-		if (_is_python)
+		try
 		{
-			std::cerr << "name " << _name << std::endl;
-			argv[0] = new char[strlen(_scripts[_name].c_str()) + 1];
-			argv[1] = new char[_name.size() + 1];
-			strcpy(argv[0], _scripts[_name].c_str());
-			strcpy(argv[1], _name.c_str());
+			char **argv = new char*[3];
+			if (_is_python)
+			{
+				argv[0] = new char[strlen(_scripts[_name].c_str()) + 1];
+				argv[1] = new char[_name.size() + 1];
+				strcpy(argv[0], _scripts[_name].c_str());
+				strcpy(argv[1], _name.c_str());
+			}
+			else
+			{
+				argv[0] = new char[strlen(_name.c_str()) + 1];
+				strcpy(argv[0], _name.c_str());
+				argv[1] = NULL;
+			}
+			argv[2] = NULL;
+			_envp = EnvpToChar();
+			if (execve(argv[0], argv, _envp) < 0)
+			{
+				std::cerr << "execve failed\n";
+			}
+			delete[] argv[1];
+			delete[] argv[0];
+			delete[] argv;
 		}
-		else
+		catch (std::bad_alloc &e)
 		{
-			argv[0] = new char[strlen(_name.c_str()) + 1];
-			strcpy(argv[0], _name.c_str());
-			argv[1] = NULL;
+			std::cerr << "new failed\n";
 		}
-		argv[2] = NULL;
-		_envp = EnvpToChar();
-		if (execve(argv[0], argv, _envp) < 0)
-		{
-			std::cerr << "execve failed\n";
-		}
-		delete[] argv[1];
-		delete[] argv[0];
-		delete[] argv;
 		Clear();
 		exit(0);
 	}
@@ -150,6 +159,7 @@ char **CGIResponse::EnvpToChar()
 	}
 	catch (std::bad_alloc &e)
 	{
+		_failed = true;
 		return NULL;
 	}
 	std::map<std::string, std::string>::iterator it = _envp_map.begin();
@@ -162,6 +172,7 @@ char **CGIResponse::EnvpToChar()
 		}
 		catch(std::bad_alloc &e)
 		{
+			_failed = true;
 			return NULL;
 		}
 		_envp[i] = strcpy(_envp[i], variable.c_str());
@@ -176,29 +187,40 @@ void CGIResponse::ScanForScripts()
 {
 	DIR *dir;
 	struct dirent *ent;
-	char *buff = new char[1000];
-	std::string path;
-	getcwd(buff, 1000);
-
-	path.append(buff);
-	path.append("/cgi-bin");
-	dir = opendir(path.c_str());
-	if (dir)
+	try
 	{
-		while ((ent = readdir(dir)))
+		char *buff = new char[1000];
+		std::string path;
+		getcwd(buff, 1000);
+
+		path.append(buff);
+		path.append("/cgi-bin");
+		dir = opendir(path.c_str());
+		if (dir)
 		{
-			if (ent->d_type == DT_REG && IsPythonScript(ent->d_name))
+			while ((ent = readdir(dir)))
 			{
-				_scripts[path + "/" + ent->d_name] = "/usr/local/bin/python3";
-			}
-			else if (ent->d_type == DT_REG || ent->d_type == DT_UNKNOWN)
-			{
-				_scripts[path + "/" + ent->d_name] = "";
+				if (ent->d_type == DT_REG && IsPythonScript(ent->d_name))
+				{
+					_scripts[path + "/" + ent->d_name] = "/usr/local/bin/python3";
+				}
+				else if (ent->d_type == DT_REG || ent->d_type == DT_UNKNOWN)
+				{
+					_scripts[path + "/" + ent->d_name] = "";
+				}
 			}
 		}
+		closedir(dir);
+		delete[] buff;
 	}
-	closedir(dir);
-	delete[] buff;
+	catch (std::bad_alloc &e)
+	{
+		std::cerr << "new failed\n";
+		_failed = true;
+		return ;
+	}
+
+
 }
 
 bool CGIResponse::IsPythonScript(const std::string &file_name)
@@ -238,4 +260,9 @@ void CGIResponse::Clear()
 		delete[] _envp[i];
 	}
 	delete[] _envp;
+}
+
+bool CGIResponse::GetFailed()
+{
+	return _failed;
 }

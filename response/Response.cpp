@@ -24,7 +24,22 @@ Response::Response( Response const &other )
 }
 Response & Response::operator=( Response const &other )
 {
+	this->_path_to_files = other._path_to_files;
+	this->_response = other._response;
+	this->_is_cgi = other._is_cgi;
 	this->_codes = other._codes;
+	this->_content_type = other._content_type;
+	this->_body = other._body;
+	this->_allowed_methods = other._allowed_methods;
+	this->_files = other._files;
+	this->_dirs = other._dirs;
+	this->_error_pages = other._error_pages;
+	this->_path_to_file = other._path_to_file;
+	this->_file_length = other._file_length;
+	this->_error_string = other._error_string;
+	this->_server_name = other._server_name;
+	this->_content_length = other._content_length;
+	this->_response_code = other._response_code;
 	return(*this);
 }
 
@@ -197,7 +212,6 @@ void Response::MakeHTTPResponse(int code)
 	_response.append("\r\n");
 
 	_response.append(_body);
-	std::cout << "am i even here?\n";
 }
 
 std::string Response::CodeToString(int code)
@@ -271,7 +285,6 @@ void Response::CheckMethod(RequestConfig &conf)
 	MethodMap.insert(std::make_pair("POST", &Response::POSTMethod));
 	MethodMap.insert(std::make_pair("DELETE", &Response::DELETEMethod));
 	(this->*MethodMap[conf.getMethod()])(conf);
-	std::cout << "Method check\n";
 }
 
 void Response::SetResponseCode(int code)
@@ -337,7 +350,6 @@ void Response::SaveFile(const std::string &body, RequestConfig &ReqConf)
 	file.open(path.c_str(), std::ofstream::out | std::ofstream::trunc);
 	if (!file.is_open())
 	{
-		std::cout << path << std::endl;
 		_response_code = 403;
 	}
 	else
@@ -435,7 +447,6 @@ void Response::ShowDirectoryListing()
 	_body.append("<b>");
 	_body.append("</p>");
 	_body.append("\n");
-	std::cout << _body;
 	_content_length = _body.size();
 	_response.append("Content-Length: " + GetContentLength() + "\n");
 	_response.append("Connection: keep-alive\n");

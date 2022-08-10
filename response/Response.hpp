@@ -22,8 +22,8 @@ class Response
 		std::string _server_name;
 		int _content_length;
 		int _response_code;
-	public:
 		Response();
+	public:
 		Response(std::string content_type, int content_length, std::string body);
 		~Response();
 		Response( Response const &other );
@@ -78,6 +78,7 @@ class Response
 
 		void SetServerName(const std::string &name);
 		std::string GetServerName();
+		
 };
 
 typedef void (Response::*HTTPMethods)(RequestConfig &conf);

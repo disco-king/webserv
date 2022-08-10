@@ -10,11 +10,11 @@ private:
 	std::string _name;
 	std::string _firstHeader;
 	std::string _cgiresponse;
-	//std::string _path_to_script;
 	char **_envp;
 	char **_argv;
 	bool _is_CGI;
 	bool _is_python;
+	bool _failed;
 
 	CGIResponse();
 public:
@@ -36,6 +36,6 @@ public:
 	void ScanForScripts();
 	bool IsPythonScript(const std::string &file_name);
 	bool HasSuchScript(const std::string &script_name);
-
+	bool GetFailed();
 	void Clear();
 };
