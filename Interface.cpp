@@ -84,6 +84,7 @@ int Interface::_decodeChunks(std::string &request)
 
 int Interface::_process(std::string &request, content_type type)
 {
+	std::cout << "start porcess\n";
 	Response ServResponse("text/html", 0, "");
 
 	int decode_res = 0;
@@ -108,7 +109,7 @@ int Interface::_process(std::string &request, content_type type)
 	std::set<std::string> methods = conf.getAllowedMethods();
 
 	ServResponse.SetContentType(getFileType(conf.getPath()));
-
+	std::cout << "before response\n";
 	CGIResponse CGI(conf);
 	CGI.SetEnvp(conf);
 	if (CGI.HasSuchScript(conf.getPath()))
@@ -118,7 +119,8 @@ int Interface::_process(std::string &request, content_type type)
 		request = CGI.GetCGIResponse();
 		ServResponse.SetIsCGI(true);
 	}
-	if (is_dirname(conf.getPath())) //change this?
+	std::cout << "path" << conf.getPath() << std::endl;
+	if (is_dirname(conf.getPath()) && conf.getMethod().compare("POST")) //change this?
 	{
 		if (conf.getAutoIndex())
 		{

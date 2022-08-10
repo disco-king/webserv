@@ -157,24 +157,29 @@ void Response::MakeHTTPResponse(int code)
 		if (!file.is_open())
 		{
 			std::ofstream outFile;
-			std::string tmp_path = "./temp_file/error_page.html";
+			std::string tmp_path = "./temp_files/error_page.html";
 			outFile.open(tmp_path.c_str());
 			
 			CreateAndSetErrorBody();
 			outFile << _error_string;
+			getcwd(buffer2, 512);
+			tmp_path.clear();
+			tmp_path.append(buffer2);
+			tmp_path.append("/temp_files/error_page.html");
+			outFile.close();
 			stat(tmp_path.c_str(), &file_stat);
 			_file_length = file_stat.st_size;
-			outFile.close();
-			getcwd(buffer2, 512);
+
 			_body.append("file_abs_path:");
 			_body.append(buffer2);
-			_body.append("/temp_file/error_page.html");
+			_body.append("/temp_files/error_page.html");
+
 		}
 		else
 		{
+			file.close();
 			stat(path_to_default.c_str(), &file_stat);
 			_file_length = file_stat.st_size;
-			file.close();
 			getcwd(buffer2, 512);
 			_body.append("file_abs_path:");
 			_body.append(buffer2);
@@ -192,6 +197,7 @@ void Response::MakeHTTPResponse(int code)
 	_response.append("\r\n");
 
 	_response.append(_body);
+	std::cout << "am i even here?\n";
 }
 
 std::string Response::CodeToString(int code)
@@ -265,6 +271,7 @@ void Response::CheckMethod(RequestConfig &conf)
 	MethodMap.insert(std::make_pair("POST", &Response::POSTMethod));
 	MethodMap.insert(std::make_pair("DELETE", &Response::DELETEMethod));
 	(this->*MethodMap[conf.getMethod()])(conf);
+	std::cout << "Method check\n";
 }
 
 void Response::SetResponseCode(int code)
@@ -337,6 +344,7 @@ void Response::SaveFile(const std::string &body, RequestConfig &ReqConf)
 	{
 		file << body;
 		_response_code = 201;
+		_file_length = 0;
 		file.close();
 	}
 }
